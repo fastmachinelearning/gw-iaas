@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "gravswell.quiver"
+version = "0.1.0"
+description = "Model export utilities"
+authors = ["Alec Gunny <alec.gunny@gmail.com>"]
+packages = [
+    {include = "gravswell"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+tritonclient = {extras = ["all"], version = "^2.5.0", source = "ngc"}
+protobuf = "^3.17"
+
+# optional dependencies
+tensorflow = {version = "^2.3", optional = true}
+torch = {version = "^1.7", optional = true}
+google-cloud-storage = {version = "^1.38", optional = true}
+
+[tool.poetry.extras]
+tensorflow = ["tensorflow"]
+torch = ["torch"]
+google-cloud-storage = ["google-cloud-storage"]
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2"
+
+[[tool.poetry.source]]
+name = "ngc"
+url = "https://pypi.ngc.nvidia.com"

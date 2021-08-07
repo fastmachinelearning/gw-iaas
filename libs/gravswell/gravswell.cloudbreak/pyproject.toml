@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "gravswell.cloudbreak"
+version = "0.1.0"
+description = "Cloud orchestration utilites"
+authors = ["Alec Gunny <alec.gunny@gmail.com>"]
+packages = [
+    {include = "gravswell"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+attrs = "^21.2"
+google-cloud-storage = "^1.38"
+google-cloud-container = "^2.7"
+kubernetes = "^17.17"

@@ -17,7 +17,23 @@ class FileSystem(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
+    def join(self, *args) -> str:
+        pass
+
+    @abc.abstractmethod
     def delete(self, path: str):
+        pass
+
+    @abc.abstractmethod
+    def remove(self):
+        pass
+
+    @abc.abstractmethod
+    def list(self, path: typing.Optional[str] = None) -> typing.List[str]:
+        pass
+
+    @abc.abstractmethod
+    def glob(self, path: str) -> typing.List[str]:
         pass
 
     @abc.abstractmethod

@@ -1,12 +1,21 @@
 import glob
 import os
 import shutil
+import typing
+from dataclasses import dataclass
 
+from gravswell.quiver.io.exceptions import NoFilesFoundError
 from gravswell.quiver.io.file_system import _IO_TYPE, FileSystem
 
 
+@dataclass
 class LocalFileSystem(FileSystem):
+    def __post_init__(self):
+        self.soft_makedirs("")
+
     def soft_makedirs(self, path: str):
+        path = self.join(self.root, path)
+
         # TODO: start using exists_ok kwargs once
         # we know we have the appropriate version
         if not os.path.exists(path):
@@ -14,25 +23,43 @@ class LocalFileSystem(FileSystem):
             return True
         return False
 
-    def delete(self, path: str):
+    def join(self, *args):
+        return os.path.join(*args)
+
+    def list(self, path: typing.Optional[str] = None) -> typing.List[str]:
+        if path is not None:
+            path = self.join(self.root, path)
+        return os.listdir(path)
+
+    def glob(self, path: str):
+        return glob.glob(path)
+
+    def remove(self, path: str):
+        path = self.join(self.root, path)
+
         if os.path.isdir(path):
             shutil.rmtree(path)
         elif os.path.isfile(path):
             os.remove(path)
         else:
-            paths = glob.glob(path)
+            paths = self.glob(path)
             if len(paths) == 0:
-                raise ValueError(
-                    f"Could not find path or paths matching {path}"
-                )
+                raise NoFilesFoundError(path)
+
             for path in paths:
-                self.delete(path)
+                self.remove(path)
+
+    def delete(self):
+        self.remove(self.root)
 
     def read(self, path: str, mode: str = "r"):
+        path = self.join(self.root, path)
         with open(path, mode) as f:
             return f.read()
 
     def write(self, obj: _IO_TYPE, path: str) -> None:
+        path = self.join(self.root, path)
+
         if isinstance(obj, str):
             mode = "w"
         elif isinstance(obj, bytes):

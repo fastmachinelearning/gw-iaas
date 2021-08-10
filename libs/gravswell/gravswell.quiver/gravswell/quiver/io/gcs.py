@@ -47,10 +47,10 @@ class GCSFileSystem(FileSystem):
         split_path = self.root.replace("gs://", "").split("/", maxsplit=1)
         try:
             bucket_name, prefix = split_path
-            self.prefix = prefix.rstrip("/")
+            self.root = prefix.rstrip("/")
         except ValueError:
             bucket_name = split_path[0]
-            self.prefix = ""
+            self.root = ""
 
         try:
             # try to get the bucket if it already exists
@@ -87,12 +87,12 @@ class GCSFileSystem(FileSystem):
 
     def list(self, path: typing.Optional[str] = None) -> typing.List[str]:
         if path is not None:
-            if self.prefix:
-                prefix = self.joins(self.prefix, path)
+            if self.root:
+                prefix = self.joins(self.root, path)
             else:
                 prefix = path
         else:
-            prefix = self.prefix
+            prefix = self.root
 
         if not prefix.endswith("/"):
             prefix += "/"
@@ -109,7 +109,7 @@ class GCSFileSystem(FileSystem):
 
     def glob(self, path: str):
         postfix = None
-        prefix = self.prefix
+        prefix = self.root
         if "*" in path and path != "*":
             splits = path.split("*")
             if len(splits) > 2:
@@ -117,13 +117,19 @@ class GCSFileSystem(FileSystem):
 
             _prefix, postfix = splits
             if _prefix and prefix:
-                prefix = f"{prefix}/{_prefix}"
+                self.join(prefix, _prefix)
             elif _prefix:
                 prefix = _prefix
 
         names = []
         for blob in self.bucket.list_blobs(prefix=prefix):
-            if postfix is None or blob.name.endswith(postfix):
+            if postfix is not None:
+                name = blob.name.replace(prefix, "")
+                name = name.strip("/")
+
+                if name.endswith(postfix) and "/" not in name:
+                    names.append(blob.name)
+            else:
                 names.append(blob.name)
         return names
 
@@ -140,8 +146,8 @@ class GCSFileSystem(FileSystem):
         self.bucket.delete(force=True)
 
     def read(self, path: str, mode: str = "r"):
-        if self.prefix:
-            path = self.join(self.prefix, path)
+        if self.root:
+            path = self.join(self.root, path)
 
         blob = self.bucket.get_blob(path)
         if blob is None:
@@ -153,8 +159,8 @@ class GCSFileSystem(FileSystem):
         return content
 
     def write(self, obj: _IO_TYPE, path: str) -> None:
-        if self.prefix:
-            path = self.join(self.prefix, path)
+        if self.root:
+            path = self.join(self.root, path)
 
         blob = self.bucket.get_blob(path)
         if blob is not None:

@@ -32,7 +32,7 @@ class LocalFileSystem(FileSystem):
         return os.listdir(path)
 
     def glob(self, path: str):
-        return glob.glob(path)
+        return glob.glob(self.join(self.root, path))
 
     def remove(self, path: str):
         path = self.join(self.root, path)
@@ -50,7 +50,7 @@ class LocalFileSystem(FileSystem):
                 self.remove(path)
 
     def delete(self):
-        self.remove(self.root)
+        self.remove("")
 
     def read(self, path: str, mode: str = "r"):
         path = self.join(self.root, path)

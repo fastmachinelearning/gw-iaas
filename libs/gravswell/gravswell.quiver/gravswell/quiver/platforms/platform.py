@@ -42,6 +42,7 @@ class Convention(Enum):
         "tensorflow_savedmodel", "model.savedmodel"
     )
     TENSORRT = PlatformConvention("tensorrt_plan", "model.plan")
+    ENSEMBLE = PlatformConvention("ensemble", "model.empty")
 
 
 @dataclass
@@ -201,7 +202,7 @@ class Platform(metaclass=abc.ABCMeta):
         # by the platform and write the config
         # for good measure
         export_path = self.model.fs.join(
-            self.model.name, str(version), self._export_name
+            self.model.name, str(version), self.convention.filename
         )
         export_path = self._export(model_fn, export_path, verbose)
         self.model.config.write()

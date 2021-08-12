@@ -26,6 +26,9 @@ class DummyModel:
 
 @pytest.mark.parametrize("fs_type", [LocalFileSystem, GCSFileSystem])
 def test_model_config(fs_type):
+    # TODO: this catch is dumb: maybe
+    # we should get rid of the gs requirement
+    # on the GCS filesystem
     try:
         fs = fs_type("gravswell-quiver-test")
     except ValueError:
@@ -34,11 +37,24 @@ def test_model_config(fs_type):
 
     try:
         model = DummyModel(fs)
+
+        # make sure we can't pass name or
+        # platform
+        for bad_kwarg in ["name", "platform"]:
+            with pytest.raises(ValueError):
+                kwargs = {bad_kwarg: "bad"}
+                config = ModelConfig(model, **kwargs)
+
+        # build a config and make sure it
+        # has all the appropriate attributes
         config = ModelConfig(model, max_batch_size=8)
         assert config.name == "test-model"
         assert config.platform == "onnxruntime_onnx"
         assert config.max_batch_size == 8
 
+        # add an input and make sure
+        # that it exists on the config
+        # and has the appropriate properties
         input = config.add_input(
             name="test_input", shape=(None, 8), dtype="float32"
         )
@@ -46,6 +62,9 @@ def test_model_config(fs_type):
         assert config.input[0] == input
         assert config.input[0].name == "test_input"
 
+        # add an instance group on to the
+        # config and make sure it exists
+        # and has all the appropriate properties
         instance_group = config.add_instance_group(kind="gpu", gpus=2, count=4)
         assert len(config.instance_group) == 1
         assert instance_group == config.instance_group[0]
@@ -53,9 +72,12 @@ def test_model_config(fs_type):
         assert config.instance_group[0].gpus == [0, 1]
         assert config.instance_group[0].count == 4
 
+        # change a value on the instance group
+        # and ensure it's relfected on the config
         config.instance_group[0].count = 6
         assert config.instance_group[0].count == 6
 
+        # write the config to the repo
         config.write()
 
         # first make sure that the the config
@@ -80,4 +102,6 @@ def test_model_config(fs_type):
     except Exception:
         raise
     finally:
+        # clean up the filesystem when we're
+        # done since we no longer need it
         fs.delete()

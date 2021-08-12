@@ -24,6 +24,10 @@ def run_file_manipulations(fs):
     for f in fnames:
         fs.write("testing", f)
 
+    assert fs.isdir("test")
+    assert fs.isdir(fs.join("test", "123"))
+    assert not fs.isdir(fs.join("test", "123", "test.txt"))
+
     # check both that the files were created
     # and that they are properly listed,
     # directories then files in alphanumeric order
@@ -32,8 +36,6 @@ def run_file_manipulations(fs):
     # check our glob functionality by making
     # sure that the csv isn't picked up
     expected_name = fnames[2]
-    if fs.root:
-        expected_name = fs.join(fs.root, expected_name)
     assert fs.glob(fs.join("test", "*.txt")) == [expected_name]
 
     # confirm that writing was done properly
@@ -93,7 +95,7 @@ def test_gcs_filesystem():
     try:
         # make sure that soft_makedirs
         # doesn't do anything
-        assert fs.soft_makedirs("")
+        assert not fs.soft_makedirs("")
 
         # make sure that path joining
         # works as expected

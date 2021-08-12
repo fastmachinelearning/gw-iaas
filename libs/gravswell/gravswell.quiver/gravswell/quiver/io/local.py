@@ -26,13 +26,26 @@ class LocalFileSystem(FileSystem):
     def join(self, *args):
         return os.path.join(*args)
 
+    def isdir(self, path: str) -> bool:
+        path = self.join(self.root, path)
+        return os.path.isdir(path)
+
     def list(self, path: typing.Optional[str] = None) -> typing.List[str]:
         if path is not None:
             path = self.join(self.root, path)
         return os.listdir(path)
 
     def glob(self, path: str):
-        return glob.glob(self.join(self.root, path))
+        files = glob.glob(self.join(self.root, path))
+
+        # get rid of the root to put everything
+        # relative to the fs root
+        if self.root.endswith(os.path.sep):
+            prefix = self.root
+        else:
+            prefix = self.root + os.path.sep
+
+        return [f.replace(prefix, "") for f in files]
 
     def remove(self, path: str):
         path = self.join(self.root, path)

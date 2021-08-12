@@ -1,5 +1,5 @@
-import typing
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Optional
 
 try:
     from google.api_core.exceptions import Forbidden, NotFound
@@ -11,12 +11,15 @@ except ImportError:
     _has_google_libs = False
 
 from gravswell.quiver.io.exceptions import NoFilesFoundError
-from gravswell.quiver.io.file_system import _IO_TYPE, FileSystem
+from gravswell.quiver.io.file_system import FileSystem
+
+if TYPE_CHECKING:
+    from gravswell.quiver.types import IO_TYPE
 
 
 @dataclass
 class GCSFileSystem(FileSystem):
-    credentials: typing.Optional[str] = None
+    credentials: Optional[str] = None
 
     def __post_init__(self):
         # TODO: do we want to just have people
@@ -75,7 +78,7 @@ class GCSFileSystem(FileSystem):
         where objects need to be created one
         by one
         """
-        return True
+        return False
 
     def join(self, *args) -> str:
         for arg in args:
@@ -85,26 +88,48 @@ class GCSFileSystem(FileSystem):
                 )
         return "/".join(args)
 
-    def list(self, path: typing.Optional[str] = None) -> typing.List[str]:
-        if path is not None:
-            if self.root:
-                prefix = self.joins(self.root, path)
-            else:
-                prefix = path
-        else:
-            prefix = self.root
+    def isdir(self, path: str) -> bool:
+        if self.root:
+            path = self.join(self.root, path)
 
-        if not prefix.endswith("/"):
-            prefix += "/"
+        for blob in self.bucket.list_blobs(prefix=path):
+            # only wait until we find the first
+            # instance of this path being used
+            # as a directory to return True
+            if "/" in blob.name.replace(path, "", 1):
+                return True
 
+    def list(self, path: Optional[str] = None) -> list[str]:
+        if path is not None and self.root:
+            # we specified a path, and we have a root,
+            # so join them to make the prefix
+            path = self.join(self.root, path)
+        elif path is None:
+            # we didn't specify a path, so we're
+            # just listing the root level
+            path = self.root
+
+        # rstrip off the path separator for consistency,
+        # in case the user passed a path ending in "/"
+        path = path.rstrip("/")
+
+        # directories we need to keep track of as
+        # a set since they can obviously have multiple
+        # objects inside of them
         fs, dirs = [], set()
-        for blob in self.bucket.list_blobs(prefix=prefix):
-            name = blob.name.replace(prefix, "")
+        for blob in self.bucket.list_blobs(prefix=path):
+            name = blob.name.replace(path, "", 1).strip("/")
             try:
+                # check if this is a directory by seeing
+                # if there is at least one path separator
+                # in the remaining name of the blob
                 d, _ = name.split("/", maxsplit=1)
                 dirs.add(d)
             except ValueError:
+                # otherwise assume this is a file
                 fs.append(name)
+
+        # sort everything and return
         return sorted(list(dirs)) + sorted(fs)
 
     def glob(self, path: str):
@@ -117,7 +142,7 @@ class GCSFileSystem(FileSystem):
 
             _prefix, postfix = splits
             if _prefix and prefix:
-                self.join(prefix, _prefix)
+                prefix = self.join(prefix, _prefix)
             elif _prefix:
                 prefix = _prefix
 
@@ -158,7 +183,7 @@ class GCSFileSystem(FileSystem):
             content = content.decode()
         return content
 
-    def write(self, obj: _IO_TYPE, path: str) -> None:
+    def write(self, obj: IO_TYPE, path: str) -> None:
         if self.root:
             path = self.join(self.root, path)
 

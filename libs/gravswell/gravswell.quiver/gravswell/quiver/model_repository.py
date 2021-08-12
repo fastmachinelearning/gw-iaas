@@ -12,7 +12,7 @@ class ModelRepository:
             self.fs = io.LocalFileSystem(root)
 
         self.models = {}
-        for model in self.list(""):
+        for model in self.fs.list(""):
             try:
                 config = self.read_config(self.join(model, "config.pbtxt"))
             except FileNotFoundError:

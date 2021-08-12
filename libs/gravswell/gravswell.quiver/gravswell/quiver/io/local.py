@@ -1,11 +1,14 @@
 import glob
 import os
 import shutil
-import typing
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Optional
 
 from gravswell.quiver.io.exceptions import NoFilesFoundError
-from gravswell.quiver.io.file_system import _IO_TYPE, FileSystem
+from gravswell.quiver.io.file_system import FileSystem
+
+if TYPE_CHECKING:
+    from gravswell.types import IO_TYPE
 
 
 @dataclass
@@ -30,7 +33,7 @@ class LocalFileSystem(FileSystem):
         path = self.join(self.root, path)
         return os.path.isdir(path)
 
-    def list(self, path: typing.Optional[str] = None) -> typing.List[str]:
+    def list(self, path: Optional[str] = None) -> list[str]:
         if path is not None:
             path = self.join(self.root, path)
         return os.listdir(path)
@@ -65,12 +68,12 @@ class LocalFileSystem(FileSystem):
     def delete(self):
         self.remove("")
 
-    def read(self, path: str, mode: str = "r"):
+    def read(self, path: str, mode: str = "r") -> "IO_TYPE":
         path = self.join(self.root, path)
         with open(path, mode) as f:
             return f.read()
 
-    def write(self, obj: _IO_TYPE, path: str) -> None:
+    def write(self, obj: "IO_TYPE", path: str) -> None:
         path = self.join(self.root, path)
 
         if isinstance(obj, str):

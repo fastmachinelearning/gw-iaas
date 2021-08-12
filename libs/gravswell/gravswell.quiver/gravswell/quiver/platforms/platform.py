@@ -1,17 +1,17 @@
 import abc
+from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Optional, Union
+
+from gravswell.quiver.types import SHAPE_TYPE
 
 if TYPE_CHECKING:
-    from abc.collections import Sequence
-    from typing import Callable, Optional, Union
-
     from gravswell.quiver import Model
-    from gravswell.quiver.types import EXPOSED_TYPE, SHAPE_TYPE
+    from gravswell.quiver.types import EXPOSED_TYPE
 
 
-_SHAPES_TYPE = Optional[Sequence[SHAPE_TYPE], dict[str, SHAPE_TYPE]]
+_SHAPES_TYPE = Union[Sequence[SHAPE_TYPE], dict[str, SHAPE_TYPE], None]
 
 
 @dataclass
@@ -56,10 +56,10 @@ class Platform(metaclass=abc.ABCMeta):
             using this platform
     """
 
-    model: Model
+    model: "Model"
 
     def _check_exposed_tensors(
-        self, exposed_type: EXPOSED_TYPE, provided: _SHAPES_TYPE = None
+        self, exposed_type: "EXPOSED_TYPE", provided: _SHAPES_TYPE = None
     ) -> None:
         """
         Perform some checks on the provided input

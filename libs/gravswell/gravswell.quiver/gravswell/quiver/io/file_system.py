@@ -1,11 +1,12 @@
 import abc
-import typing
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, List, Optional
 
 from google.protobuf import text_format
 from tritonclient.grpc.model_config_pb2 import ModelConfig
 
-_IO_TYPE = typing.Union[str, bytes]
+if TYPE_CHECKING:
+    from gravswell.types import IO_TYPE
 
 
 @dataclass
@@ -29,15 +30,15 @@ class FileSystem(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def list(self, path: typing.Optional[str] = None) -> typing.List[str]:
+    def list(self, path: Optional[str] = None) -> List[str]:
         pass
 
     @abc.abstractmethod
-    def glob(self, path: str) -> typing.List[str]:
+    def glob(self, path: str) -> List[str]:
         pass
 
     @abc.abstractmethod
-    def read(self, path: str) -> _IO_TYPE:
+    def read(self, path: str) -> "IO_TYPE":
         pass
 
     def read_config(self, path: str) -> ModelConfig:
@@ -47,7 +48,7 @@ class FileSystem(metaclass=abc.ABCMeta):
         return config
 
     @abc.abstractmethod
-    def write(self, obj: _IO_TYPE, path: str) -> None:
+    def write(self, obj: "IO_TYPE", path: str) -> None:
         pass
 
     def write_config(self, config: ModelConfig, path: str) -> None:

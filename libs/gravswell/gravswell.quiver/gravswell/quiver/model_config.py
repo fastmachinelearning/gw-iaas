@@ -1,99 +1,17 @@
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Literal, Optional, Union
 
 from tritonclient.grpc import model_config_pb2 as model_config
 
 from gravswell.quiver.platforms import Ensemble
 
 if TYPE_CHECKING:
-    from abc.collections import Sequence
-    from typing import Literal, Optional, Union
-
     from gravswell.quiver import Model
     from gravswell.quiver.types import SHAPE_TYPE
 
 
 KIND_TYPE = Literal["auto", "cpu", "gpu"]
 GPUS_TYPE = Union[int, Sequence[int], None]
-
-
-def _normalize_kind(kind: KIND_TYPE) -> int:
-    try:
-        return model_config.ModelInstanceGroup.Kind.Value(
-            "KIND_{}".format(kind.upper())
-        )
-    except ValueError:
-        raise ValueError(
-            f"Could not understand instance group kind {kind}, "
-            "must be one of auto, gpu, cpu"
-        )
-
-
-def _normalize_gpus(gpus: GPUS_TYPE) -> list[int]:
-    """Normalize a specified number of gpus to the protobuf syntax
-
-    Passing a single integer will be interpreted as a
-    range of GPU indices.
-    """
-    if gpus is None:
-        return []
-    elif isinstance(gpus, int):
-        if gpus < 1:
-            raise ValueError(f"Invalid number of gpus specified {gpus}")
-        return [i for i in range(gpus)]
-    return gpus
-
-
-@dataclass
-class InstanceGroup:
-    _instance_group: model_config.ModelInstanceGroup
-
-    def update(self, **kwargs) -> None:
-        new_instance_group = model_config.ModelInstanceGroup(**kwargs)
-        self._instance_group.MergeFrom(new_instance_group)
-
-    @property
-    def kind(self) -> Optional[str]:
-        kind = self._instance_group.kind
-        if kind == model_config.ModelInstanceGroup.KIND_CPU:
-            return "cpu"
-        elif kind == model_config.ModelInstanceGroup.KIND_GPU:
-            return "gpu"
-        elif kind == model_config.ModelInstanceGroup.KIND_AUTO:
-            return "auto"
-        else:
-            # TODO: how do we want to suppor the
-            # other kinds, and what to do until then?
-            # Raise an error, return None?
-            return None
-
-    @kind.setter
-    def kind(self, kind: KIND_TYPE) -> None:
-        kind = _normalize_kind(kind)
-        self.update(kind=kind)
-
-    @property
-    def gpus(self) -> list[int]:
-        return self._instance_group.gpus
-
-    @gpus.setter
-    def gpus(self, gpus: GPUS_TYPE):
-        gpus = _normalize_gpus(gpus)
-        self.update(gpus=gpus)
-
-    @property
-    def count(self) -> int:
-        return self._instance_group.count
-
-    @count.setter
-    def count(self, count: int) -> None:
-        self.update(count=count)
-
-    def __repr__(self) -> str:
-        return self._instance_group.__repr__()
-
-    def __str__(self) -> str:
-        return str(self._instance_group)
 
 
 def _add_exposed_tensor(f):
@@ -108,7 +26,7 @@ def _add_exposed_tensor(f):
     def wrapper(
         obj: "ModelConfig",
         name: str,
-        shape: SHAPE_TYPE,
+        shape: "SHAPE_TYPE",
         dtype: str = Literal["float32", "int64"],
         **kwargs,  # including kwargs for reshaping later or something
     ) -> output_type:
@@ -164,7 +82,7 @@ class ModelConfig:
             with which to initialize the config
     """
 
-    def __new__(cls, model: Model, **kwargs) -> "ModelConfig":
+    def __new__(cls, model: "Model", **kwargs) -> "ModelConfig":
         if isinstance(model.platform, Ensemble):
             cls = EnsembleConfig
 
@@ -172,7 +90,7 @@ class ModelConfig:
         obj.__init__(model, **kwargs)
         return obj
 
-    def __init__(self, model: Model, **kwargs) -> None:
+    def __init__(self, model: "Model", **kwargs) -> None:
         self.model = model
 
         # make sure no kwargs were passed that
@@ -189,8 +107,8 @@ class ModelConfig:
 
         try:
             # try to read an existing config if it exists
-            config = self.fs.read_config(
-                self.fs.join(model.name, "config.pbtxt")
+            config = model.fs.read_config(
+                model.fs.join(model.name, "config.pbtxt")
             )
 
             # ensure that the name in the config
@@ -238,7 +156,8 @@ class ModelConfig:
         message on the underlying `ModelConfig._config`
         """
         try:
-            return self._config.__getattribute__(name)
+            config = object.__getattribute__(self, "_config")
+            return config.__getattribute__(name)
         except AttributeError as e:
             raise AttributeError from e
 
@@ -264,31 +183,33 @@ class ModelConfig:
         """
         return
 
-    @property
-    def instance_groups(self):
-        return [InstanceGroup(g) for g in self._config.instance_group]
-
     def add_instance_group(
         self,
         kind: KIND_TYPE = "gpu",
         gpus: GPUS_TYPE = None,
         count: int = 1,
-    ) -> InstanceGroup:
-        # first add a blank initialized
-        # instance group to the config
-        new_instance_group = model_config.ModelInstanceGroup()
-        self.instance_group.append(new_instance_group)
+    ) -> model_config.ModelInstanceGroup:
+        try:
+            kind = model_config.ModelInstanceGroup.Kind.Value(
+                "KIND_{}".format(kind.upper())
+            )
+        except ValueError:
+            raise ValueError(
+                f"Could not understand instance group kind {kind}, "
+                "must be one of auto, gpu, cpu"
+            )
 
-        # wrap it in an `InstanceGroup` object
-        # to let it handle the translation
-        # of the arguments to the expected
-        # protobuf syntax
-        instance_group = InstanceGroup(new_instance_group)
-        instance_group.kind = kind
-        instance_group.gpus = gpus
-        instance_group.count = count
+        if isinstance(gpus, int):
+            if gpus < 1:
+                raise ValueError(f"Invalid number of gpus specified {gpus}")
+            gpus = [i for i in range(gpus)]
 
-        # return the compiled InstanceGroup wrapper
+        # intialize a new instance group
+        instance_group = model_config.ModelInstanceGroup(
+            kind=kind, gpus=gpus, count=count
+        )
+        self.instance_group.append(instance_group)
+
         return instance_group
 
     def __repr__(self):

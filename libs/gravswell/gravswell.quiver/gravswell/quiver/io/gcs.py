@@ -170,7 +170,7 @@ class GCSFileSystem(FileSystem):
     def delete(self):
         self.bucket.delete(force=True)
 
-    def read(self, path: str, mode: str = "r"):
+    def read(self, path: str, mode: str = "r") -> "IO_TYPE":
         if self.root:
             path = self.join(self.root, path)
 
@@ -183,7 +183,7 @@ class GCSFileSystem(FileSystem):
             content = content.decode()
         return content
 
-    def write(self, obj: IO_TYPE, path: str) -> None:
+    def write(self, obj: "IO_TYPE", path: str) -> None:
         if self.root:
             path = self.join(self.root, path)
 

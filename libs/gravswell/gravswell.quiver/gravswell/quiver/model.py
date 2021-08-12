@@ -1,15 +1,16 @@
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Union
 
-from gravswell.quiver import ModelConfig, platforms
+from gravswell.quiver import platforms
+from gravswell.quiver.model_config import ModelConfig
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
-
     from triton.model_config_pb2 import ModelEnsembling, types
 
     from gravswell.quiver import ModelRepository
     from gravswell.quiver.io.file_system import FileSystem
+    from gravswell.quiver.types import EXPOSED_TYPE, SHAPE_TYPE
 
 
 @dataclass
@@ -31,7 +32,7 @@ class ExposedTensor:
 
     model: "Model"
     name: str
-    shape: types.SHAPE_TYPE
+    shape: "SHAPE_TYPE"
 
 
 _TENSOR_TYPE = Union[str, ExposedTensor]
@@ -64,13 +65,13 @@ class Model:
     """
 
     name: str
-    repository: ModelRepository
+    repository: "ModelRepository"
     platform: platforms.Platform
 
     def __new__(
         cls,
         name: str,
-        repository: ModelRepository,
+        repository: "ModelRepository",
         platform: platforms.Platform,
     ):
         if isinstance(platform, platforms.ENSEMBLE):
@@ -82,7 +83,7 @@ class Model:
         self.config = ModelConfig(self)
 
     @property
-    def fs(self) -> FileSystem:
+    def fs(self) -> "FileSystem":
         """The `FileSystem` leveraged by the model's repository"""
 
         return self.repository.fs
@@ -138,7 +139,7 @@ class Model:
         self,
         model_fn: Union[Callable, "Model"],
         version: Optional[int] = None,
-        input_shapes: Optional[dict[str, types.SHAPE_TYPE]] = None,
+        input_shapes: Optional[dict[str, "SHAPE_TYPE"]] = None,
         output_names: Optional[Sequence[str]] = None,
         verbose: int = 0,
         **kwargs,
@@ -187,8 +188,8 @@ class EnsembleModel(Model):
 
     def _find_tensor(
         self,
-        tensor: types.TENSOR_TYPE,
-        exposed_type: types.EXPOSED_TYPE,
+        tensor: _TENSOR_TYPE,
+        exposed_type: "EXPOSED_TYPE",
         version: Optional[int] = None,
     ) -> Union[ExposedTensor, "ModelEnsembling.Step"]:
         if isinstance(tensor, str):
@@ -222,7 +223,7 @@ class EnsembleModel(Model):
         model_name: str,
         key: str,
         value: str,
-        exposed_type: types.EXPOSED_TYPE,
+        exposed_type: "EXPOSED_TYPE",
     ):
         for step in self.config.ensemble_scheduling.step:
             if step.model_name == model_name:

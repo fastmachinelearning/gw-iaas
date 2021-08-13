@@ -5,8 +5,9 @@ exclude = '''
 /(
     \.git
   | \.tox
-  | build
+  | _build
   | dist
+  | docs
 )/
 '''
 

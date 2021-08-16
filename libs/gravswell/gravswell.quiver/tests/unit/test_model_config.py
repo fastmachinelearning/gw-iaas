@@ -3,17 +3,8 @@ from dataclasses import dataclass
 import pytest
 from tritonclient.grpc.model_config_pb2 import ModelInstanceGroup
 
-from gravswell.quiver import ModelConfig
+from gravswell.quiver import ModelConfig, Platform
 from gravswell.quiver.io import FileSystem, GCSFileSystem, LocalFileSystem
-
-
-class Convention:
-    name = "onnxruntime_onnx"
-    filename = "model.onnx"
-
-
-class Platform:
-    convention = Convention
 
 
 @dataclass
@@ -21,18 +12,13 @@ class DummyModel:
     fs: FileSystem
 
     name = "test-model"
-    platform = Platform
+    platform = Platform.ONNX
 
 
+# TODO: parametrize the root level
 @pytest.mark.parametrize("fs_type", [LocalFileSystem, GCSFileSystem])
 def test_model_config(fs_type):
-    # TODO: this catch is dumb: maybe
-    # we should get rid of the gs requirement
-    # on the GCS filesystem
-    try:
-        fs = fs_type("gravswell-quiver-test")
-    except ValueError:
-        fs = fs_type("gs://gravswell-quiver-test")
+    fs = fs_type("gravswell-quiver-test")
     fs.soft_makedirs(DummyModel.name)
 
     try:

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Literal, Optional, Union
 
 from tritonclient.grpc import model_config_pb2 as model_config
 
-from gravswell.quiver.platforms import Ensemble
+from gravswell.quiver.exporters import Ensemble
 
 if TYPE_CHECKING:
     from gravswell.quiver import Model
@@ -122,11 +122,11 @@ class ModelConfig:
                 )
 
             # do the same for the platform
-            if config.platform != model.platform.convention.name:
+            if config.platform != model.platform.value:
                 raise ValueError(
                     "Platform in existing config {} "
                     "doesn't match model platform {}".format(
-                        config.platform, model.platform.convention.name
+                        config.platform, model.platform.value
                     )
                 )
 
@@ -140,7 +140,7 @@ class ModelConfig:
             # already exist
             config = model_config.ModelConfig(
                 name=model.name,
-                platform=model.platform.convention.name,
+                platform=model.platform.value,
                 **kwargs,
             )
 

@@ -1,3 +1,3 @@
 from .ensemble import Ensemble
-from .platform import Convention, Platform
+from .exporter import Exporter
 from .torch_onnx import TorchOnnx

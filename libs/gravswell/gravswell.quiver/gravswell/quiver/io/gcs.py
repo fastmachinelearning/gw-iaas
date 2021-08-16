@@ -22,12 +22,6 @@ class GCSFileSystem(FileSystem):
     credentials: Optional[str] = None
 
     def __post_init__(self):
-        # TODO: do we want to just have people
-        # skip the `gs` portion then and just
-        # pass the bucket name + prefix?
-        if not self.root.startswith("gs://"):
-            raise ValueError(f"GCSFileSystem root {self.root} is not valid")
-
         if not _has_google_libs:
             raise ImportError(
                 "Must install google-cloud-storage to use GCSFileSystem"
@@ -47,7 +41,12 @@ class GCSFileSystem(FileSystem):
                     "environment variable to use a GCSFileSystem"
                 )
 
-        split_path = self.root.replace("gs://", "").split("/", maxsplit=1)
+        # split the bucket name from the rest
+        # of the path, if one was specified
+        # TODO: need to verify that you can point
+        # triton to paths deeper than the root
+        # level of a bucket
+        split_path = self.root.split("/", maxsplit=1)
         try:
             bucket_name, prefix = split_path
             self.root = prefix.rstrip("/")

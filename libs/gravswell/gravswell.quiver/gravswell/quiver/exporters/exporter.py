@@ -1,13 +1,12 @@
 import abc
 from collections.abc import Sequence
 from dataclasses import dataclass
-from enum import Enum
 from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from gravswell.quiver.types import SHAPE_TYPE
 
 if TYPE_CHECKING:
-    from gravswell.quiver import Model
+    from gravswell.quiver import Model, Platform
     from gravswell.quiver.types import EXPOSED_TYPE
 
 
@@ -15,38 +14,7 @@ _SHAPES_TYPE = Union[Sequence[SHAPE_TYPE], dict[str, SHAPE_TYPE], None]
 
 
 @dataclass
-class PlatformConvention:
-    """Describes the expected nomenclature for a particular inference platform
-
-    Triton by default expects each inference
-    platform to be associated with a particular
-    filename for the model versions hosted
-    in the repository. This is meant as a map to
-    associate the two.
-
-    Args:
-        name: The name of the platform as it
-            appears in the Triton model config
-        filename: The associated expected filename
-    """
-
-    name: str
-    filename: str
-
-
-class Convention(Enum):
-    """Enumerates the existing conventions for each inference platform"""
-
-    ONNX = PlatformConvention("onnxruntime_onnx", "model.onnx")
-    SAVEDMODEL = PlatformConvention(
-        "tensorflow_savedmodel", "model.savedmodel"
-    )
-    TENSORRT = PlatformConvention("tensorrt_plan", "model.plan")
-    ENSEMBLE = PlatformConvention("ensemble", "model.empty")
-
-
-@dataclass
-class Platform(metaclass=abc.ABCMeta):
+class Exporter(metaclass=abc.ABCMeta):
     """
     Metaclass for implementing export platforms.
     Should not be instantiated on its own.
@@ -167,50 +135,6 @@ class Platform(metaclass=abc.ABCMeta):
                         )
                     )
 
-    def _validate_platform(self) -> None:
-        return
-
-    def export(
-        self,
-        model_fn: Callable,
-        version: int,
-        input_shapes: _SHAPES_TYPE = None,
-        output_names: Optional[list[str]] = None,
-        verbose: int = 0,
-    ) -> str:
-        # first validate whether this platform can
-        # be used in the given environment. Don't
-        # do this at initialization time because we
-        # might need to work with a repo which hosts
-        # other models we can't support, but it doesn't
-        # matter so long as we don't try to do an
-        # export with them
-        self._validate_platform()
-
-        # first validate that any input shapes
-        # we provided match any specified
-        # in the existing model config
-        self._check_exposed_tensors("input", input_shapes)
-
-        # infer the names and shapes of the outputs
-        # of the model_fn and ensure that they match
-        # any outputs specified in the config
-        output_shapes = self._get_output_shapes(model_fn, output_names)
-        self._check_exposed_tensors("output", output_shapes)
-
-        # export the model to the path required
-        # by the platform and write the config
-        # for good measure
-        export_path = self.model.fs.join(
-            self.model.name, str(version), self.convention.filename
-        )
-        export_path = self._export(model_fn, export_path, verbose)
-        self.model.config.write()
-
-        # return the path to which the model
-        # was exported
-        return export_path
-
     @abc.abstractmethod
     def _get_output_shapes(
         self, model_fn: Callable, output_names: Optional[list[str]]
@@ -247,7 +171,11 @@ class Platform(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractproperty
-    def convention(self) -> Convention:
+    def handles(self):
+        pass
+
+    @abc.abstractproperty
+    def platform(self) -> "Platform":
         pass
 
     @abc.abstractmethod

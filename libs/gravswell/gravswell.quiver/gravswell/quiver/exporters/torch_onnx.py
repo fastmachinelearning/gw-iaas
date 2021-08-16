@@ -1,6 +1,5 @@
 import inspect
 from collections import OrderedDict
-from dataclasses import dataclass
 
 try:
     import torch
@@ -9,22 +8,27 @@ try:
 except ImportError:
     _has_torch = False
 
-from gravswell.quiver.platforms import Convention, Platform
+from gravswell.quiver import Platform
+from gravswell.quiver.exporters import Exporter
 
 
-@dataclass
-class TorchOnnx(Platform):
-    def _validate_platform(self):
+class TorchOnnx(Exporter):
+    def handles(self):
         if not _has_torch:
             raise ImportError(
-                "Must have torch installed to use " "TorchOnnx export platform"
+                "Must have torch installed to use TorchOnnx export platform"
             )
+        return torch.nn.Module
+
+    @property
+    def platform(self):
+        return Platform.ONNX
 
     def _get_tensor(self, shape):
         tensor_shape = []
         for dim in shape:
             if dim == -1:
-                dim = self.model_config.max_batch_size or 1
+                dim = self.model.config.max_batch_size or 1
             tensor_shape.append(dim)
 
         # TODO: this will not always be safe, for
@@ -49,10 +53,7 @@ class TorchOnnx(Platform):
         # use function signature from module.forward
         # to figure out in which order to pass input
         # tensors to the model_fn
-        if isinstance(model_fn, torch.nn.Module):
-            signature = inspect(model_fn.forward)
-        else:
-            signature = inspect(model_fn)
+        signature = inspect(model_fn.forward)
         parameters = OrderedDict(signature.parameters)
 
         # make sure the number of inputs to
@@ -113,10 +114,6 @@ class TorchOnnx(Platform):
         if output_names is not None:
             shapes = {name: shape for name, shape in zip(output_names, shapes)}
         return shapes
-
-    @property
-    def convention(self):
-        return Convention.ONNX
 
     def _do_export(self, model_fn, export_obj, verbose=0):
         inputs, dynamic_axes = [], {}

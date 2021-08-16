@@ -81,12 +81,7 @@ def test_local_filesytem():
 
 
 def test_gcs_filesystem():
-    # verify that the bucket won't be
-    # created if the root isn't prepended
-    # with gs://
-    bucket_name = "gs://gravswell-quiver-test"
-    with pytest.raises(ValueError):
-        fs = GCSFileSystem(bucket_name.replace("gs://", ""))
+    bucket_name = "gravswell-quiver-test"
 
     # create the bucket file system and
     # run tests in a try-catch in case

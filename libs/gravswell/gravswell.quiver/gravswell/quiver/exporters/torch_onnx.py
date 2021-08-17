@@ -1,5 +1,6 @@
 import inspect
 from collections import OrderedDict
+from io import BytesIO
 
 try:
     import torch
@@ -38,7 +39,7 @@ class TorchOnnx(Exporter):
         # argument? We could accept framework tensors
         # at the `input_shapes` arg of `Platform.export`
         # and pass them along if they were provided?
-        return torch.random.randn(*shape)
+        return torch.randn(*tensor_shape)
 
     def _get_output_shapes(self, model_fn, output_names):
         # now that we know we have inputs added to our
@@ -48,12 +49,12 @@ class TorchOnnx(Exporter):
         input_tensors = OrderedDict()
         for input in self.model.config.input:
             # generate an input array of random data
-            input_tensors[input.name] = self._get_tensor(input.dim)
+            input_tensors[input.name] = self._get_tensor(input.dims)
 
         # use function signature from module.forward
         # to figure out in which order to pass input
         # tensors to the model_fn
-        signature = inspect(model_fn.forward)
+        signature = inspect.signature(model_fn.forward)
         parameters = OrderedDict(signature.parameters)
 
         # make sure the number of inputs to
@@ -115,12 +116,12 @@ class TorchOnnx(Exporter):
             shapes = {name: shape for name, shape in zip(output_names, shapes)}
         return shapes
 
-    def _do_export(self, model_fn, export_obj, verbose=0):
+    def export(self, model_fn, export_path, verbose=0):
         inputs, dynamic_axes = [], {}
         for input in self.model.config.input:
-            if input.dim[0] == -1:
+            if input.dims[0] == -1:
                 dynamic_axes[input.name] = {0: "batch"}
-            inputs.append(self._get_tensor(input.dim))
+            inputs.append(self._get_tensor(input.dims))
 
         if len(dynamic_axes) > 0:
             for output in self.model.config.output:
@@ -131,6 +132,7 @@ class TorchOnnx(Exporter):
         else:
             inputs = tuple(inputs)
 
+        export_obj = BytesIO()
         torch.onnx.export(
             model_fn,
             inputs,
@@ -139,4 +141,6 @@ class TorchOnnx(Exporter):
             output_names=[x.name for x in self.model.config.output],
             dynamic_axes=dynamic_axes or None,
         )
-        return export_obj
+
+        self.model.fs.write(export_obj.getvalue(), export_path)
+        return export_path

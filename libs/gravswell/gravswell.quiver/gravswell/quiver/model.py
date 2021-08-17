@@ -70,12 +70,12 @@ class Model:
         repository: "ModelRepository",
         platform: Platform,
     ):
-        if platform == Platform.Ensemble:
+        if platform == Platform.ENSEMBLE:
             cls = EnsembleModel
         return super().__new__(cls)
 
     def __post_init__(self):
-        self.repository.fs.soft_makedirs(self.name)
+        self.fs.soft_makedirs(self.name)
         self.config = ModelConfig(self)
 
     @property
@@ -242,7 +242,7 @@ class Model:
             # export the model to the path required by the
             # platform and write the config for good measure
             export_path = self.fs.join(output_dir, conventions[self.platform])
-            export_path = exporter._export(
+            export_path = exporter.export(
                 model_fn, export_path, verbose, **kwargs
             )
             self.config.write()

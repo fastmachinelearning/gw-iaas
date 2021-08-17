@@ -179,5 +179,5 @@ class Exporter(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def _do_export(self, model_fn, export_dir, verbose=0):
+    def export(self, model_fn, export_dir, verbose=0):
         pass

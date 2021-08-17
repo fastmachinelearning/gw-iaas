@@ -58,3 +58,12 @@ def test_torch_onnx_exporter():
 
         exporter.export(model_fn, output_path)
         # TODO: include onnx as dev dependency for checking
+
+        # now test using list-style input passing
+        model2 = Model("identity2", repo, Platform.ONNX)
+        exporter = TorchOnnx(model2)
+
+        input_shapes = [(None, 10)]
+        exporter._check_exposed_tensors("input", input_shapes)
+        assert len(model2.config.input) == 1
+        assert model2.config.input[0].name == "input_0"

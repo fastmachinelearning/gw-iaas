@@ -1,35 +1,21 @@
 import os
+import sys
 
 import pytest
-import torch
 
 from gravswell.quiver import Model, Platform
 from gravswell.quiver.exporters import TorchOnnx
-from gravswell.quiver.io import LocalFileSystem
+from gravswell.quiver.io import GCSFileSystem, LocalFileSystem
+
+sys.path.insert(0, os.path.dirname(__file__))
+from utils import DummyRepo, IdentityModel  # noqa
 
 
-class DummyRepo:
-    def __enter__(self):
-        self.fs = LocalFileSystem("gravswell-quiver-test")
-        return self
-
-    def __exit__(self, *exc_args):
-        self.fs.delete()
-
-
-class IdentityModel(torch.nn.Module):
-    def __init__(self, size=10):
-        super().__init__()
-        self.W = torch.eye(size)
-
-    def forward(self, x):
-        return torch.matmul(x, self.W)
-
-
-def test_torch_onnx_exporter():
+@pytest.mark.parametrize("fs_type", [LocalFileSystem, GCSFileSystem])
+def test_torch_onnx_exporter(fs_type):
     model_fn = IdentityModel()
 
-    with DummyRepo() as repo:
+    with DummyRepo(fs_type) as repo:
         model = Model("identity", repo, Platform.ONNX)
         exporter = TorchOnnx(model)
 

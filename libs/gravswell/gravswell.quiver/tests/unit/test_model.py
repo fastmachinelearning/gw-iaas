@@ -1,21 +1,45 @@
 import os
+import sys
+
+import pytest
 
 from gravswell.quiver import Model, Platform
-from gravswell.quiver.io import LocalFileSystem
+from gravswell.quiver.exporters import TorchOnnx
 
-
-class DummyRepo:
-    def __enter__(self):
-        self.fs = LocalFileSystem("gravswell-quiver-test")
-        return self
-
-    def __exit__(self, *exc_args):
-        self.fs.delete()
+sys.path.insert(0, os.path.dirname(__file__))
+from utils import DummyRepo, IdentityModel  # noqa
 
 
 def test_model():
     with DummyRepo() as repo:
         model = Model("test", repo, platform=Platform.ONNX)
 
-        assert os.path.exists(os.path.join("gravswell-quiver-test", "test"))
+        assert os.path.exists(
+            os.path.join("gravswell-quiver-test", model.name)
+        )
         assert len(model.versions) == 0
+        assert len(model.inputs) == 0
+        assert len(model.outputs) == 0
+
+        model_fn = IdentityModel()
+        assert isinstance(model._find_exporter(model_fn), TorchOnnx)
+
+        export_path = model.export_version(
+            model_fn, input_shapes={"x": [None, 10]}, output_names=["y"]
+        )
+        assert export_path == repo.fs.join(model.name, "1", "model.onnx")
+        assert len(model.versions) == 1
+
+        with pytest.raises(ValueError):
+            export_path = model.export_version(
+                model_fn, input_shapes={"x": [None, 12]}
+            )
+        assert len(model.versions) == 1
+
+        export_path = model.export_version(model_fn)
+        assert export_path == repo.fs.join(model.name, "2", "model.onnx")
+
+        repo.fs.remove(repo.fs.join(model.name, "1"))
+        export_path = model.export_version(model_fn)
+        assert export_path == repo.fs.join(model.name, "3", "model.onnx")
+        assert len(model.versions) == 2

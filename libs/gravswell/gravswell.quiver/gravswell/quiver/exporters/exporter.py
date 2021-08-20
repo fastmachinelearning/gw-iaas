@@ -3,6 +3,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Callable, Optional, Union
 
+from gravswell.quiver import conventions
 from gravswell.quiver.types import SHAPE_TYPE
 
 if TYPE_CHECKING:
@@ -170,14 +171,92 @@ class Exporter(metaclass=abc.ABCMeta):
 
         pass
 
-    @abc.abstractproperty
+    def __call__(
+        self,
+        model_fn: Callable,
+        version: int,
+        input_shapes: _SHAPES_TYPE = None,
+        output_names: Optional[Sequence[str]] = None,
+    ):
+        """Export a particular version of this platform's model
+
+        Args:
+            model_fn:
+                The input/output mapping to export. The type this can
+                take will depend on the particular `Exporter` subclass
+                and is exposed in the `Exporter.handles` property.
+            version:
+                Which version of the platform's model this
+                model function will represent
+            input_shapes:
+                The shapes of the inputs to the model function.
+                If the platform's model already has inputs in its
+                config, the provided inputs will be compared against
+                those. Otherwise, the inputs will be added to the
+                config dynamically. If provided as a `Sequence`, the
+                shapes will be compared in order. If a `dict`, they'll
+                be compared by name, with the keys representing the
+                names of inputs. If left as `None`, the input shapes
+                in the existing model config will be used.
+            output_names:
+                The names of the output tensors to this model. Output
+                shapes will be inferred using the model function and
+                associated with the output names in order. Like the
+                input shapes, if entries already exist in the model
+                config for outputs, the inferred shapes will be
+                compared by name using the output names. Otherwise,
+                they'll be added to the config dynamically
+        Returns:
+            The path to which the model was exported
+        """
+
+        # make sure that the exporter can handle
+        # the model function type
+        if not isinstance(model_fn, self.handles):
+            raise ValueError(
+                "Exporter handles types {}, but was passed "
+                "a model function of type {}".format(
+                    self.handles, type(model_fn)
+                )
+            )
+
+        # first validate that any input shapes we provided
+        # match any specified in the existing model config.
+        # If the model config doesn't have an input entry,
+        # add these inputs to the config dynamically
+        self._check_exposed_tensors("input", input_shapes)
+
+        # infer the names and shapes of the outputs
+        # of the model_fn and ensure that they match
+        # any outputs specified in the config, or
+        # add them dynamically
+        output_shapes = self._get_output_shapes(model_fn, output_names)
+        self._check_exposed_tensors("output", output_shapes)
+
+        export_path = self.model.fs.join(
+            self.model.name, str(version), conventions[self.platform]
+        )
+        self.export(model_fn, export_path)
+        return export_path
+
+    @property
     def handles(self):
-        pass
+        try:
+            return type(self).handles
+        except AttributeError:
+            raise NotImplementedError(
+                "Platform metaclass has no `handles` property"
+            )
 
     @abc.abstractproperty
     def platform(self) -> "Platform":
-        pass
+        try:
+            return type(self).platform
+        except AttributeError:
+            raise NotImplementedError(
+                "Platform metaclass has no `platform` property"
+            )
 
     @abc.abstractmethod
-    def export(self, model_fn, export_dir, verbose=0):
+    def export(self, model_fn, export_path, verbose=0):
         pass

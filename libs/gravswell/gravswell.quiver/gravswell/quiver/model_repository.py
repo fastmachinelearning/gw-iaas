@@ -22,7 +22,9 @@ class ModelRepository:
             # load from existing repos and handle these sorts of
             # issues at that level
             try:
-                config = self.fs.read_config(self.join(model, "config.pbtxt"))
+                config = self.fs.read_config(
+                    self.fs.join(model, "config.pbtxt")
+                )
             except FileNotFoundError:
                 raise ValueError(
                     f"Failed to initialize repo at {self.root}"

@@ -2,7 +2,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Union
 
-from gravswell.quiver import Platform, conventions
+from gravswell.quiver import Platform
 from gravswell.quiver.exporters import Exporter
 from gravswell.quiver.model_config import ModelConfig
 
@@ -93,7 +93,7 @@ class Model:
         # listings here: one for list and one implicitly inside isdir
         versions = []
         for f in self.fs.list(self.name):
-            if self.fs.isdir(f):
+            if self.fs.isdir(self.fs.join(self.name, f)):
                 try:
                     version = int(f)
                 except ValueError:
@@ -147,8 +147,7 @@ class Model:
             """Utility function for recursively finding all Exporters."""
             all_subclasses = []
             for subclass in cls.__subclasses__():
-                if hasattr(subclass, "name"):
-                    all_subclasses.append(subclass)
+                all_subclasses.append(subclass)
                 all_subclasses.extend(_get_all_subclasses(subclass))
             return all_subclasses
 
@@ -217,8 +216,11 @@ class Model:
         exporter = self._find_exporter(model_fn)
 
         # default version will be the latest
-        if version is None:
-            version = max(self.versions) + 1
+        versions = self.versions
+        if version is None and len(versions) > 0:
+            version = max(versions) + 1
+        elif version is None:
+            version = 1
 
         # create a directory for the current version
         # if it doesn't already exist
@@ -229,30 +231,18 @@ class Model:
         do_remove = self.fs.soft_makedirs(output_dir)
 
         try:
-            # first validate that any input shapes we provided
-            # match any specified in the existing model config
-            exporter._check_exposed_tensors("input", input_shapes)
-
-            # infer the names and shapes of the outputs
-            # of the model_fn and ensure that they match
-            # any outputs specified in the config
-            output_shapes = exporter._get_output_shapes(model_fn, output_names)
-            exporter._check_exposed_tensors("output", output_shapes)
-
-            # export the model to the path required by the
-            # platform and write the config for good measure
-            export_path = self.fs.join(output_dir, conventions[self.platform])
-            export_path = exporter.export(
-                model_fn, export_path, verbose, **kwargs
+            export_path = exporter(
+                model_fn, version, input_shapes, output_names
             )
             self.config.write()
-
         except Exception:
             # if anything goes wrong and we created a directory for
             # the export, make sure to get rid of it before raising
             if do_remove:
                 self.fs.remove(output_dir)
             raise
+
+        return export_path
 
 
 class EnsembleModel(Model):

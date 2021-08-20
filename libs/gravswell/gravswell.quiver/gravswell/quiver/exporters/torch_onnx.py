@@ -1,3 +1,4 @@
+import abc
 import inspect
 from collections import OrderedDict
 from io import BytesIO
@@ -13,7 +14,8 @@ from gravswell.quiver import Platform
 from gravswell.quiver.exporters import Exporter
 
 
-class TorchOnnx(Exporter):
+class TorchOnnxMeta(abc.ABCMeta):
+    @property
     def handles(self):
         if not _has_torch:
             raise ImportError(
@@ -25,6 +27,8 @@ class TorchOnnx(Exporter):
     def platform(self):
         return Platform.ONNX
 
+
+class TorchOnnx(Exporter, metaclass=TorchOnnxMeta):
     def _get_tensor(self, shape):
         tensor_shape = []
         for dim in shape:
@@ -132,6 +136,8 @@ class TorchOnnx(Exporter):
         else:
             inputs = tuple(inputs)
 
+        # export to a BytesIO object so that we
+        # can copy the bytes to cloud filesystems
         export_obj = BytesIO()
         torch.onnx.export(
             model_fn,
@@ -142,5 +148,7 @@ class TorchOnnx(Exporter):
             dynamic_axes=dynamic_axes or None,
         )
 
+        # write the written bytes and return
+        # the path to which they were written
         self.model.fs.write(export_obj.getvalue(), export_path)
         return export_path

@@ -105,16 +105,14 @@ class TorchOnnx(Exporter, metaclass=TorchOnnxMeta):
         # grab the output shapes
         shapes = [tuple(x.shape) for x in outputs]
 
-        # if any of the inputs have a variable
-        # length batch dimension, then each output
-        # should have a variable length batch
-        # dimension too
+        # if any of the inputs have a variable length batch
+        # dimension, then each output should have a variable
+        # length batch dimension too
         if any([x.dims[0] == -1 for x in self.config.input]):
             shapes = [(None,) + s[1:] for s in shapes]
 
-        # if we provided names for the outputs,
-        # return them as a dict for validation
-        # against the config
+        # if we provided names for the outputs, return them
+        # as a dict for validation against the config
         if output_names is not None:
             shapes = {name: shape for name, shape in zip(output_names, shapes)}
         return shapes

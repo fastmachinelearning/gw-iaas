@@ -17,7 +17,7 @@ def test_torch_onnx_exporter(fs_type):
 
     with DummyRepo(fs_type) as repo:
         model = Model("identity", repo, Platform.ONNX)
-        exporter = TorchOnnx(model)
+        exporter = TorchOnnx(model.config, model.fs)
 
         input_shapes = {"x": (None, 10)}
         exporter._check_exposed_tensors("input", input_shapes)
@@ -47,7 +47,7 @@ def test_torch_onnx_exporter(fs_type):
 
         # now test using list-style input passing
         model2 = Model("identity2", repo, Platform.ONNX)
-        exporter = TorchOnnx(model2)
+        exporter = TorchOnnx(model2.config, model2.fs)
 
         input_shapes = [(None, 10)]
         exporter._check_exposed_tensors("input", input_shapes)

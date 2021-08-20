@@ -7,7 +7,8 @@ from gravswell.quiver import conventions
 from gravswell.quiver.types import SHAPE_TYPE
 
 if TYPE_CHECKING:
-    from gravswell.quiver import Model, Platform
+    from gravswell.quiver import ModelConfig, Platform
+    from gravswell.quiver.io import FileSystem
     from gravswell.quiver.types import EXPOSED_TYPE
 
 
@@ -21,11 +22,15 @@ class Exporter(metaclass=abc.ABCMeta):
     Should not be instantiated on its own.
 
     Args:
-        model: The `Model` which will be exported
-            using this platform
+        config:
+            The config of the model that is being exported
+        fs:
+            The filesystem to which the model function should
+            be exported
     """
 
-    model: "Model"
+    config: "ModelConfig"
+    fs: "FileSystem"
 
     def _check_exposed_tensors(
         self, exposed_type: "EXPOSED_TYPE", provided: _SHAPES_TYPE = None
@@ -58,7 +63,7 @@ class Exporter(metaclass=abc.ABCMeta):
 
         # get any information about the input/output
         # shapes from the existing model config
-        exposed = getattr(self.model.config, exposed_type)
+        exposed = getattr(self.config, exposed_type)
         if len(exposed) == 0 and provided is None:
             # our config doesn't have any exposed tensors
             # already, and we haven't provided any
@@ -92,7 +97,7 @@ class Exporter(metaclass=abc.ABCMeta):
 
                 # add either an input our output to the model config
                 # in a generic way by grabbing the method programmatically
-                add_fn = getattr(self.model.config, "add_" + exposed_type)
+                add_fn = getattr(self.config, "add_" + exposed_type)
 
                 # TODO: don't hardcode dtype
                 add_fn(name=name, shape=shape, dtype="float32")
@@ -233,8 +238,8 @@ class Exporter(metaclass=abc.ABCMeta):
         output_shapes = self._get_output_shapes(model_fn, output_names)
         self._check_exposed_tensors("output", output_shapes)
 
-        export_path = self.model.fs.join(
-            self.model.name, str(version), conventions[self.platform]
+        export_path = self.fs.join(
+            self.config.name, str(version), conventions[self.platform]
         )
         self.export(model_fn, export_path)
         return export_path

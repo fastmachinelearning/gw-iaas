@@ -160,7 +160,7 @@ class Model:
                     if isinstance(model_fn, exporter.handles):
                         # if this exporter matches our criteria,
                         # initialize it with this model and return it
-                        return exporter(self)
+                        return exporter(self.config, self.fs)
                 except ImportError:
                     # evidently we don't have whatever it handles
                     # installed, so move on

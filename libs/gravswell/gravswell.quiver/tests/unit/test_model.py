@@ -29,6 +29,9 @@ def test_model():
         )
         assert export_path == repo.fs.join(model.name, "1", "model.onnx")
         assert len(model.versions) == 1
+        assert model.config.input[0].name == "x"
+        assert list(model.config.input[0].dims) == [-1, 10]
+        assert model.inputs["x"].shape == (None, 10)
 
         with pytest.raises(ValueError):
             export_path = model.export_version(

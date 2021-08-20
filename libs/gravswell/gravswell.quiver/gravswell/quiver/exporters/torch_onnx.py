@@ -33,7 +33,7 @@ class TorchOnnx(Exporter, metaclass=TorchOnnxMeta):
         tensor_shape = []
         for dim in shape:
             if dim == -1:
-                dim = self.model.config.max_batch_size or 1
+                dim = self.config.max_batch_size or 1
             tensor_shape.append(dim)
 
         # TODO: this will not always be safe, for
@@ -51,7 +51,7 @@ class TorchOnnx(Exporter, metaclass=TorchOnnxMeta):
         # framework tensors that we'll feed through
         # the network to inspect the output
         input_tensors = OrderedDict()
-        for input in self.model.config.input:
+        for input in self.config.input:
             # generate an input array of random data
             input_tensors[input.name] = self._get_tensor(input.dims)
 
@@ -66,10 +66,9 @@ class TorchOnnx(Exporter, metaclass=TorchOnnxMeta):
         # specified input tensors
         if len(parameters) != len(input_tensors):
             raise ValueError(
-                "Attempted to export a model function "
-                "for model {} which accepts {} inputs, "
-                "but {} are expected".format(
-                    self.model.name, len(parameters), len(input_tensors)
+                "Model function  expects {} inputs, but "
+                "model only expects {} inputs".format(
+                    len(parameters), len(input_tensors)
                 )
             )
 
@@ -110,7 +109,7 @@ class TorchOnnx(Exporter, metaclass=TorchOnnxMeta):
         # length batch dimension, then each output
         # should have a variable length batch
         # dimension too
-        if any([x.dims[0] == -1 for x in self.model.config.input]):
+        if any([x.dims[0] == -1 for x in self.config.input]):
             shapes = [(None,) + s[1:] for s in shapes]
 
         # if we provided names for the outputs,
@@ -122,13 +121,13 @@ class TorchOnnx(Exporter, metaclass=TorchOnnxMeta):
 
     def export(self, model_fn, export_path, verbose=0):
         inputs, dynamic_axes = [], {}
-        for input in self.model.config.input:
+        for input in self.config.input:
             if input.dims[0] == -1:
                 dynamic_axes[input.name] = {0: "batch"}
             inputs.append(self._get_tensor(input.dims))
 
         if len(dynamic_axes) > 0:
-            for output in self.model.config.output:
+            for output in self.config.output:
                 dynamic_axes[output.name] = {0: "batch"}
 
         if len(inputs) == 1:
@@ -143,12 +142,12 @@ class TorchOnnx(Exporter, metaclass=TorchOnnxMeta):
             model_fn,
             inputs,
             export_obj,
-            input_names=[x.name for x in self.model.config.input],
-            output_names=[x.name for x in self.model.config.output],
+            input_names=[x.name for x in self.config.input],
+            output_names=[x.name for x in self.config.output],
             dynamic_axes=dynamic_axes or None,
         )
 
         # write the written bytes and return
         # the path to which they were written
-        self.model.fs.write(export_obj.getvalue(), export_path)
+        self.fs.write(export_obj.getvalue(), export_path)
         return export_path

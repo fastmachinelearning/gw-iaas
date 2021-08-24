@@ -15,4 +15,5 @@ TOKEN=$(get_secret jupyter-token)
 poetry run jupyter notebook presentation.ipynb \
     --no-broswer \
     --NotebookApp.token $TOKEN \
+    --allow-root \
     --ip 0.0.0.0

@@ -10,9 +10,9 @@ RUN set -ex \
         \
         && git clone https://github.com/alecgunny/gw-iaas.git \
         \
-        && git checkout slideshow \
+        && cd gw-iaas && echo pwd && git checkout slideshow \
         \
-        && cd gw-iaas/projects/slideshow && echo pwd && poetry install \
+        && cd projects/slideshow && poetry install \
         \
         && rm -rf /var/lib/apt/lists/*
 

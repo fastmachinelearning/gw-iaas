@@ -6,7 +6,7 @@ RUN set -ex \
         \
         && apt-get update && apt-get install -y --no-install-recommends git \
         \
-        && pip install poetry=$POETRY_VERSION \
+        && pip install poetry==$POETRY_VERSION \
         \
         && git clone https://github.com/alecgunny/gw-iaas.git \
         \

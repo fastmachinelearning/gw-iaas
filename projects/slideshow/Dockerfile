@@ -16,5 +16,6 @@ RUN set -ex \
         \
         && rm -rf /var/lib/apt/lists/*
 
+EXPOSE 8888
 WORKDIR /gw-iaas/projects/slideshow
 ENTRYPOINT ./run.sh

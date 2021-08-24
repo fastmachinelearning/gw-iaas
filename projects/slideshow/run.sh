@@ -6,6 +6,10 @@ get_secret() {
     gcloud secrets versions access $version --secret=$secret
 }
 
+if [[ ! -d ~/.ssh ]]; then
+    mkdir ~/.ssh
+fi
+
 get_secret github-ssh > ~/.ssh/id_ed25519
 chmod 400 ~/.ssh/id_ed25519
 git remote set-url origin git@github.com:alecgunny/gw-iaas.git

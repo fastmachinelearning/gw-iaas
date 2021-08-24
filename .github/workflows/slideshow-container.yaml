@@ -29,6 +29,6 @@ jobs:
       id: docker_build
       uses: docker/build-push-action@v2
       with:
-        context: .
+        context: ./projects/slideshow
         push: true
         tags: alecgunny/gw-iaas-presentation

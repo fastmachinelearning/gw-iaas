@@ -23,3 +23,7 @@ jupyter_contrib_nbextensions = "^0.5"
 [[tool.poetry.source]]
 name = "ngc"
 url = "https://pypi.ngc.nvidia.com"
+
+[build-system]
+requires = ["poetry>=1.1"]
+build-backend = "poetry.masonry.api"

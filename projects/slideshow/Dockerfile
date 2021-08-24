@@ -1,5 +1,5 @@
 FROM python:3.9-slim-buster
-ARG POETRY_VERSION=1.0.0
+ARG POETRY_VERSION=1.1.7
 ENV DEBIAN_FRONTEND="noninteractive"
 
 RUN set -ex \
@@ -10,7 +10,7 @@ RUN set -ex \
         \
         && git clone https://github.com/alecgunny/gw-iaas.git \
         \
-        && cd gw-iaas && echo pwd && git checkout slideshow \
+        && cd gw-iaas && pwd && git checkout slideshow \
         \
         && cd projects/slideshow && poetry install \
         \

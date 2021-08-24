@@ -7,6 +7,7 @@ get_secret() {
 }
 
 get_secret github-ssh > ~/.ssh/id_ed25519
+chmod 400 ~/.ssh/id_ed25519
 git remote set-url origin git@github.com:alecgunny/gw-iaas.git
 
 TOKEN=$(get_secret jupyter-token)

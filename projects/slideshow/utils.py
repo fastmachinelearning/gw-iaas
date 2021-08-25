@@ -125,7 +125,7 @@ def do_some_inference(
     model: torch.nn.Module,
     X: np.ndarray,
     batch_size: int = 8,
-    device_index: int = 0
+    device_index: int = 0,
 ) -> np.ndarray:
     """Do inference on the array `X` using the provided model
 
@@ -166,7 +166,7 @@ def parallel_inference_task(
     q: torch.multiprocessing.Queue,
     starter: torch.multiprocessing.Value,
     num_gpus: int = 1,
-    weights_file: str = "model.pt"
+    weights_file: str = "model.pt",
 ) -> None:
     """Perform inference on a subset of an input array
 

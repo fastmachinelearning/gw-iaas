@@ -2,3 +2,5 @@
 **/__pycache__/
 **/*.pyc
 **/_build/
+**/.ipynb_checkpoints
+**/*.pt

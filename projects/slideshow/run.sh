@@ -6,17 +6,19 @@ get_secret() {
     gcloud secrets versions access $version --secret=$secret
 }
 
-if [[ ! -d ~/.ssh ]]; then
-    mkdir ~/.ssh
-fi
-
 get_secret github-ssh > ~/.ssh/id_ed25519
 chmod 400 ~/.ssh/id_ed25519
-git remote set-url origin git@github.com:alecgunny/gw-iaas.git
 
-TOKEN=$(get_secret jupyter-token)
-poetry run jupyter notebook presentation.ipynb \
-    --no-broswer \
-    --NotebookApp.token $TOKEN \
-    --allow-root \
+git clone git@github.com:alecgunny/gw-iaas.git
+cd gw-iaas
+git checkout slideshow
+cd projects/slideshow
+poetry install
+
+# jupyter contrib nbextension install --sys-prefix
+# jupyter nbextension enable splitcell/splitcell
+
+poetry run jupyter notebook \
+    --no-browser \
+    --NotebookApp.token "$(get_secret jupyter-token)" \
     --ip 0.0.0.0

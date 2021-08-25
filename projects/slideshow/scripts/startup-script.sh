@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# install NVIDIA drivers
+# install NVIDIA drivers/CUDA
 apt-get install -y software-properties-common
 apt-get update
 apt-get install linux-headers-$(uname -r)
@@ -25,9 +25,7 @@ sudo apt-get install -y \
     libffi-dev \
     curl \
     libbz2-dev \
-    wget \
-    python3-distutils \
-    python3-apt
+    wget
 
 # install python
 wget https://www.python.org/ftp/python/3.9.1/Python-3.9.1.tgz
@@ -36,6 +34,10 @@ cd Python-3.9.1
 ./configure --enable-optimizations
 make -j 2
 sudo make altinstall
+
+# install distutils dependencies, which don't
+# get installed by default on debian
+sudo apt-get install -y python3-distutils python3-apt
 
 # install poetry
 curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3.9 -

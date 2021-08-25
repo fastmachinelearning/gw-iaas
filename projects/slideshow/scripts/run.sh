@@ -1,10 +1,6 @@
 #!/bin/bash -e
 
-cd "$(dirname "$0")"
-poetry install
-poetry run jupyter contrib nbextension install --sys-prefix
-poetry run jupyter nbextension enable splitcell/splitcell
-
+cd "$(dirname "$0")"/..
 poetry run jupyter notebook \
     --no-browser \
     --NotebookApp.token "$(get_secret jupyter-token)" \

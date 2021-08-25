@@ -15,3 +15,8 @@ chmod 400 ~/.ssh/id_ed25519
 git clone git@github.com:alecgunny/gw-iaas.git
 cd gw-iaas
 git checkout slideshow
+
+cd projects/slideshow
+poetry install
+poetry run jupyter contrib nbextension install --sys-prefix
+poetry run jupyter nbextension enable splitcell/splitcell

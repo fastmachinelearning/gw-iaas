@@ -1,7 +1,6 @@
 import re
 import subprocess
 import time
-from contextlib import contextmanager, nullcontext
 from threading import Event, Thread
 from typing import Optional, Sequence
 
@@ -10,44 +9,75 @@ import torch
 from rich.progress import BarColumn, Progress, TimeElapsedColumn
 
 
-class GPUUtilDisplay(Thread):
-    def __init__(self, progress: Progress, gpu_ids: Sequence[int]) -> None:
-        self.progress = progress
+class GPUUtilProgress(Progress):
+    """Progress bar subclass for measuring GPU utilization"""
+
+    def __init__(self, gpu_ids: Optional[Sequence[int]], *args) -> None:
+        if len(args) == 0:
+            super().__init__(
+                "[progress.description]{task.description}",
+                BarColumn(),
+                "[progress.percentage]{task.percentage:>3.0f}%",
+                TimeElapsedColumn(),
+            )
+        else:
+            super().__init__(*args)
 
         # for each gpu id, make a bar that shows the
         # utilization and keep track of the associated
         # task id and most recent utilization for
         # performing updates
-        self.task_map = {}
         for gpu_id in gpu_ids:
-            task_id = self.progress.add_task(
-                f"[green]GPU {gpu_id} utilization", total=100
+            self.add_task(
+                f"[green]GPU {gpu_id} utilization", total=100, start=False
             )
-            self.task_map[gpu_id] = (task_id, 0)
-
-        # keep track of the average utility across
-        # the entire run to record at the end once
-        # the progress bar has completed
-        self.average_utils = {gpu_id: 0 for gpu_id in gpu_ids}
 
         # use an event to stop the internal loop
-        self._stop_event = Event()
+        self._stop_event, self._gpu_monitor = None, None
 
-        super().__init__()
+    @property
+    def gpu_tasks(self) -> dict:
+        """The subset of tasks that represent GPUs to monitor"""
+
+        return {
+            task_id: task
+            for task_id, task in self._tasks.items()
+            if re.fullmatch("[green]GPU [0-9] utilization", task.description)
+        }
 
     def __enter__(self):
-        self.start()
-        return self
+        # if we have any GPUs to monitor, launch a thread
+        # to monitor them with a stop condition via an Event
+        if len(self.gpu_tasks) > 0:
+            self._stop_event = Event()
+            self._gpu_monitor = Thread(target=self.monitor_utilization)
+            self._gpu_monitor.start()
+
+        # do whatever the usual Progress
+        # context entering business is
+        return super().__enter__()
 
     def __exit__(self, *exc_args):
-        self.stop()
-        self.join()
+        # if we were monitoring any GPUs, stop monitoring now
+        if self._gpu_monitor is not None:
+            # set the event to kill the loop
+            self._stop_event.set()
 
-    def stop(self) -> None:
-        self._stop_event.set()
+            # wait for the thread to finish
+            self._gpu_monitor.join()
 
-    def run(self) -> None:
-        n = 0
+        # reset these attributes
+        self._stop_event, self._gpu_monitor = None, None
+
+        # run the normal context exiting buisness
+        super().__exit__(*exc_args)
+
+    def monitor_utilization(self) -> None:
+        # grab the GPU tasks up front just in case there are
+        # a lot of other tasks so we don't have to be doing
+        # a dict comprehension every loop iteration
+        tasks = self.gpu_tasks
+
         while not self._stop_event.is_set():
             # get the output from nvidia-smi
             nv_smi = subprocess.run(
@@ -56,48 +86,17 @@ class GPUUtilDisplay(Thread):
             percentages = list(map(int, re.findall("[0-9]{1,3}(?=%)", nv_smi)))
 
             # parse information for each one of our GPUs
-            for gpu_id, (task_id, last_util) in self.task_map.items():
-                # grab the utilization from the nvidia-smi output
-                new_util = percentages[gpu_id]
+            for task_id, task in tasks.items():
+                # get the GPU id from the task description
+                gpu_id = int(re.find("[0-9]", task.description).group(0))
 
-                # compute the update and record the
-                # new value in the task map
-                delta = new_util - last_util
-                self.progress.update(task_id, advance=delta)
-                self.task_map[gpu_id] = (task_id, new_util)
+                # use this index to grab the corresponding utilization
+                # and update the corresponding task with the delta
+                delta = percentages[gpu_id] - task.completed
+                self.update(task_id, advance=delta)
 
-                # keep track of our running average
-                n += 1
-                av_update = (new_util - self.average_utils[gpu_id]) / n
-                self.average_utils[gpu_id] += av_update
-
-        # sleep to avoid having this overwhelm everything
-        time.sleep(0.05)
-
-        # now that the task has been ended, update each
-        # progress bar to be frozen with the average value
-        # from the course of the run
-        for gpu_id, (task_id, last_util) in self.task_map.items():
-            delta = self.average_utils[gpu_id] - last_util
-            self.progress.update(task_id, advance=delta)
-
-
-@contextmanager
-def get_progbar(gpu_ids: Optional[Sequence[int]] = None) -> Progress:
-    progress = Progress(
-        "[progress.description]{task.description}",
-        BarColumn(),
-        "[progress.percentage]{task.percentage:>3.0f}%",
-        TimeElapsedColumn(),
-    )
-
-    if gpu_ids is not None:
-        gpu_util = GPUUtilDisplay(progress, gpu_ids)
-    else:
-        gpu_util = nullcontext()
-
-    with progress, gpu_util:
-        yield progress
+            # sleep to avoid having this thread overwhelm everything
+            time.sleep(0.05)
 
 
 class MLP(torch.nn.Module):

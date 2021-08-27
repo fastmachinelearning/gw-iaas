@@ -41,11 +41,15 @@ figcaption {
 
 .center {
   margin: auto;
-  width: 50%;
+  width: 65%;
 }
 
 .cm-header {
     font-size: 32px;
+}
+
+code.cm-s-ipython {
+    font-size: 16px;
 }
 
 div.text_cell_render {

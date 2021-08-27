@@ -1,0 +1,58 @@
+img.unpadded {
+    top: -30px;
+    position: relative;
+}
+img.padded {
+    top: 30px;
+    position: relative;
+}
+
+img.right {
+    float: right;
+}
+
+img.left {
+    float: left;
+}
+
+p.right {
+    float: right;
+}
+p.left {
+    float: left;
+}
+
+div.padded {
+    margin-top: 40px;
+}
+
+div.float200 {
+    margin-right: 200px;
+}
+div.float100 {
+    margin-right: 100px;
+}
+
+
+.cm-header {
+    font-size: 32px;
+}
+
+div.text_cell_render {
+    font-size: 24px;
+}
+
+body.rise-enabled div.inner_cell>div.input_area {
+    font-size: 75%;
+}
+
+body.rise-enabled div.output_subarea.output_text.output_result {
+    font-size: 75%;
+}
+body.rise-enabled div.output_subarea.output_text.output_stream.output_stdout {
+  font-size: 75%;
+}
+
+body.rise-enabled div.output_subarea.output_html.rendered_html.output_result {
+  font-size: 75%;
+}

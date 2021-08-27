@@ -1,7 +1,7 @@
 import re
 import subprocess
 import time
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from threading import Event, Thread
 from typing import Optional, Sequence
 
@@ -34,6 +34,14 @@ class GPUUtilDisplay(Thread):
         self._stop_event = Event()
 
         super().__init__()
+
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, *exc_args):
+        self.stop()
+        self.join()
 
     def stop(self) -> None:
         self._stop_event.set()
@@ -85,14 +93,11 @@ def get_progbar(gpu_ids: Optional[Sequence[int]] = None) -> Progress:
 
     if gpu_ids is not None:
         gpu_util = GPUUtilDisplay(progress, gpu_ids)
-        gpu_util.start()
+    else:
+        gpu_util = nullcontext()
 
-    with progress:
+    with progress, gpu_util:
         yield progress
-
-        if gpu_ids is not None:
-            gpu_util.stop()
-            gpu_util.join()
 
 
 class MLP(torch.nn.Module):

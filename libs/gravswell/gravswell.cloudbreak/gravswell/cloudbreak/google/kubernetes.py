@@ -2,21 +2,19 @@ import logging
 import math
 import re
 import time
-import typing
 from contextlib import contextmanager
+from dataclasses import dataclass
+from typing import Optional, Sequence, Union
 
-import attr
 import google
-from cloud_utils.utils import wait_for
 from google.auth.transport.requests import Request as AuthRequest
 from google.cloud import container_v1 as container
 from google.oauth2 import service_account
 
-from gravswell.kubernetes import K8sApiClient
+from gravswell.cloudbreak.kubernetes import K8sApiClient
+from gravswell.cloudbreak.utils import wait_for
 
-_credentials_type = typing.Optional[
-    typing.Union[str, service_account.Credentials]
-]
+_credentials_type = Union[str, service_account.Credentials, None]
 
 
 def snakeify(name: str) -> str:
@@ -25,7 +23,7 @@ def snakeify(name: str) -> str:
 
 def make_credentials(
     service_account_key_file: str,
-    scopes: typing.Optional[typing.List[str]] = None,
+    scopes: Optional[Sequence[str]] = None,
 ):
     """
     Cheap wrapper around service account creation
@@ -44,7 +42,9 @@ def make_credentials(
 
 class ThrottledClient:
     def __init__(
-        self, credentials: _credentials_type = None, throttle_secs: float = 1.0
+        self,
+        credentials: Union[str, service_account.Credentials, None] = None,
+        throttle_secs: float = 1.0,
     ):
         if isinstance(credentials, str):
             credentials = make_credentials(credentials)
@@ -73,9 +73,9 @@ class ThrottledClient:
         return request_fn(request=request, **kwargs)
 
 
-@attr.s(auto_attribs=True)
+@dataclass
 class Resource:
-    _name: str
+    name: str
     parent: "Resource"
 
     @property
@@ -85,12 +85,6 @@ class Resource:
     @property
     def resource_type(self):
         return type(self).__name__
-
-    @property
-    def name(self):
-        resource_type = self.resource_type
-        camel = resource_type[0].lower() + resource_type[1:]
-        return self.parent.name + "/{}/{}".format(camel, self._name)
 
     @classmethod
     def create(cls, resource, parent, **kwargs):
@@ -120,21 +114,21 @@ class Resource:
         delete_request_cls = getattr(
             container, f"Delete{self.resource_type}Request"
         )
-        delete_request = delete_request_cls(name=self.name)
+        delete_request = delete_request_cls(name=str(self))
         return self.client.make_request(delete_request)
 
     def get(self, timeout=None):
         get_request_cls = getattr(container, f"Get{self.resource_type}Request")
-        get_request = get_request_cls(name=self.name)
+        get_request = get_request_cls(name=str(self))
 
         try:
             return self.client.make_request(get_request, timeout=timeout)
         except google.api_core.exceptions.NotFound:
-            raise ValueError(f"Couldn't get resource {self.name}")
+            raise ValueError(f"Couldn't get resource {self}")
 
     def _raise_bad_status(self, response):
         raise RuntimeError(
-            f"Resource {self.name} reached status {response.status} "
+            f"Resource {self} reached status {response.status} "
             f"while deleting with conditions {response.conditions}"
         )
 
@@ -171,7 +165,7 @@ class Resource:
         try:
             response = self.get(timeout=5)
         except ValueError as e:
-            if str(e) != f"Couldn't get resource {self.name}":
+            if str(e) != f"Couldn't get resource {self}":
                 raise
             # couldn't find the resource, so assume
             # the deletion went off swimmingly
@@ -180,46 +174,77 @@ class Resource:
             self._raise_bad_status(response)
         return False
 
+    def __str__(self):
+        resource_type = self.resource_type
+        camel = resource_type[0].lower() + resource_type[1:]
+        return self.parent.name + "/{}/{}".format(camel, self.name)
 
-@attr.s(auto_attribs=True)
+    @property
+    def message(self):
+        resource_type = snakeify(type(self).__name__).replace("_", " ")
+        return " ".join([resource_type, self.name])
+
+
+@dataclass
 class NodePool(Resource):
-    timeout: typing.Optional[float] = None
+    """
+    Args:
+        wait:
+            How long to wait for the request resources
+            to become available if a stockout is encountered.
+            Default `None` indicates raise an error as soon
+            as a stockout is encountered.
+    """
 
-    def __attrs_post_init__(self):
+    wait: Optional[float] = None
+
+    def __post_init__(self):
         self._init_time = time.time()
 
     def is_ready(self):
         response = self.get(timeout=5)
         if response.status == 2:
+            # the resource is ready
             return True
         elif response.status == 6:
+            # something has gone wrong, see what the
+            # primary condition code is
             code = response.conditions[0].code
-            stockout = code == container.StatusCondition.Code.GCE_STOCKOUT
-            if not stockout:
+
+            if code != container.StatusCondition.Code.GCE_STOCKOUT:
+                # if it's not a stockout issue, raise
+                # the error
                 self._raise_bad_status(response)
-            if (
-                self.timeout is None
-                or (time.time() > self._init_time) < self.timeout
+            elif (
+                self.wait is None
+                or (time.time() > self._init_time) < self.wait
             ):
+                # if we indicated not to wait or have exhausted the
+                # amount of time we were willing to wait, raise an error
                 raise RuntimeError(
-                    f"Resource {self.name} encountered GCE stockout "
+                    f"Resource {self} encountered GCE stockout "
                     "on creation and timed out"
                 )
         elif response.status > 2:
+            # for any other response other than
+            # success, raise an error
             self._raise_bad_status(response)
-        return False
+        else:
+            # the status is < 2, which means the node
+            # pool is still being generated, so be patient
+            return False
 
 
-@attr.s
+@dataclass
 class ManagerResource(Resource):
-    def __attrs_post_init__(self):
+    def __post_init__(self):
         self._resources = {}
 
         mrts = self.managed_resource_type.__name__ + "s"
         snaked = snakeify(mrts)
 
         list_request_cls = getattr(container, f"List{mrts}Request")
-        list_resource_request = list_request_cls(parent=self.name)
+        list_resource_request = list_request_cls(parent=str(self))
         list_resource_fn = getattr(self.client._client, f"list_{snaked}")
 
         try:
@@ -239,22 +264,7 @@ class ManagerResource(Resource):
 
     @property
     def resources(self):
-        # TODO: in light of the `managed_resource_type` property,
-        # can sub-resources rightfully belong to resources higher
-        # up the tree? I don't think we need this recursion
-        resources = self._resources.copy()
-        for resource_name, resource in self._resources.items():
-            try:
-                subresources = resource.resources
-            except AttributeError:
-                continue
-            for subname, subresource in subresources.items():
-                resources[subname] = subresource
-        return resources
-
-    def _make_resource_message(self, resource):
-        resource_type = snakeify(resource.resource_type).replace("_", " ")
-        return resource_type + " " + resource.name
+        return self._resources.copy()
 
     def create_resource(self, resource):
         if type(resource).__name__ != self.managed_resource_type.__name__:
@@ -265,45 +275,36 @@ class ManagerResource(Resource):
             )
 
         resource = Resource.create(resource, self)
-        resource_msg = self._make_resource_message(resource)
 
         wait_for(
             resource.is_ready,
-            f"Waiting for {resource_msg} to become ready",
-            f"{resource_msg} ready",
+            f"Waiting for {resource.message} to become ready",
         )
         self._resources[resource.name] = resource
         return resource
 
     def delete_resource(self, resource):
-        resource_msg = self._make_resource_message(resource)
 
         wait_for(
             resource.submit_delete,
-            f"Waiting for {resource_msg} to become available to delete",
-            f"{resource_msg} delete request submitted",
+            f"Waiting for {resource.message} to become available to delete",
         )
 
         wait_for(
-            resource.is_deleted,
-            f"Waiting for {resource_msg} to delete",
-            f"{resource_msg} deleted",
+            resource.is_deleted, f"Waiting for {resource.message} to delete"
         )
         self._resources.pop(resource.name)
 
     @contextmanager
-    def manage_resource(self, resource, keep=False, **kwargs):
+    def manage(self, resource, keep=False, **kwargs):
         resource = self.create_resource(resource, **kwargs)
-        resource_msg = self._make_resource_message(resource)
 
         try:
             yield resource
         except Exception as e:
             if not keep:
                 logging.error(
-                    "Encountered error, removing {}: {}".format(
-                        resource_msg, str(e)
-                    )
+                    f"Encountered error, removing {resource.message}: {e}"
                 )
             raise
         finally:
@@ -311,11 +312,11 @@ class ManagerResource(Resource):
                 self.delete_resource(resource)
 
 
-@attr.s
+@dataclass
 class Cluster(ManagerResource):
-    def __attrs_post_init__(self):
+    def __post_init__(self):
         self._k8s_client = None
-        super().__attrs_post_init__()
+        super().__post_init__()
 
     @property
     def managed_resource_type(self):
@@ -337,8 +338,8 @@ class Cluster(ManagerResource):
     def deploy(
         self,
         file: str,
-        repo: typing.Optional[str] = None,
-        branch: typing.Optional[str] = None,
+        repo: Optional[str] = None,
+        branch: Optional[str] = None,
         namespace: str = "default",
         ignore_if_exists: bool = True,
         **kwargs,
@@ -360,9 +361,12 @@ class Cluster(ManagerResource):
         self.k8s_client.wait_for_daemon_set(name="nvidia-driver-installer")
 
 
-class GKEClusterManager(ManagerResource):
+class ClusterManager(ManagerResource):
     def __init__(
-        self, project: str, zone: str, credentials: _credentials_type = None
+        self,
+        project: str,
+        zone: str,
+        credentials: Union[str, service_account.Credentials, None] = None,
     ) -> None:
         parent = ThrottledClient(credentials)
         name = f"projects/{project}/locations/{zone}"
@@ -372,9 +376,8 @@ class GKEClusterManager(ManagerResource):
     def managed_resource_type(self):
         return Cluster
 
-    @property
-    def name(self):
-        return self._name
+    def __str__(self):
+        return self.name
 
 
 def create_gpu_node_pool_config(

@@ -34,7 +34,7 @@ def _get_service_account_access_token():
 
 
 class K8sApiClient:
-    def __init__(self, cluster: Cluster):
+    def __init__(self, cluster: "Cluster"):
         # TODO: generalize the initialization putting methods
         # on the `cluster` object to return the appropriate
         # information
@@ -42,9 +42,7 @@ class K8sApiClient:
             response = cluster.get()
         except requests.HTTPError as e:
             if e.code == 404:
-                raise RuntimeError(
-                    f"Cluster {cluster.name} not currently deployed"
-                )
+                raise RuntimeError(f"Cluster {cluster} not currently deployed")
             raise
 
         # create configuration using bare minimum info
@@ -171,11 +169,7 @@ class K8sApiClient:
         def _deleted_callback():
             return _try_cmd(app_client.read_namespaced_deployment)
 
-        wait_for(
-            _deleted_callback,
-            f"Waiting for deployment {name} to delete",
-            f"Deployment {name} deleted",
-        )
+        wait_for(_deleted_callback, f"Waiting for deployment {name} to delete")
 
     def wait_for_deployment(self, name: str, namespace: str = "default"):
         app_client = kubernetes.client.AppsV1Api(self._client)
@@ -218,11 +212,7 @@ class K8sApiClient:
             finally:
                 return False
 
-        wait_for(
-            _ready_callback,
-            f"Waiting for deployment {name} to deploy",
-            f"Deployment {name} ready",
-        )
+        wait_for(_ready_callback, f"Waiting for deployment {name} to deploy")
 
     def wait_for_service(self, name: str, namespace: str = "default"):
         core_client = kubernetes.client.CoreV1Api(self._client)
@@ -244,9 +234,7 @@ class K8sApiClient:
             return ip or False
 
         return wait_for(
-            _ready_callback,
-            f"Waiting for service {name} to be ready",
-            f"Service {name} ready",
+            _ready_callback, "Waiting for service {name} to be ready"
         )
 
     def wait_for_daemon_set(self, name: str, namespace: str = "kube-system"):

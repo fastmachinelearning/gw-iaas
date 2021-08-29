@@ -9,7 +9,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-attrs = "^21.2"
+rich = "^10.7"
 google-cloud-storage = "^1.38"
 google-cloud-container = "^2.7"
 kubernetes = "^17.17"

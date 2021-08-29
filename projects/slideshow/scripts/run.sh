@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 cd "$(dirname "$0")"/..
-git pull origin slideshow
+git pull origin dev
 
 poetry run jupyter notebook \
     --no-browser \

@@ -47,10 +47,11 @@ class GpuUtilProgress(Progress):
     def gpu_tasks(self) -> dict:
         """The subset of tasks that represent GPUs to monitor"""
 
+        regex = re.compile(r"\[green\]GPU [0-9] utilization")
         return {
             task_id: task
             for task_id, task in self._tasks.items()
-            if re.fullmatch("\[green\]GPU [0-9] utilization", task.description)
+            if regex.fullmatch(task.description)
         }
 
     def __enter__(self):
@@ -237,7 +238,7 @@ def parallel_inference_task(
     for y in inference_fn(model, x, device_index=device_index):
         q.put(y)
 
-        
+
 class ThrottledDataset(torch.utils.data.IterableDataset):
     def __init__(self, x, device_index=0):
         self.x = torch.from_numpy(x).cuda(device_index)
@@ -260,7 +261,7 @@ def do_some_throttled_inference(model, dataset, batch_size=8, device_index=0):
         y = model(x)
         yield y.cpu().numpy()
 
-        
+
 class NoiseRemovalModel(torch.nn.Module):
     def __init__(self, input_size: int, hidden_sizes: Sequence[int]) -> None:
         super().__init__()
@@ -284,13 +285,13 @@ class NoiseRemovalModel(torch.nn.Module):
         for layer in self.layers:
             x = layer(x)
         return x
- 
+
 
 def print_tree(d, n=0):
     root, ds, fs = next(os.walk(d))
-    print("    "*n + os.path.basename(root) + "/")
+    print("    " * n + os.path.basename(root) + "/")
     for d in ds:
-        print_tree(os.path.join(root, d), n+1)
+        print_tree(os.path.join(root, d), n + 1)
 
     for f in fs:
-        print("    " * (n+1) + f)
+        print("    " * (n + 1) + f)

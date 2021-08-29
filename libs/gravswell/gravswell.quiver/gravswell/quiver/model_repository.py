@@ -14,7 +14,7 @@ class ModelRepository:
 
         # load in any models that already exist in the repository
         # initialize a `_models` attribute to wrap with a `models` property
-        self._models = {}
+        self._models = []
         for model in self.fs.list(""):
             # try to read the config for the model, and if it
             # doesn't exist raise an error
@@ -27,7 +27,7 @@ class ModelRepository:
                 )
             except FileNotFoundError:
                 raise ValueError(
-                    f"Failed to initialize repo at {self.root}"
+                    f"Failed to initialize repo at {root}"
                     f"due to model with missing config {model}"
                 )
 

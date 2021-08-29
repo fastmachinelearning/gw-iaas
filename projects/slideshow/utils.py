@@ -1,3 +1,4 @@
+import os
 import re
 import subprocess
 import time
@@ -283,3 +284,13 @@ class NoiseRemovalModel(torch.nn.Module):
         for layer in self.layers:
             x = layer(x)
         return x
+ 
+
+def print_tree(d, n=0):
+    root, ds, fs = next(os.walk(d))
+    print("    "*n + os.path.basename(root) + "/")
+    for d in ds:
+        print_tree(os.path.join(root, d), n+1)
+
+    for f in fs:
+        print("    " * (n+1) + f)

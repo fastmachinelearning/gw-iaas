@@ -102,7 +102,7 @@ class Resource:
         )
 
         resource_type = snakeify(obj.resource_type)
-        kwargs = {resource_type: resource, "parent": parent.name}
+        kwargs = {resource_type: resource, "parent": str(parent)}
         create_request = create_request_cls(**kwargs)
         try:
             obj.client.make_request(create_request)
@@ -177,7 +177,7 @@ class Resource:
     def __str__(self):
         resource_type = self.resource_type
         camel = resource_type[0].lower() + resource_type[1:]
-        return self.parent.name + "/{}/{}".format(camel, self.name)
+        return str(self.parent) + "/{}/{}".format(camel, self.name)
 
     @property
     def message(self):

@@ -234,7 +234,7 @@ class K8sApiClient:
             return ip or False
 
         return wait_for(
-            _ready_callback, "Waiting for service {name} to be ready"
+            _ready_callback, f"Waiting for service {name} to be ready"
         )
 
     def wait_for_daemon_set(self, name: str, namespace: str = "kube-system"):

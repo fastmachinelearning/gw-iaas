@@ -2,5 +2,5 @@ from .kubernetes import (
     Cluster,
     ClusterManager,
     NodePool,
-    create_gpu_node_config,
+    create_gpu_node_pool_config,
 )

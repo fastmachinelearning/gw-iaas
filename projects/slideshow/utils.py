@@ -262,6 +262,73 @@ def do_some_throttled_inference(model, dataset, batch_size=8, device_index=0):
         yield y.cpu().numpy()
 
 
+def throttled_parallel_inference(X, num_gpus, jobs_per_gpu, progbar):
+    num_jobs = num_gpus * jobs_per_gpu
+    task_id = progbar.add_task(
+        f"[cyan]{num_gpus} GPUs/{num_jobs} jobs",
+        total=len(X),
+        start=False
+    )
+
+    # we need special queue and value objects
+    # specific to process spawning
+    smp = torch.multiprocessing.get_context("spawn")
+    q = smp.Queue()
+    sync = smp.Value("d", 0.0)
+
+    # pass a bunch of arguments into each
+    # process that we need to spawn
+    # note that we have to pass copies of some
+    # of our local functions that live in `utils`
+    # since we can't pickle functions defined
+    # in __main__
+    args = (
+        X,  # the full dataset
+        utils.MLP,  # the module class to use for inference
+        [INPUT_SIZE, HIDDEN_SIZES],  # arguments to initialize the module
+        utils.do_some_throttled_inference,  # the inference function to use
+        q,  # the queue to put the results in
+        sync,  # a task synchronizer
+        jobs_per_gpu,
+        num_gpus
+    )
+
+    # spawn a bunch of parallel jobs across all GPUs
+    # have to host the `parallel_inference_task` in
+    # a separate module for weird multiprocessing reasons
+    procs = torch.multiprocessing.spawn(
+        utils.parallel_inference_task,
+        args=args,
+        nprocs=num_jobs,
+        join=False
+    )
+
+    # wait to synchronize until all models load
+    # so that we can compare throughput better
+    while sync.value < num_jobs:
+        time.sleep(0.01)
+
+    # increment the starter to kick off the jobs
+    sync.value += 1
+    progbar.start_task(task_id)
+
+    # collect all the (unordered) inputs
+    outputs = []
+    while True:
+        try:
+            y = q.get_nowait()
+            progbar.update(task_id, advance=len(y))
+            outputs.append(y)
+        except Empty:
+            # if there's nothing in the queue and
+            # all the jobs are dead, we're done
+            if procs.join(0.01):
+                break
+
+    # concatenate the outputs and return
+    return np.concatenate(outputs, axis=0)
+
+
 class NoiseRemovalModel(torch.nn.Module):
     def __init__(self, input_size: int, hidden_sizes: Sequence[int]) -> None:
         super().__init__()

@@ -27,7 +27,7 @@ spec:
         - /bin/bash
         args:
         - -c
-        - LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$EXTRA_NV_PATHS" bin/tritonserver --model-repository gs://{{ .Values.bucket }} --repository-poll-secs 30
+        - LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$EXTRA_NV_PATHS" bin/tritonserver --model-repository gs://{{ .Values.bucket }} --repository-poll-secs 30 --model-control-mode explicit
         resources:
           limits:
             nvidia.com/gpu: {{ .Values.gpus }}

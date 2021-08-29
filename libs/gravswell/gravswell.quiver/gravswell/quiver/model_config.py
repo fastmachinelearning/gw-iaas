@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Literal, Optional, Union
 from tritonclient.grpc import model_config_pb2 as model_config
 
 from gravswell.quiver.exporters import Ensemble
+from gravswell.quiver import Platform
 
 if TYPE_CHECKING:
     from gravswell.quiver import Model
@@ -83,7 +84,7 @@ class ModelConfig:
     """
 
     def __new__(cls, model: "Model", **kwargs) -> "ModelConfig":
-        if isinstance(model.platform, Ensemble):
+        if model.platform == Platform.ENSEMBLE:
             cls = EnsembleConfig
 
         obj = super().__new__(cls)

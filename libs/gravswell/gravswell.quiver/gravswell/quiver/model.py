@@ -260,7 +260,7 @@ class EnsembleModel(Model):
         """Returns the models which this enesmble leverages for inference."""
         return [
             self.repository.models[step.model_name]
-            for step in self._config.ensemble_scheduling.step
+            for step in self.config.ensemble_scheduling.step
         ]
 
     def _update_step_map(

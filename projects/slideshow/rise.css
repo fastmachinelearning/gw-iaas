@@ -15,11 +15,11 @@ img.padded {
     float: left;
 }
 
-ul {
+ul.explicit {
     top: -30px;
 }
 
-li {
+li.explicit {
     padding-left: 1.28571429em;
     text-indent: -1.28571429em;
 }

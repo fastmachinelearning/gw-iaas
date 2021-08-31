@@ -7,11 +7,11 @@ img.padded {
     position: relative;
 }
 
-img.right {
+.right {
     float: right;
 }
 
-img.left {
+.left {
     float: left;
 }
 

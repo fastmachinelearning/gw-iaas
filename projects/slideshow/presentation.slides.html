@@ -113,6 +113,19 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .highlight .ss { color: var(--jp-mirror-editor-string-color) } /* Literal.String.Symbol */
 .highlight .il { color: var(--jp-mirror-editor-number-color) } /* Literal.Number.Integer.Long */
   </style>
+<style type="text/css">
+    /*This file contains any manual css for this page that needs to override the global styles.
+This is only required when different pages style the same element differently. This is just
+a hack to deal with our current css styles and no new styling should be added in this file.*/
+
+#ipython-main-app {
+    position: relative;
+}
+#jupyter-main-app {
+    position: relative;
+}
+
+  </style>
 
 
 
@@ -14089,6 +14102,79 @@ div.jp-OutputPrompt {
 {
   background: #727272 !important;
 }
+
+img.unpadded {
+    top: -30px;
+    position: relative;
+}
+img.padded {
+    top: 30px;
+    position: relative;
+}
+
+img.right {
+    float: right;
+}
+
+img.left {
+    float: left;
+}
+
+p.right {
+    float: right;
+}
+p.left {
+    float: left;
+}
+
+div.padded {
+    margin-top: 40px;
+}
+
+div.float200 {
+    margin-right: 200px;
+}
+div.float100 {
+    margin-right: 100px;
+}
+
+
+figcaption {
+    font-size:14px;
+    font-style: italic;
+}
+
+.center {
+  margin: auto;
+  width: 65%;
+}
+
+.cm-header {
+    font-size: 32px;
+}
+
+code.cm-s-ipython {
+    font-size: 16px;
+}
+
+div.text_cell_render {
+    font-size: 24px;
+}
+
+body.rise-enabled div.inner_cell>div.input_area {
+    font-size: 75%;
+}
+
+body.rise-enabled div.output_subarea.output_text.output_result {
+    font-size: 75%;
+}
+body.rise-enabled div.output_subarea.output_text.output_stream.output_stdout {
+  font-size: 75%;
+}
+
+body.rise-enabled div.output_subarea.output_html.rendered_html.output_result {
+  font-size: 75%;
+}
 </style>
 
 </head>
@@ -14110,7 +14196,24 @@ div.jp-OutputPrompt {
 </div></section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Inference-Time-Challenges">Inference Time Challenges<a class="anchor-link" href="#Inference-Time-Challenges">&#182;</a></h2><div class="float200 padded">
+<h2 id="Overview">Overview<a class="anchor-link" href="#Overview">&#182;</a></h2><ul>
+<li>Introduction</li>
+<li>A naive model</li>
+<li>Inference-as-a-service concepts</li>
+<li>Results on LIGO data</li>
+<li>Next steps</li>
+</ul>
+
+</div>
+</div></section></section><section><section>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2><h2 id="The-problem:">The problem:<a class="anchor-link" href="#The-problem:">&#182;</a></h2>
+</div>
+</div></section><section>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="Inference-Time-Challenges">Inference Time Challenges<a class="anchor-link" href="#Inference-Time-Challenges">&#182;</a></h3><div class="float200 padded">
     <img src="images/hardware-logos.png" width="300px" height="auto" class="right unpadded"/>
     <p class="left">Access to and familiarity with accelerated hardware</p>
 </div><div>
@@ -14122,6 +14225,11 @@ div.jp-OutputPrompt {
     <img src="images/distributing-nns.png" width="250px" height="auto" class="right unpadded"/>
     <p class="left">Distributing updated models to dependent users and applications</p>
 </div>
+</div>
+</div></section><section>
+<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="Inference-Problems-are-Training-Problems">Inference Problems are Training Problems<a class="anchor-link" href="#Inference-Problems-are-Training-Problems">&#182;</a></h3>
 </div>
 </div></section></section><section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
@@ -14242,7 +14350,7 @@ div.jp-OutputPrompt {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>array([0.52631146], dtype=float32)</pre>
+<pre>array([0.5128155], dtype=float32)</pre>
 </div>
 
 </div>
@@ -14300,8 +14408,8 @@ div.jp-OutputPrompt {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>CPU times: user 17.5 s, sys: 151 ms, total: 17.7 s
-Wall time: 17.6 s
+<pre>CPU times: user 17.8 s, sys: 198 ms, total: 18 s
+Wall time: 18 s
 </pre>
 </div>
 </div>
@@ -14354,12 +14462,12 @@ Wall time: 17.6 s
 
 
 
-<div id="fa6b9067-a738-4a60-a8d8-b77caabd87b8" class="jupyter-widgets jp-OutputArea-output ">
+<div id="8c925671-cf82-45b0-99e6-6113cdccaee6" class="jupyter-widgets jp-OutputArea-output ">
 <script type="text/javascript">
-var element = document.getElementById('fa6b9067-a738-4a60-a8d8-b77caabd87b8');
+var element = document.getElementById('8c925671-cf82-45b0-99e6-6113cdccaee6');
 </script>
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "2aa948bc4ec346b8bdce2c8076270561", "version_major": 2, "version_minor": 0}
+{"model_id": "93f26ca1fb5d4118888b1517e944e3f6", "version_major": 2, "version_minor": 0}
 </script>
 </div>
 
@@ -14424,12 +14532,12 @@ var element = document.getElementById('fa6b9067-a738-4a60-a8d8-b77caabd87b8');
 
 
 
-<div id="1e965bdf-6bd6-461e-87aa-65392f304128" class="jupyter-widgets jp-OutputArea-output ">
+<div id="f2c1611e-60ac-4515-9771-5a3950a8de8c" class="jupyter-widgets jp-OutputArea-output ">
 <script type="text/javascript">
-var element = document.getElementById('1e965bdf-6bd6-461e-87aa-65392f304128');
+var element = document.getElementById('f2c1611e-60ac-4515-9771-5a3950a8de8c');
 </script>
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "ab46a36481b3468e828fad73f0320545", "version_major": 2, "version_minor": 0}
+{"model_id": "78903b547544432d8d112b6e7269decc", "version_major": 2, "version_minor": 0}
 </script>
 </div>
 
@@ -14567,12 +14675,12 @@ var element = document.getElementById('1e965bdf-6bd6-461e-87aa-65392f304128');
 
 
 
-<div id="f36c027f-3cdd-4d28-ae6f-9f038bbcf864" class="jupyter-widgets jp-OutputArea-output ">
+<div id="17616d05-195b-4209-b37e-a5ec632c6bad" class="jupyter-widgets jp-OutputArea-output ">
 <script type="text/javascript">
-var element = document.getElementById('f36c027f-3cdd-4d28-ae6f-9f038bbcf864');
+var element = document.getElementById('17616d05-195b-4209-b37e-a5ec632c6bad');
 </script>
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "ce07cd84da7b4d3a8da51f4c232387e1", "version_major": 2, "version_minor": 0}
+{"model_id": "8d4d8be1095144c0b728107beb9c9a27", "version_major": 2, "version_minor": 0}
 </script>
 </div>
 
@@ -14606,7 +14714,7 @@ var element = document.getElementById('f36c027f-3cdd-4d28-ae6f-9f038bbcf864');
 </div></section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Throughput-too-low">Throughput too low<a class="anchor-link" href="#Throughput-too-low">&#182;</a></h2><h4 id="The-constraints-of-our-use-case-demand-that-we-further-reduce-processing-time-by-an-order-of-magnitude"><em>The constraints of our use case demand that we further reduce processing time by an order of magnitude</em><a class="anchor-link" href="#The-constraints-of-our-use-case-demand-that-we-further-reduce-processing-time-by-an-order-of-magnitude">&#182;</a></h4><ul>
+<h3 id="Throughput-too-low">Throughput too low<a class="anchor-link" href="#Throughput-too-low">&#182;</a></h3><h4 id="The-constraints-of-our-use-case-demand-that-we-further-reduce-processing-time-by-an-order-of-magnitude"><em>The constraints of our use case demand that we further reduce processing time by an order of magnitude</em><a class="anchor-link" href="#The-constraints-of-our-use-case-demand-that-we-further-reduce-processing-time-by-an-order-of-magnitude">&#182;</a></h4><ul>
 <li>Not obvious how to simply extend this code to multi-node</li>
 <li>Scaling not dynamic<ul>
 <li>Have to pick a level of parallelism and hope the resources are available to use it</li>
@@ -14618,184 +14726,19 @@ var element = document.getElementById('f36c027f-3cdd-4d28-ae6f-9f038bbcf864');
 </div></section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Throughput-too-high">Throughput too high<a class="anchor-link" href="#Throughput-too-high">&#182;</a></h2><h4 id="Data-generation-process-is-slow,-needs-to-be-parallelized-to-saturate-GPU-throughput"><em>Data generation process is slow, needs to be parallelized to saturate GPU throughput</em><a class="anchor-link" href="#Data-generation-process-is-slow,-needs-to-be-parallelized-to-saturate-GPU-throughput">&#182;</a></h4>
+<h3 id="Throughput-too-high">Throughput too high<a class="anchor-link" href="#Throughput-too-high">&#182;</a></h3><h4 id="Data-generation-process-is-slow,-needs-to-be-parallelized-to-saturate-GPU-throughput"><em>Data generation process is slow, needs to be parallelized to saturate GPU throughput</em><a class="anchor-link" href="#Data-generation-process-is-slow,-needs-to-be-parallelized-to-saturate-GPU-throughput">&#182;</a></h4><ul>
+<li>Low GPU utilization with local resources. Not obvious how this code can:<ul>
+<li>Scale to multiple clients</li>
+<li>Allow other users to leverage spare cycles</li>
+</ul>
+</li>
+</ul>
+
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">ThrottledDataset</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">IterableDataset</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">device_index</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">(</span><span class="n">device_index</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">it</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span> <span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">it</span><span class="p">)</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">x</span>
-
-
-<span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
-<span class="k">def</span> <span class="nf">do_some_throttled_inference</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">device_index</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="n">gpu_dataset</span> <span class="o">=</span> <span class="n">ThrottledDataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">device_index</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">gpu_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">):</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">yield</span> <span class="n">y</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
 </div></section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Throughput-too-high">Throughput too high<a class="anchor-link" href="#Throughput-too-high">&#182;</a></h2><p>Reimplement parallel inference with our new inference function</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">throttled_parallel_inference</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">num_gpus</span><span class="p">,</span> <span class="n">jobs_per_gpu</span><span class="p">,</span> <span class="n">progbar</span><span class="p">):</span>
-    <span class="n">num_jobs</span> <span class="o">=</span> <span class="n">num_gpus</span> <span class="o">*</span> <span class="n">jobs_per_gpu</span>
-    <span class="n">task_id</span> <span class="o">=</span> <span class="n">progbar</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;[cyan]</span><span class="si">{</span><span class="n">num_gpus</span><span class="si">}</span><span class="s2"> GPUs/</span><span class="si">{</span><span class="n">num_jobs</span><span class="si">}</span><span class="s2"> jobs&quot;</span><span class="p">,</span>
-        <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">),</span>
-        <span class="n">start</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">)</span>
-
-    <span class="c1"># we need special queue and value objects</span>
-    <span class="c1"># specific to process spawning</span>
-    <span class="n">smp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="s2">&quot;spawn&quot;</span><span class="p">)</span>
-    <span class="n">q</span> <span class="o">=</span> <span class="n">smp</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
-    <span class="n">sync</span> <span class="o">=</span> <span class="n">smp</span><span class="o">.</span><span class="n">Value</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-
-    <span class="c1"># pass a bunch of arguments into each</span>
-    <span class="c1"># process that we need to spawn</span>
-    <span class="c1"># note that we have to pass copies of some</span>
-    <span class="c1"># of our local functions that live in `utils`</span>
-    <span class="c1"># since we can&#39;t pickle functions defined</span>
-    <span class="c1"># in __main__</span>
-    <span class="n">args</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">X</span><span class="p">,</span>  <span class="c1"># the full dataset</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">MLP</span><span class="p">,</span>  <span class="c1"># the module class to use for inference</span>
-        <span class="p">[</span><span class="n">INPUT_SIZE</span><span class="p">,</span> <span class="n">HIDDEN_SIZES</span><span class="p">],</span>  <span class="c1"># arguments to initialize the module</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">do_some_throttled_inference</span><span class="p">,</span>  <span class="c1"># the inference funcntion to use</span>
-        <span class="n">q</span><span class="p">,</span>  <span class="c1"># the queue to put the results in</span>
-        <span class="n">sync</span><span class="p">,</span>  <span class="c1"># a task synchronizer</span>
-        <span class="n">jobs_per_gpu</span><span class="p">,</span>
-        <span class="n">num_gpus</span>
-    <span class="p">)</span>
-
-    <span class="c1"># spawn a bunch of parallel jobs across all GPUs</span>
-    <span class="c1"># have to host the `parallel_inference_task` in</span>
-    <span class="c1"># a separate module for weird multiprocessing reasons</span>
-    <span class="n">procs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span>
-        <span class="n">utils</span><span class="o">.</span><span class="n">parallel_inference_task</span><span class="p">,</span>
-        <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span>
-        <span class="n">nprocs</span><span class="o">=</span><span class="n">num_jobs</span><span class="p">,</span>
-        <span class="n">join</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">)</span>
-
-    <span class="c1"># wait to synchronize until all models load</span>
-    <span class="c1"># so that we can compare throughput better</span>
-    <span class="k">while</span> <span class="n">sync</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">num_jobs</span><span class="p">:</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
-
-    <span class="c1"># increment the starter to kick off the jobs</span>
-    <span class="n">sync</span><span class="o">.</span><span class="n">value</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="n">progbar</span><span class="o">.</span><span class="n">start_task</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
-
-    <span class="c1"># collect all the (unordered) inputs</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
-            <span class="n">progbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
-            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">Empty</span><span class="p">:</span>
-            <span class="c1"># if there&#39;s nothing in the queue and</span>
-            <span class="c1"># all the jobs are dead, we&#39;re done</span>
-            <span class="k">if</span> <span class="n">procs</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="mf">0.01</span><span class="p">):</span>
-                <span class="k">break</span>
-
-    <span class="c1"># concatenate the outputs and return</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div></section><section>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Throughput-too-high">Throughput too high<a class="anchor-link" href="#Throughput-too-high">&#182;</a></h2><p>Low GPU utilization with local resources. Scale out or allow other users to leverage spare cycles</p>
-
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[:</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="mi">4</span><span class="p">]</span>  <span class="c1"># this will take longer, so just do a few for demo purposes</span>
-<span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">GpuUtilProgress</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="k">as</span> <span class="n">progbar</span><span class="p">:</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">throttled_parallel_inference</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">progbar</span><span class="o">=</span><span class="n">progbar</span><span class="p">)</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">throttled_parallel_inference</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">progbar</span><span class="o">=</span><span class="n">progbar</span><span class="p">)</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">throttled_parallel_inference</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">progbar</span><span class="o">=</span><span class="n">progbar</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-<div class="jp-Cell-outputWrapper">
-
-
-<div class="jp-OutputArea jp-Cell-outputArea">
-
-<div class="jp-OutputArea-child">
-
-    
-    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-
-
-
-
-
-
-
-<div id="1c73d706-4ac0-4f57-9060-bff1780e5309" class="jupyter-widgets jp-OutputArea-output ">
-<script type="text/javascript">
-var element = document.getElementById('1c73d706-4ac0-4f57-9060-bff1780e5309');
-</script>
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "e8490bd950074df1bf0fb5be95007afa", "version_major": 2, "version_minor": 0}
-</script>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div></section><section>
-<div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Model-ensembling">Model ensembling<a class="anchor-link" href="#Model-ensembling">&#182;</a></h2><h4 id="Connecting-multiple-models-in-a-single-pipeline"><em>Connecting multiple models in a single pipeline</em><a class="anchor-link" href="#Connecting-multiple-models-in-a-single-pipeline">&#182;</a></h4><div class="center">
+<h3 id="Model-ensembling">Model ensembling<a class="anchor-link" href="#Model-ensembling">&#182;</a></h3><h4 id="Connecting-multiple-models-in-a-single-pipeline"><em>Connecting multiple models in a single pipeline</em><a class="anchor-link" href="#Connecting-multiple-models-in-a-single-pipeline">&#182;</a></h4><div class="center">
     <img src="images/model_sharing.png" height="auto" width="400px" class="center" />
     <img src="images/model_ensemble.png" height="auto" width="400px" class="center" />
 </div>
@@ -14803,7 +14746,7 @@ var element = document.getElementById('1c73d706-4ac0-4f57-9060-bff1780e5309');
 </div></section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Model-ensembling">Model ensembling<a class="anchor-link" href="#Model-ensembling">&#182;</a></h2><p>Naive implemenation</p>
+<h3 id="Model-ensembling">Model ensembling<a class="anchor-link" href="#Model-ensembling">&#182;</a></h3><p>Naive implemenation</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14852,12 +14795,12 @@ var element = document.getElementById('1c73d706-4ac0-4f57-9060-bff1780e5309');
 
 
 
-<div id="5780921e-cfd3-4b4f-b30c-84bad78ac7c9" class="jupyter-widgets jp-OutputArea-output ">
+<div id="c02d9184-31e2-4938-b411-492503abc84f" class="jupyter-widgets jp-OutputArea-output ">
 <script type="text/javascript">
-var element = document.getElementById('5780921e-cfd3-4b4f-b30c-84bad78ac7c9');
+var element = document.getElementById('c02d9184-31e2-4938-b411-492503abc84f');
 </script>
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "f37310f7edc04fabb08a8b9d6eaa15a1", "version_major": 2, "version_minor": 0}
+{"model_id": "85c99c4133b046a5bb0c1a4b439b17e3", "version_major": 2, "version_minor": 0}
 </script>
 </div>
 
@@ -14870,7 +14813,7 @@ var element = document.getElementById('5780921e-cfd3-4b4f-b30c-84bad78ac7c9');
 </div></section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Model-Ensembling">Model Ensembling<a class="anchor-link" href="#Model-Ensembling">&#182;</a></h2><p>Naive implementation works, but not so fast. Extending to parallel execution efficiently means:</p>
+<h2 id="Model-Ensembling">Model Ensembling<a class="anchor-link" href="#Model-Ensembling">&#182;</a></h2><p>Naive implementation works, but extending to parallel execution efficiently is non-trivial:</p>
 
 </div>
 </div>
@@ -14981,7 +14924,7 @@ var element = document.getElementById('5780921e-cfd3-4b4f-b30c-84bad78ac7c9');
 <span class="n">client</span> <span class="o">=</span> <span class="n">triton</span><span class="o">.</span><span class="n">InferenceServerClient</span><span class="p">(</span><span class="s2">&quot;0.0.0.0:8001&quot;</span><span class="p">)</span>
 
 <span class="c1"># build a protobuf message representing the input</span>
-<span class="n">metadata</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_model_metadata</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">metadata</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_model_metadata</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="nb">input</span> <span class="o">=</span> <span class="n">triton</span><span class="o">.</span><span class="n">InferInput</span><span class="p">(</span>
     <span class="n">metadata</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">metadata</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">metadata</span><span class="o">.</span><span class="n">datatype</span>
 <span class="p">)</span>
@@ -15018,7 +14961,7 @@ var element = document.getElementById('5780921e-cfd3-4b4f-b30c-84bad78ac7c9');
 <span class="n">client</span> <span class="o">=</span> <span class="n">triton</span><span class="o">.</span><span class="n">InferenceServerClient</span><span class="p">(</span><span class="s2">&quot;0.0.0.0:8001&quot;</span><span class="p">)</span>
 
 <span class="c1"># build a protobuf message representing the input</span>
-<span class="n">metadata</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_model_metadata</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">input</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">metadata</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_model_metadata</span><span class="p">(</span><span class="s2">&quot;my_model&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="nb">input</span> <span class="o">=</span> <span class="n">triton</span><span class="o">.</span><span class="n">InferInput</span><span class="p">(</span>
     <span class="n">metadata</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">metadata</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">metadata</span><span class="o">.</span><span class="n">datatype</span>
 <span class="p">)</span>
@@ -15032,6 +14975,787 @@ var element = document.getElementById('5780921e-cfd3-4b4f-b30c-84bad78ac7c9');
 </pre></div>
 
 </div>
+</div></section><section><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[13]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">gravswell</span> <span class="kn">import</span> <span class="n">quiver</span> <span class="k">as</span> <span class="n">qv</span>
+
+<span class="n">repo</span> <span class="o">=</span> <span class="n">qv</span><span class="o">.</span><span class="n">ModelRepository</span><span class="p">(</span><span class="s2">&quot;my-repo&quot;</span><span class="p">)</span>
+<span class="n">entry</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;my-model&quot;</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="n">qv</span><span class="o">.</span><span class="n">Platform</span><span class="o">.</span><span class="n">ONNX</span><span class="p">)</span>
+<span class="n">entry</span><span class="o">.</span><span class="n">config</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>name: &#34;my-model&#34;
+platform: &#34;onnxruntime_onnx&#34;</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[14]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">inference_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+<span class="n">export_path</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">export_version</span><span class="p">(</span>
+    <span class="n">inference_model</span><span class="p">,</span>
+    <span class="n">input_shapes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">INPUT_SIZE</span><span class="p">)},</span>
+    <span class="n">output_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">entry</span><span class="o">.</span><span class="n">config</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[14]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>name: &#34;my-model&#34;
+platform: &#34;onnxruntime_onnx&#34;
+input {
+  name: &#34;x&#34;
+  data_type: TYPE_FP32
+  dims: -1
+  dims: 64
+}
+output {
+  name: &#34;y&#34;
+  data_type: TYPE_FP32
+  dims: -1
+  dims: 1
+}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[15]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">utils</span><span class="o">.</span><span class="n">print_tree</span><span class="p">(</span><span class="s2">&quot;my-repo&quot;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>my-repo/
+    my-model/
+        1/
+            model.onnx
+        config.pbtxt
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[16]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">entry</span><span class="o">.</span><span class="n">export_version</span><span class="p">(</span><span class="n">inference_model</span><span class="p">)</span>
+<span class="n">utils</span><span class="o">.</span><span class="n">print_tree</span><span class="p">(</span><span class="s2">&quot;my-repo&quot;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>my-repo/
+    my-model/
+        1/
+            model.onnx
+        2/
+            model.onnx
+        config.pbtxt
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[17]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">entry</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_instance_group</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">entry</span><span class="o">.</span><span class="n">config</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[17]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>name: &#34;my-model&#34;
+platform: &#34;onnxruntime_onnx&#34;
+input {
+  name: &#34;x&#34;
+  data_type: TYPE_FP32
+  dims: -1
+  dims: 64
+}
+output {
+  name: &#34;y&#34;
+  data_type: TYPE_FP32
+  dims: -1
+  dims: 1
+}
+instance_group {
+  count: 4
+  kind: KIND_GPU
+}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[18]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">repo</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[19]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">repo</span> <span class="o">=</span> <span class="n">qv</span><span class="o">.</span><span class="n">ModelRepository</span><span class="p">(</span><span class="s2">&quot;gs://ligo-quiver-demo&quot;</span><span class="p">)</span>
+<span class="n">entry</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;my-model&quot;</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="n">qv</span><span class="o">.</span><span class="n">Platform</span><span class="o">.</span><span class="n">ONNX</span><span class="p">)</span>
+<span class="n">entry</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_instance_group</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">export_path</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">export_version</span><span class="p">(</span>
+    <span class="n">inference_model</span><span class="p">,</span>
+    <span class="n">input_shapes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">INPUT_SIZE</span><span class="p">)},</span>
+    <span class="n">output_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="o">!</span> gsutil ls gs://ligo-quiver-demo/my-model
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>gs://ligo-quiver-demo/my-model/config.pbtxt
+gs://ligo-quiver-demo/my-model/1/
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[20]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">gravswell.cloudbreak</span> <span class="kn">import</span> <span class="n">google</span> <span class="k">as</span> <span class="n">cb</span>
+<span class="kn">from</span> <span class="nn">google.cloud</span> <span class="kn">import</span> <span class="n">container_v1</span> <span class="k">as</span> <span class="n">container</span>
+
+<span class="n">manager</span> <span class="o">=</span> <span class="n">cb</span><span class="o">.</span><span class="n">ClusterManager</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="s2">&quot;gunny-multi-instance-dev&quot;</span><span class="p">,</span> <span class="n">zone</span><span class="o">=</span><span class="s2">&quot;us-east4-b&quot;</span><span class="p">)</span>
+
+<span class="n">cluster_config</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">Cluster</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ligo-demo-cluster&quot;</span><span class="p">,</span>
+    <span class="n">node_pools</span><span class="o">=</span><span class="p">[</span><span class="n">container</span><span class="o">.</span><span class="n">NodePool</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;default-pool&quot;</span><span class="p">,</span>
+        <span class="n">initial_node_count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">container</span><span class="o">.</span><span class="n">NodeConfig</span><span class="p">()</span>
+    <span class="p">)]</span>
+<span class="p">)</span>
+<span class="n">cluster</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">create_resource</span><span class="p">(</span><span class="n">cluster_config</span><span class="p">)</span>
+<span class="n">cluster</span><span class="o">.</span><span class="n">deploy_gpu_drivers</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+
+
+
+
+<div id="650df173-b49b-4400-bbfe-872e8a8cded4" class="jupyter-widgets jp-OutputArea-output ">
+<script type="text/javascript">
+var element = document.getElementById('650df173-b49b-4400-bbfe-872e8a8cded4');
+</script>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "b66363592f234a4e968a2c6bd9c2600d", "version_major": 2, "version_minor": 0}
+</script>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[21]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">node_pool_config</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">NodePool</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tritonserver-t4-pool&quot;</span><span class="p">,</span>
+    <span class="n">initial_node_count</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">cb</span><span class="o">.</span><span class="n">create_gpu_node_pool_config</span><span class="p">(</span>
+        <span class="n">vcpus</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+        <span class="n">gpus</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">gpu_type</span><span class="o">=</span><span class="s2">&quot;t4&quot;</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">node_pool</span> <span class="o">=</span> <span class="n">cluster</span><span class="o">.</span><span class="n">create_resource</span><span class="p">(</span><span class="n">node_pool_config</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+
+
+
+
+<div id="0f57cf3e-b1ec-4ef2-9600-9757c64820d5" class="jupyter-widgets jp-OutputArea-output ">
+<script type="text/javascript">
+var element = document.getElementById('0f57cf3e-b1ec-4ef2-9600-9757c64820d5');
+</script>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "60677582f5fe418c89518faf2550bc70", "version_major": 2, "version_minor": 0}
+</script>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[22]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cluster</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span>
+    <span class="s2">&quot;triton.yaml&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tritonserver&quot;</span><span class="p">,</span>
+    <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;20.11&quot;</span><span class="p">,</span>
+    <span class="n">bucket</span><span class="o">=</span><span class="s2">&quot;ligo-quiver-demo&quot;</span><span class="p">,</span>
+    <span class="n">gpus</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">vcpus</span><span class="o">=</span><span class="mi">15</span>  <span class="c1"># at least come cpu has to go to running kubernetes</span>
+<span class="p">)</span>
+<span class="n">cluster</span><span class="o">.</span><span class="n">k8s_client</span><span class="o">.</span><span class="n">wait_for_deployment</span><span class="p">(</span><span class="s2">&quot;tritonserver&quot;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+
+
+
+
+<div id="48163abb-d28c-4c0b-a2c7-bc5ea70509f2" class="jupyter-widgets jp-OutputArea-output ">
+<script type="text/javascript">
+var element = document.getElementById('48163abb-d28c-4c0b-a2c7-bc5ea70509f2');
+</script>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "3a4462d4ebc44b94bcfc74f68a63f61b", "version_major": 2, "version_minor": 0}
+</script>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[23]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">tritonclient.grpc</span> <span class="k">as</span> <span class="nn">triton</span>
+
+<span class="n">ip</span> <span class="o">=</span> <span class="n">cluster</span><span class="o">.</span><span class="n">k8s_client</span><span class="o">.</span><span class="n">wait_for_service</span><span class="p">(</span><span class="s2">&quot;tritonserver&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">triton</span><span class="o">.</span><span class="n">InferenceServerClient</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ip</span><span class="si">}</span><span class="s2">:8001&quot;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">client</span><span class="o">.</span><span class="n">is_server_live</span><span class="p">()</span>
+
+<span class="n">client</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;my-model&quot;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">client</span><span class="o">.</span><span class="n">is_model_ready</span><span class="p">(</span><span class="s2">&quot;my-model&quot;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+
+
+
+
+<div id="dc9d5189-ca7a-41ca-9aaa-aee0c533177a" class="jupyter-widgets jp-OutputArea-output ">
+<script type="text/javascript">
+var element = document.getElementById('dc9d5189-ca7a-41ca-9aaa-aee0c533177a');
+</script>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "667fcc7983234b3ba10807949a24de6e", "version_major": 2, "version_minor": 0}
+</script>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[24]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="n">metadata</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_model_metadata</span><span class="p">(</span><span class="s2">&quot;my-model&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="n">batch_size</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">shape</span><span class="p">]</span>
+<span class="nb">input</span> <span class="o">=</span> <span class="n">triton</span><span class="o">.</span><span class="n">InferInput</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">metadata</span><span class="o">.</span><span class="n">datatype</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">GpuUtilProgress</span><span class="p">()</span> <span class="k">as</span> <span class="n">progress</span><span class="p">:</span>
+    <span class="n">task_id</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="s2">&quot;Inference&quot;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">as_numpy</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+        <span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+
+    <span class="n">num_batches</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">//</span> <span class="n">batch_size</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">num_batches</span><span class="p">):</span>
+        <span class="nb">input</span><span class="o">.</span><span class="n">set_data_from_numpy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">async_infer</span><span class="p">(</span><span class="s2">&quot;my-model&quot;</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="nb">input</span><span class="p">],</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">progress</span><span class="o">.</span><span class="n">_tasks</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span><span class="o">.</span><span class="n">finished</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+
+
+
+
+<div id="31e78929-0874-4ee8-b1c4-991578b9aa74" class="jupyter-widgets jp-OutputArea-output ">
+<script type="text/javascript">
+var element = document.getElementById('31e78929-0874-4ee8-b1c4-991578b9aa74');
+</script>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "b62747cab0cb467587e94be729824294", "version_major": 2, "version_minor": 0}
+</script>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[25]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">noise_entry</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;noise-remover&quot;</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="n">qv</span><span class="o">.</span><span class="n">Platform</span><span class="o">.</span><span class="n">ONNX</span><span class="p">)</span>
+<span class="n">noise_entry</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_instance_group</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">noise_remover</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+<span class="n">export_path</span> <span class="o">=</span> <span class="n">noise_entry</span><span class="o">.</span><span class="n">export_version</span><span class="p">(</span>
+    <span class="n">noise_remover</span><span class="p">,</span>
+    <span class="n">input_shapes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;noisy&quot;</span><span class="p">:</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">INPUT_SIZE</span><span class="p">)},</span>
+    <span class="n">output_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cleaned&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="o">!</span> gsutil ls gs://ligo-quiver-demo
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
+<pre>gs://ligo-quiver-demo/my-model/
+gs://ligo-quiver-demo/noise-remover/
+</pre>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[27]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ensemble_entry</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;end-to-end&quot;</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="n">qv</span><span class="o">.</span><span class="n">Platform</span><span class="o">.</span><span class="n">ENSEMBLE</span><span class="p">)</span>
+<span class="n">ensemble_entry</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="n">noise_entry</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;noisy&quot;</span><span class="p">])</span>
+<span class="n">ensemble_entry</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">noise_entry</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;cleaned&quot;</span><span class="p">],</span> <span class="n">entry</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">])</span>
+<span class="n">ensemble_entry</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">])</span>
+<span class="n">export_path</span> <span class="o">=</span> <span class="n">ensemble_entry</span><span class="o">.</span><span class="n">export_version</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="o">!</span> gsutil ls gs://ligo-quiver-demo
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[29]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;end-to-end&quot;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">client</span><span class="o">.</span><span class="n">is_model_ready</span><span class="p">(</span><span class="s2">&quot;noise-remover&quot;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">client</span><span class="o">.</span><span class="n">is_model_ready</span><span class="p">(</span><span class="s2">&quot;end-to-end&quot;</span><span class="p">)</span>
+
+<span class="n">metadata</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_model_metadata</span><span class="p">(</span><span class="s2">&quot;end-to-end&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">else</span> <span class="n">batch_size</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">shape</span><span class="p">]</span>
+<span class="nb">input</span> <span class="o">=</span> <span class="n">triton</span><span class="o">.</span><span class="n">InferInput</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">metadata</span><span class="o">.</span><span class="n">datatype</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">GpuUtilProgress</span><span class="p">()</span> <span class="k">as</span> <span class="n">progress</span><span class="p">:</span>
+    <span class="n">task_id</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="s2">&quot;Inference&quot;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">as_numpy</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+        <span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+
+    <span class="n">num_batches</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">//</span> <span class="n">batch_size</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">num_batches</span><span class="p">):</span>
+        <span class="nb">input</span><span class="o">.</span><span class="n">set_data_from_numpy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">async_infer</span><span class="p">(</span><span class="s2">&quot;end-to-end&quot;</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="nb">input</span><span class="p">],</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">progress</span><span class="o">.</span><span class="n">_tasks</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span><span class="o">.</span><span class="n">finished</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+
+
+
+
+<div id="85da9755-05fb-4ec4-a4eb-65042282f48c" class="jupyter-widgets jp-OutputArea-output ">
+<script type="text/javascript">
+var element = document.getElementById('85da9755-05fb-4ec4-a4eb-65042282f48c');
+</script>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "f4f7511fceba47a896eb53326c4a4e04", "version_major": 2, "version_minor": 0}
+</script>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[40]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">kubernetes</span>
+
+<span class="n">app_client</span> <span class="o">=</span> <span class="n">kubernetes</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">AppsV1Api</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">k8s_client</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
+<span class="n">body</span> <span class="o">=</span> <span class="n">app_client</span><span class="o">.</span><span class="n">read_namespaced_deployment</span><span class="p">(</span><span class="s2">&quot;tritonserver&quot;</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">)</span>
+<span class="n">body</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">replicas</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">app_client</span><span class="o">.</span><span class="n">patch_namespaced_deployment_scale</span><span class="p">(</span>
+    <span class="s2">&quot;tritonserver&quot;</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="n">body</span>
+<span class="p">)</span>
+<span class="n">cluster</span><span class="o">.</span><span class="n">k8s_client</span><span class="o">.</span><span class="n">wait_for_deployment</span><span class="p">(</span><span class="s2">&quot;tritonserver&quot;</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[43]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">GpuUtilProgress</span><span class="p">()</span> <span class="k">as</span> <span class="n">progress</span><span class="p">:</span>
+    <span class="n">task_id</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="s2">&quot;Inference&quot;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">as_numpy</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+        <span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+
+    <span class="n">num_batches</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">//</span> <span class="n">batch_size</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">num_batches</span><span class="p">):</span>
+        <span class="nb">input</span><span class="o">.</span><span class="n">set_data_from_numpy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">async_infer</span><span class="p">(</span><span class="s2">&quot;end-to-end&quot;</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="nb">input</span><span class="p">],</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">progress</span><span class="o">.</span><span class="n">_tasks</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span><span class="o">.</span><span class="n">finished</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+
+
+
+
+
+
+
+<div id="002ed5c9-e07c-47be-95f9-d60e9e6197bf" class="jupyter-widgets jp-OutputArea-output ">
+<script type="text/javascript">
+var element = document.getElementById('002ed5c9-e07c-47be-95f9-d60e9e6197bf');
+</script>
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id": "138c9a5bc0904b9ba8032bd7119d4f32", "version_major": 2, "version_minor": 0}
+</script>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div></section></section>
 </div>
 </div>

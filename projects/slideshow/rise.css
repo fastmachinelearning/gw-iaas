@@ -15,6 +15,15 @@ img.padded {
     float: left;
 }
 
+ul {
+    top: -30px;
+}
+
+li {
+    padding-left: 1.28571429em;
+    text-indent: -1.28571429em;
+}
+
 p.right {
     float: right;
 }

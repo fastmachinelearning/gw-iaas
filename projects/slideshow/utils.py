@@ -238,6 +238,9 @@ def parallel_inference_task(
     for y in inference_fn(model, x, device_index=device_index):
         q.put(y)
 
+    # delete the model to manage GPU memory
+    del model
+
 
 class NoiseRemovalModel(torch.nn.Module):
     def __init__(self, input_size: int, hidden_sizes: Sequence[int]) -> None:

@@ -7,7 +7,30 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
 
-<title>presentation slides</title><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>presentation slides</title><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script><script>
+(function() {
+  function addWidgetsRenderer() {
+    var mimeElement = document.querySelector('script[type="application/vnd.jupyter.widget-view+json"]');
+    var scriptElement = document.createElement('script');
+    var widgetRendererSrc = 'https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js';
+    var widgetState;
+
+    // Fallback for older version:
+    try {
+      widgetState = mimeElement && JSON.parse(mimeElement.innerHTML);
+
+      if (widgetState && (widgetState.version_major < 2 || !widgetState.version_major)) {
+        widgetRendererSrc = 'https://unpkg.com/jupyter-js-widgets@*/dist/embed.js';
+      }
+    } catch(e) {}
+
+    scriptElement.src = widgetRendererSrc;
+    document.body.appendChild(scriptElement);
+  }
+
+  document.addEventListener('DOMContentLoaded', addWidgetsRenderer);
+}());
+</script>
 
 <!-- General and theme style sheets -->
 <link rel="stylesheet" href="https://unpkg.com/reveal.js@4.0.2/dist/reveal.css">
@@ -14128,17 +14151,18 @@ div.jp-OutputPrompt {
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Multi-Messenger-Astrophysics-(MMA)">Multi-Messenger Astrophysics (MMA)<a class="anchor-link" href="#Multi-Messenger-Astrophysics-(MMA)">&#182;</a></h2><p>Use signals detected in gravitational strain to alert observers of other messengers for followup</p>
-<p><div class="center">
-    <img src="images/mma.png" height="auto" width="1000px" />
-&lt;/div</p>
-
+<div class="center">
+    <img src="images/mma.png" height="auto" width="1000px" style="width:90%" />
+</div>
 </div>
 </div></section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="LIGO-trigger-system">LIGO trigger system<a class="anchor-link" href="#LIGO-trigger-system">&#182;</a></h2><p><img src="images/trigger.png" height="auto" width="600px" class="left"/>
-<img src="https://research.cs.wisc.edu/htcondor/manual/v7.6/img7.png" height="auto" width="400px" class="right" /></p>
-
+<h2 id="LIGO-trigger-system">LIGO trigger system<a class="anchor-link" href="#LIGO-trigger-system">&#182;</a></h2><p><img src="images/trigger.png" height="auto" width="600px" class="left" style="width:48%;position:relative;float:left"/></p>
+<figure class="right" style="position:relative;float:right;width:40%;">
+    <img src="https://research.cs.wisc.edu/htcondor/manual/v7.6/img7.png" height="auto" width="400px" />
+    <figcaption style="font-style:italic;font-size:12px"><a href=https://research.cs.wisc.edu/htcondor/manual/v7.6/img7.png>Source</a></figcaption>
+</figure>
 </div>
 </div></section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
@@ -14170,11 +14194,11 @@ div.jp-OutputPrompt {
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Deep-Learning---Training">Deep Learning - Training<a class="anchor-link" href="#Deep-Learning---Training">&#182;</a></h2><div class="center">
-    <img src="images/gradient-descent.png" height="auto" width="600px"/>
+    <img src="images/gradient-descent.png" height="auto" width="600px" style="width:60%;" />
 
-<figure>
-    <img src="https://www.researchgate.net/profile/Isma-Hadji/publication/324005705/figure/fig16/AS:608279214424066@1522036474439/Visualization-of-Conv1-Filters-Learned-by-AlexNet-Trained-on-ImageNet-Dataset-Figure.png" height="auto" width="600px"/>
-    <figcaption>Learned filters in a model trained on natural images</figcaption>
+<figure style="width:60%;">
+    <img src="https://www.researchgate.net/profile/Isma-Hadji/publication/324005705/figure/fig16/AS:608279214424066@1522036474439/Visualization-of-Conv1-Filters-Learned-by-AlexNet-Trained-on-ImageNet-Dataset-Figure.png" height="auto" width="600px" />
+    <figcaption style="font-style:italic;font-size:16px">Learned filters in a model trained on natural images. <a href="https://www.researchgate.net/profile/Isma-Hadji/publication/324005705/figure/fig16/AS:608279214424066@1522036474439/Visualization-of-Conv1-Filters-Learned-by-AlexNet-Trained-on-ImageNet-Dataset-Figure.png">Source</a></figcaption>
 </figure>
 </div>
 </div>
@@ -14193,9 +14217,9 @@ div.jp-OutputPrompt {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<figure>
+<figure style="width:50%">
     <img src="images/deepclean-plots.png" height="auto" width="400px" />
-    <figcaption>Ormiston, Rich, et al. “Noise Reduction in Gravitational-Wave Data via Deep Learning.” Physical Review Research, vol. 2, no. 3, July 2020, p. 033066. arXiv.org, doi:10.1103/PhysRevResearch.2.033066</figcaption>
+    <figcaption style="font-style:italic;font-size:16px">Ormiston, Rich, et al. “Noise Reduction in Gravitational-Wave Data via Deep Learning.” Physical Review Research, vol. 2, no. 3, July 2020, p. 033066. arXiv.org, doi:10.1103/PhysRevResearch.2.033066</figcaption>
 </figure>
 </div>
 </div></section><section>
@@ -14383,7 +14407,7 @@ div.jp-OutputPrompt {
 
 
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
-<pre>array([0.5116047], dtype=float32)</pre>
+<pre>array([0.49604377], dtype=float32)</pre>
 </div>
 
 </div>
@@ -14399,8 +14423,8 @@ div.jp-OutputPrompt {
 <li>Often faster to use <strong>accelerated</strong> hardware like GPUs or FPGAs for computing inference</li>
 <li>Systems with multiple types of processors, e.g. CPUs and GPUs, referred to as <strong>hetergeneous</strong></li>
 </ul>
-<p><img src="images/cpu-inference.png" height="auto" width="500px" class="left"/>
-<img src="images/hetergeneous-inference.png" height="auto" width="500px" class="right"></p>
+<p><img src="images/cpu-inference.png" height="auto" width="500px" class="left" style="width:45%;" />
+<img src="images/hetergeneous-inference.png" height="auto" width="500px" class="right" style="width:45%;" /></p>
 
 </div>
 </div></section><section>
@@ -14408,10 +14432,10 @@ div.jp-OutputPrompt {
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Heterogeneous-inference">Heterogeneous inference<a class="anchor-link" href="#Heterogeneous-inference">&#182;</a></h2>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># move the model to the GPU</span>
@@ -14434,6 +14458,29 @@ div.jp-OutputPrompt {
 </div>
 </div>
 
+<div class="jp-Cell-outputWrapper">
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>array([0.49604377], dtype=float32)</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 </div></section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
@@ -14446,10 +14493,10 @@ div.jp-OutputPrompt {
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="mi">5</span>  <span class="c1"># number of observations in our dataset</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="mi">6</span>  <span class="c1"># number of observations in our dataset</span>
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">INPUT_SIZE</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
 
 <span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
@@ -14484,8 +14531,8 @@ div.jp-OutputPrompt {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>CPU times: user 17.8 s, sys: 139 ms, total: 17.9 s
-Wall time: 17.9 s
+<pre>CPU times: user 35.2 s, sys: 369 ms, total: 35.6 s
+Wall time: 35.6 s
 </pre>
 </div>
 </div>
@@ -14503,7 +14550,7 @@ Wall time: 17.9 s
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">GpuUtilProgress</span><span class="p">(</span><span class="n">gpu_ids</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">as</span> <span class="n">progbar</span><span class="p">:</span>
@@ -14538,12 +14585,12 @@ Wall time: 17.9 s
 
 
 
-<div id="50d6fa06-0a49-4140-8f84-fec1f9a60fea" class="jupyter-widgets jp-OutputArea-output ">
+<div id="37dcddbc-a64c-4b1a-b76c-f769856893e4" class="jupyter-widgets jp-OutputArea-output ">
 <script type="text/javascript">
-var element = document.getElementById('50d6fa06-0a49-4140-8f84-fec1f9a60fea');
+var element = document.getElementById('37dcddbc-a64c-4b1a-b76c-f769856893e4');
 </script>
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "a67f4d5999934b8893d711e8cad1722c", "version_major": 2, "version_minor": 0}
+{"version_major": 2, "version_minor": 0, "model_id": "005b584187cd4609988e0146c1a2b134"}
 </script>
 </div>
 
@@ -14566,7 +14613,7 @@ var element = document.getElementById('50d6fa06-0a49-4140-8f84-fec1f9a60fea');
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">q</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
@@ -14599,7 +14646,7 @@ var element = document.getElementById('50d6fa06-0a49-4140-8f84-fec1f9a60fea');
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">num_jobs</span> <span class="o">=</span> <span class="mi">4</span>
@@ -14641,12 +14688,12 @@ var element = document.getElementById('50d6fa06-0a49-4140-8f84-fec1f9a60fea');
 
 
 
-<div id="a510b6cd-57dc-42d2-8d30-914585ab1405" class="jupyter-widgets jp-OutputArea-output ">
+<div id="3bad69bb-7d00-4bb8-a2e3-83b21e0e9ebe" class="jupyter-widgets jp-OutputArea-output ">
 <script type="text/javascript">
-var element = document.getElementById('a510b6cd-57dc-42d2-8d30-914585ab1405');
+var element = document.getElementById('3bad69bb-7d00-4bb8-a2e3-83b21e0e9ebe');
 </script>
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "1edd31d53a5245f2bc79b5397fe34e47", "version_major": 2, "version_minor": 0}
+{"version_major": 2, "version_minor": 0, "model_id": "099a35e63b604edb903be341eed110ff"}
 </script>
 </div>
 
@@ -14670,7 +14717,7 @@ var element = document.getElementById('a510b6cd-57dc-42d2-8d30-914585ab1405');
 </div></section><section><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">parallel_inference</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">num_gpus</span><span class="p">,</span> <span class="n">jobs_per_gpu</span><span class="p">,</span> <span class="n">progbar</span><span class="p">):</span>
@@ -14757,7 +14804,7 @@ var element = document.getElementById('a510b6cd-57dc-42d2-8d30-914585ab1405');
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[11]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">GpuUtilProgress</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="k">as</span> <span class="n">progbar</span><span class="p">:</span>
@@ -14787,12 +14834,12 @@ var element = document.getElementById('a510b6cd-57dc-42d2-8d30-914585ab1405');
 
 
 
-<div id="a2383bdb-f05f-4067-acb9-fe6c50936945" class="jupyter-widgets jp-OutputArea-output ">
+<div id="fd4ff0cf-35ce-4d45-9e41-d47d7583da21" class="jupyter-widgets jp-OutputArea-output ">
 <script type="text/javascript">
-var element = document.getElementById('a2383bdb-f05f-4067-acb9-fe6c50936945');
+var element = document.getElementById('fd4ff0cf-35ce-4d45-9e41-d47d7583da21');
 </script>
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "5bf4c147c1c04be38b07cbb5e7696adb", "version_major": 2, "version_minor": 0}
+{"version_major": 2, "version_minor": 0, "model_id": "bd2298d1806f447b88bd5966a0b1acfe"}
 </script>
 </div>
 
@@ -14851,8 +14898,8 @@ var element = document.getElementById('a2383bdb-f05f-4067-acb9-fe6c50936945');
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h3 id="Model-ensembling">Model ensembling<a class="anchor-link" href="#Model-ensembling">&#182;</a></h3><h4 id="Connecting-multiple-models-in-a-single-pipeline"><em>Connecting multiple models in a single pipeline</em><a class="anchor-link" href="#Connecting-multiple-models-in-a-single-pipeline">&#182;</a></h4><div class="center">
-    <img src="images/model_sharing.png" height="auto" width="400px" class="center" />
-    <img src="images/model_ensemble.png" height="auto" width="400px" class="center" />
+    <img src="images/model_sharing.png" height="auto" width="400px" class="center" style="width:60%;" />
+    <img src="images/model_ensemble.png" height="auto" width="400px" class="center" style="width: 60%" />
 </div>
 </div>
 </div></section><section>
@@ -14905,12 +14952,12 @@ var element = document.getElementById('a2383bdb-f05f-4067-acb9-fe6c50936945');
 
 
 
-<div id="f2bdda60-063f-4de2-a771-7e08bbb263e4" class="jupyter-widgets jp-OutputArea-output ">
+<div id="ea5209a2-0033-49f0-a9b9-f5492b9596b4" class="jupyter-widgets jp-OutputArea-output ">
 <script type="text/javascript">
-var element = document.getElementById('f2bdda60-063f-4de2-a771-7e08bbb263e4');
+var element = document.getElementById('ea5209a2-0033-49f0-a9b9-f5492b9596b4');
 </script>
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id": "feda4418010644bebad861a45215f50c", "version_major": 2, "version_minor": 0}
+{"version_major": 2, "version_minor": 0, "model_id": "e91880779adb495dbff9a0530633f06f"}
 </script>
 </div>
 
@@ -14935,13 +14982,13 @@ var element = document.getElementById('f2bdda60-063f-4de2-a771-7e08bbb263e4');
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p><div class="padded">
-    <figure>
-        <img src="images/bottleneck-both.png" height="auto" width="800px"/>
-        <figcaption>Model 1 throughput too high for model 2, need to run more concurrent instances of model 2 to maximize throughput</figcaption>
+    <figure style="width:45%;float:left;position:relative">
+        <img src="images/bottleneck-both.png" height="auto" width="800px" />
+        <figcaption style="font-style:italic;font-size:16px;">Model 1 throughput too high for model 2, need to run more concurrent instances of model 2 to maximize throughput</figcaption>
     </figure>
-    <figure>
+    <figure style="width:35%;float:right;position:relative">
         <img src="images/async.png" height="auto" width="800px"/>
-        <figcaption>Model 2 computes inference on last output from Model 1, while Model 1 begins inference on next input</figcaption>
+        <figcaption style="font-style:italic;font-size:16px;">Model 2 computes inference on last output from Model 1, while Model 1 begins inference on next input</figcaption>
     </figure></p>
 <div>
 </div>
@@ -15011,19 +15058,19 @@ var element = document.getElementById('f2bdda60-063f-4de2-a771-7e08bbb263e4');
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h3 id="Deep-Learning-Inference---Challenges">Deep Learning Inference - Challenges<a class="anchor-link" href="#Deep-Learning-Inference---Challenges">&#182;</a></h3><div class="float200 padded">
-    <img src="images/hardware-logos.png" width="300px" height="auto" class="right unpadded"/>
-    <div class="left">
+    <img src="images/hardware-logos.png" width="300px" height="auto" class="right unpadded" style="width:40%;position:relative;float:right;" />
+    <div class="left" style="width:60%;position:relative;float:left;top:40px;">
         <p>Access to and familiarity with accelerated hardware </p>
         <p>(GPUs, TPUs, FPGAs)</p>
     </div>
-</div><div>
-    <img src="images/framework-logos.png" width="300px" height="auto" class="left padded" />
-    <p class="right"> Managing, leveraging, and translating across deep learning software stacks
-</div><div></div>
-<div></div>
-<div class="float100">
-    <img src="images/distributing-nns.png" width="250px" height="auto" class="right unpadded"/>
-    <p class="left">Distributing updated models to dependent users and applications</p>
+</div><div style="clear:both;"></div>
+<div>
+    <img src="images/framework-logos.png" width="300px" height="auto" class="left padded" style="width:40%;position:relative;float:left" />
+    <p class="right" style="width:60%;position:relative;float:right;top:60px;"> Managing, leveraging, and translating across deep learning software stacks
+</div><div style="clear:both;"></div>
+<div class="float100" style="margin-top:-80px;">
+    <img src="images/distributing-nns.png" width="250px" height="auto" class="right unpadded" style="width:35%;position:relative;float:right;right:50px;" />
+    <p class="left" style="width:55%;position:relative;float:left;margin-top:50px">Distributing updated models to dependent users and applications</p>
 </div>
 </div>
 </div></section><section>
@@ -15066,19 +15113,23 @@ var element = document.getElementById('f2bdda60-063f-4de2-a771-7e08bbb263e4');
 </div></section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="Triton-Inference-Server"><a href="https://github.com/triton-inference-server/server">Triton Inference Server</a><a class="anchor-link" href="#Triton-Inference-Server">&#182;</a></h3><div class="float100">
-    <img src="https://developer-blogs.nvidia.com/wp-content/uploads/2020/12/triton-1.png" width="400px" height="auto" class="right padded"/>
-        <p>Off-the-shelf inference service developed and maintained by NVIDIA.</p>
-</div>
-<div class="unpadded">
+<h3 id="Triton-Inference-Server"><a href="https://github.com/triton-inference-server/server">Triton Inference Server</a><a class="anchor-link" href="#Triton-Inference-Server">&#182;</a></h3><p><div class="float100" >
+    <figure class="right padded" style="width:45%;position:relative;float:right">
+        <img src="https://developer-blogs.nvidia.com/wp-content/uploads/2020/12/triton-1.png" width="400px" height="auto" />
+        <figcaption style="font-style:italic;font-size:12px"><a href=https://developer-blogs.nvidia.com/wp-content/uploads/2020/12/triton-1.png>Source</a></figcaption>
+    </figure>
+    <p>Off-the-shelf inference service developed and maintained by NVIDIA.</p>
+</div></p>
+<p><div class="unpadded" style="width:45%;position:relative;float:left" >
     <list>
         <li class="explicit">Efficient scheduling of GPU resources</li>
         <li class="explicit">Multiple framework backend support</li>
         <li class="explicit">Pre-built containers released monthly to simplify dependency management</li>
         <li class="explicit">Dynamic model versioning and ensemble scheduling</li>
-        <li class="explicit">Separately installable <a href="https://github.com/triton-inference-server/clien">client libraries</a>
+        <li class="explicit">Separately installable <a href="https://github.com/triton-inference-server/client">client libraries</a>
     </list>
-</div>
+</div></p>
+
 </div>
 </div></section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
@@ -15094,7 +15145,7 @@ var element = document.getElementById('f2bdda60-063f-4de2-a771-7e08bbb263e4');
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="padded">
+<div class="padded" style="width:50%;">
     <img src="images/metrics.png" height="auto" width="700px" />
 </div>
 </div>
@@ -15111,7 +15162,7 @@ var element = document.getElementById('f2bdda60-063f-4de2-a771-7e08bbb263e4');
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<div class="padded">
+<div class="padded" style="width:55%;">
     <img src="images/latency-throughput-cost.png" height="auto" width="700px" />
 </div>
 </div>
@@ -15166,7 +15217,7 @@ var element = document.getElementById('f2bdda60-063f-4de2-a771-7e08bbb263e4');
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <div class="center">
-    <img src="images/snapshotter_action.png" height="auto" width="180px" class="unpadded" />
+    <img src="images/snapshotter_action.png" height="auto" width="180px" class="unpadded" style="width:18%;" />
 </div>
 </div>
 </div></section><section>
@@ -15200,7 +15251,7 @@ var element = document.getElementById('f2bdda60-063f-4de2-a771-7e08bbb263e4');
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <h2 id="Deepclean-+-BBHnet-Offline">Deepclean + BBHnet Offline<a class="anchor-link" href="#Deepclean-+-BBHnet-Offline">&#182;</a></h2><p>Implemented using several different frameworks:</p>
 <div class="center">
-    <img src="images/ensemble.png" height="auto" width="1000px" />
+    <img src="images/ensemble.png" height="auto" width="1000px" style="width:90%;"/>
 </div>
 </div>
 </div></section><section>
@@ -15220,7 +15271,7 @@ var element = document.getElementById('f2bdda60-063f-4de2-a771-7e08bbb263e4');
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p><img src="images/e2e-offline.png" height="800px" width="1200px" class="padded"/></p>
+<p><img src="images/e2e-offline.png" height="800px" width="1200px" class="padded" style="width:60%;"/></p>
 
 </div>
 </div></section><section>
@@ -15271,7 +15322,7 @@ var element = document.getElementById('f2bdda60-063f-4de2-a771-7e08bbb263e4');
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p><img src="images/dc-online.png" height="auto" width="1200px" class="padded"/></p>
+<p><img src="images/dc-online.png" height="auto" width="1200px" class="padded" style="width:55%" /></p>
 
 </div>
 </div></section></section><section><section>
@@ -15290,14 +15341,14 @@ var element = document.getElementById('f2bdda60-063f-4de2-a771-7e08bbb263e4');
 </li>
 </ul>
 <div class="float100">
-    <img src="images/a3d3.png" height="auto" width="400px" class="left" />
-    <img src="images/venn-diagram.png" height="auto" width="400px" class="right" />
+    <img src="images/a3d3.png" height="auto" width="400px" class="left" style="width:42%;" />
+    <img src="images/venn-diagram.png" height="auto" width="400px" class="right" style="width:42%;" />
 </div>
 </div>
 </div></section><section>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="DeepClean-Online-Production-Deployment">DeepClean Online Production Deployment<a class="anchor-link" href="#DeepClean-Online-Production-Deployment">&#182;</a></h2><div class="center">
+<h2 id="DeepClean-Online-Production-Deployment">DeepClean Online Production Deployment<a class="anchor-link" href="#DeepClean-Online-Production-Deployment">&#182;</a></h2><div class="center" style="width:90%;">
     <img src="images/dc-production.png" height="auto" width="800px" class="left" />
 </div>
 </div>
@@ -15313,6 +15364,10 @@ var element = document.getElementById('f2bdda60-063f-4de2-a771-7e08bbb263e4');
 
 
 
+
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {"d0bbf20b155f414a8f7482606c71a2e8": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "005b584187cd4609988e0146c1a2b134": {"model_name": "OutputModel", "model_module": "@jupyter-widgets/output", "model_module_version": "1.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/output", "_model_module_version": "1.0.0", "_model_name": "OutputModel", "_view_count": null, "_view_module": "@jupyter-widgets/output", "_view_module_version": "1.0.0", "_view_name": "OutputView", "layout": "IPY_MODEL_d0bbf20b155f414a8f7482606c71a2e8", "msg_id": "", "outputs": [{"output_type": "display_data", "metadata": {}, "data": {"text/plain": "\u001b[32mGPU 0 utilization\u001b[0m \u001b[38;2;249;38;114m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m\u001b[38;5;237m\u257a\u001b[0m\u001b[38;5;237m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m \u001b[35m 23%\u001b[0m \u001b[33m0:00:47\u001b[0m\n\u001b[36mInference\u001b[0m         \u001b[38;2;114;156;31m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m \u001b[35m100%\u001b[0m \u001b[33m0:00:47\u001b[0m\n", "text/html": "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"color: #008000; text-decoration-color: #008000\">GPU 0 utilization</span> <span style=\"color: #f92672; text-decoration-color: #f92672\">\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span><span style=\"color: #3a3a3a; text-decoration-color: #3a3a3a\">\u257a\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span> <span style=\"color: #800080; text-decoration-color: #800080\"> 23%</span> <span style=\"color: #808000; text-decoration-color: #808000\">0:00:47</span>\n<span style=\"color: #008080; text-decoration-color: #008080\">Inference</span>         <span style=\"color: #729c1f; text-decoration-color: #729c1f\">\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span> <span style=\"color: #800080; text-decoration-color: #800080\">100%</span> <span style=\"color: #808000; text-decoration-color: #808000\">0:00:47</span>\n</pre>\n"}}]}}, "795496984f2e4f5c89ed54db16005df8": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "099a35e63b604edb903be341eed110ff": {"model_name": "OutputModel", "model_module": "@jupyter-widgets/output", "model_module_version": "1.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/output", "_model_module_version": "1.0.0", "_model_name": "OutputModel", "_view_count": null, "_view_module": "@jupyter-widgets/output", "_view_module_version": "1.0.0", "_view_name": "OutputView", "layout": "IPY_MODEL_795496984f2e4f5c89ed54db16005df8", "msg_id": "", "outputs": [{"output_type": "display_data", "metadata": {}, "data": {"text/plain": "\u001b[32mGPU 0 utilization\u001b[0m     \u001b[38;2;249;38;114m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m\u001b[38;5;237m\u257a\u001b[0m\u001b[38;5;237m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m \u001b[35m 18%\u001b[0m \u001b[33m0:01:09\u001b[0m\nInference with 4 jobs \u001b[38;2;114;156;31m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m \u001b[35m100%\u001b[0m \u001b[33m0:01:09\u001b[0m\n", "text/html": "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"color: #008000; text-decoration-color: #008000\">GPU 0 utilization</span>     <span style=\"color: #f92672; text-decoration-color: #f92672\">\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span><span style=\"color: #3a3a3a; text-decoration-color: #3a3a3a\">\u257a\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span> <span style=\"color: #800080; text-decoration-color: #800080\"> 18%</span> <span style=\"color: #808000; text-decoration-color: #808000\">0:01:09</span>\nInference with 4 jobs <span style=\"color: #729c1f; text-decoration-color: #729c1f\">\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span> <span style=\"color: #800080; text-decoration-color: #800080\">100%</span> <span style=\"color: #808000; text-decoration-color: #808000\">0:01:09</span>\n</pre>\n"}}]}}, "1864375cbb7146ffad8618c898464599": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "bd2298d1806f447b88bd5966a0b1acfe": {"model_name": "OutputModel", "model_module": "@jupyter-widgets/output", "model_module_version": "1.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/output", "_model_module_version": "1.0.0", "_model_name": "OutputModel", "_view_count": null, "_view_module": "@jupyter-widgets/output", "_view_module_version": "1.0.0", "_view_name": "OutputView", "layout": "IPY_MODEL_1864375cbb7146ffad8618c898464599", "msg_id": "", "outputs": [{"output_type": "display_data", "metadata": {}, "data": {"text/plain": "\u001b[32mGPU 0 utilization\u001b[0m \u001b[38;2;249;38;114m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m\u001b[38;2;249;38;114m\u2578\u001b[0m\u001b[38;5;237m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m \u001b[35m 22%\u001b[0m \u001b[33m0:01:46\u001b[0m\n\u001b[32mGPU 1 utilization\u001b[0m \u001b[38;5;237m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m \u001b[35m  0%\u001b[0m \u001b[33m0:01:46\u001b[0m\n\u001b[36m1 GPUs/2 jobs\u001b[0m     \u001b[38;2;114;156;31m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m \u001b[35m100%\u001b[0m \u001b[33m0:00:31\u001b[0m\n\u001b[36m1 GPUs/4 jobs\u001b[0m     \u001b[38;2;114;156;31m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m \u001b[35m100%\u001b[0m \u001b[33m0:00:22\u001b[0m\n\u001b[36m2 GPUs/8 jobs\u001b[0m     \u001b[38;2;114;156;31m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m \u001b[35m100%\u001b[0m \u001b[33m0:00:15\u001b[0m\n", "text/html": "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"color: #008000; text-decoration-color: #008000\">GPU 0 utilization</span> <span style=\"color: #f92672; text-decoration-color: #f92672\">\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2578</span><span style=\"color: #3a3a3a; text-decoration-color: #3a3a3a\">\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span> <span style=\"color: #800080; text-decoration-color: #800080\"> 22%</span> <span style=\"color: #808000; text-decoration-color: #808000\">0:01:46</span>\n<span style=\"color: #008000; text-decoration-color: #008000\">GPU 1 utilization</span> <span style=\"color: #3a3a3a; text-decoration-color: #3a3a3a\">\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span> <span style=\"color: #800080; text-decoration-color: #800080\">  0%</span> <span style=\"color: #808000; text-decoration-color: #808000\">0:01:46</span>\n<span style=\"color: #008080; text-decoration-color: #008080\">1 GPUs/2 jobs</span>     <span style=\"color: #729c1f; text-decoration-color: #729c1f\">\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span> <span style=\"color: #800080; text-decoration-color: #800080\">100%</span> <span style=\"color: #808000; text-decoration-color: #808000\">0:00:31</span>\n<span style=\"color: #008080; text-decoration-color: #008080\">1 GPUs/4 jobs</span>     <span style=\"color: #729c1f; text-decoration-color: #729c1f\">\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span> <span style=\"color: #800080; text-decoration-color: #800080\">100%</span> <span style=\"color: #808000; text-decoration-color: #808000\">0:00:22</span>\n<span style=\"color: #008080; text-decoration-color: #008080\">2 GPUs/8 jobs</span>     <span style=\"color: #729c1f; text-decoration-color: #729c1f\">\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span> <span style=\"color: #800080; text-decoration-color: #800080\">100%</span> <span style=\"color: #808000; text-decoration-color: #808000\">0:00:15</span>\n</pre>\n"}}]}}, "4b715c00a24b472090436c16a9510936": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "1.2.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "e91880779adb495dbff9a0530633f06f": {"model_name": "OutputModel", "model_module": "@jupyter-widgets/output", "model_module_version": "1.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/output", "_model_module_version": "1.0.0", "_model_name": "OutputModel", "_view_count": null, "_view_module": "@jupyter-widgets/output", "_view_module_version": "1.0.0", "_view_name": "OutputView", "layout": "IPY_MODEL_4b715c00a24b472090436c16a9510936", "msg_id": "", "outputs": [{"output_type": "display_data", "metadata": {}, "data": {"text/plain": "\u001b[32mGPU 0 utilization\u001b[0m  \u001b[38;2;249;38;114m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m\u001b[38;5;237m\u257a\u001b[0m\u001b[38;5;237m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m \u001b[35m 28%\u001b[0m \u001b[33m0:01:05\u001b[0m\n\u001b[36mEnsemble inference\u001b[0m \u001b[38;2;114;156;31m\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u001b[0m \u001b[35m100%\u001b[0m \u001b[33m0:01:05\u001b[0m\n", "text/html": "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"color: #008000; text-decoration-color: #008000\">GPU 0 utilization</span>  <span style=\"color: #f92672; text-decoration-color: #f92672\">\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span><span style=\"color: #3a3a3a; text-decoration-color: #3a3a3a\">\u257a\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span> <span style=\"color: #800080; text-decoration-color: #800080\"> 28%</span> <span style=\"color: #808000; text-decoration-color: #808000\">0:01:05</span>\n<span style=\"color: #008080; text-decoration-color: #008080\">Ensemble inference</span> <span style=\"color: #729c1f; text-decoration-color: #729c1f\">\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501</span> <span style=\"color: #800080; text-decoration-color: #800080\">100%</span> <span style=\"color: #808000; text-decoration-color: #808000\">0:01:05</span>\n</pre>\n"}}]}}}, "version_major": 2, "version_minor": 0}
+</script>
 
 
 
@@ -15348,7 +15403,7 @@ require(
         Reveal.addEventListener('slidechanged', update);
 
         function setScrollingSlide() {
-            var scroll = false
+            var scroll = true
             if (scroll === true) {
               var h = $('.reveal').height() * 0.95;
               $('section.present').find('section')

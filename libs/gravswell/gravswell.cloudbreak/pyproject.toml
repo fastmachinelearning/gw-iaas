@@ -13,3 +13,10 @@ rich = "^10.7"
 google-cloud-storage = "^1.38"
 google-cloud-container = "^2.7"
 kubernetes = "^17.17"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2"
+
+# documentation dependencies
+sphinx = "^4.1"
+sphinx-material = "^0.0.34"

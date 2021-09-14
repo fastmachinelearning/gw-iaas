@@ -1,7 +1,12 @@
+import re
 import time
 from typing import Callable, Optional
 
 from rich.progress import BarColumn, Progress, ProgressBar, TimeElapsedColumn
+
+
+def snakeify(name: str) -> str:
+    return re.sub("(?<!^)(?=[A-Z])", "_", name).lower()
 
 
 class PulsingBarColumn(BarColumn):

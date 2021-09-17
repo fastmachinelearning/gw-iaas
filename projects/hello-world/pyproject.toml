@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "hermes-hello-world"
+version = "0.1.0"
+description = "Example pipeline leveraging Hermes tools"
+authors = ["Alec Gunny <alec.gunny@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+torchvision = "^0.10"
+
+# install our local libraries in editable
+# mode to develop everything in lock step
+# use table entries rather than inline tables
+# since the paths make the options a bit long
+[tool.poetry.dependencies."gravswell.cloudbreak"]
+path = "../../libs/gravswell/gravswell.cloudbreak"
+develop = true
+
+[tool.poetry.dependencies."gravswell.quiver"]
+path = "../../libs/gravswell/gravswell.quiver"
+develop = true
+extras = [ "torch", "gcs" ]
+
+# add the NGC PyPI so that tritonclient
+# can install correctly
+[[tool.poetry.source]]
+name = "ngc"
+url = "https://pypi.ngc.nvidia.com"

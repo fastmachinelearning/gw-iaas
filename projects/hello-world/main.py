@@ -9,11 +9,12 @@ from typing import Optional, Union
 
 import numpy as np
 from google.cloud import container_v1 as container
-from hermes import quiver as qv
-from hermes.cloudbreak.clouds import google as cb
 from rich.progress import Progress
 from torchvision.models import resnet18
 from tritonclient import grpc as triton
+
+from hermes import quiver as qv
+from hermes.cloudbreak.clouds import google as cb
 
 
 def export(

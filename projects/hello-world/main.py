@@ -10,12 +10,30 @@ from typing import Optional, Union
 
 import numpy as np
 from google.cloud import container_v1 as container
-from rich.progress import Progress
+from rich.progress import (
+    BarColumn,
+    Progress,
+    ProgressColumn,
+    Task,
+    Text,
+    TimeRemainingColumn,
+)
 from torchvision.models import resnet18
 from tritonclient import grpc as triton
 
 from hermes import quiver as qv
 from hermes.cloudbreak.clouds import google as cb
+
+
+class ThroughputColumn(ProgressColumn):
+    """Renders throughput in inferences / s"""
+
+    def render(self, task: "Task") -> Text:
+        """Show data throughput"""
+        speed = task.finished_speed or task.speed
+        if speed is None:
+            return Text("?", style="progress.data.speed")
+        return Text(f"{speed:0.1f} inf/s", style="progress.data.speed")
 
 
 def export(
@@ -49,9 +67,12 @@ def export(
 
     # initialize a ResNet18 model with random weights in-memory
     nn = resnet18()
+    logging.info("Instantiated ResNet18 model")
 
     # instatiate a model repository in a cloud bucket
-    model_repository = qv.ModelRepository("gs://" + model_repository_bucket)
+    model_repository_bucket = "gs://" + model_repository_bucket
+    logging.info(f"Creating cloud model repository {model_repository_bucket}")
+    model_repository = qv.ModelRepository(model_repository_bucket)
 
     # add an entry to this (now empty) repository for
     # the model that we just created
@@ -64,13 +85,12 @@ def export(
     # export the version of this model corresponding to this
     # particular set of (random) weights. Specify the shape
     # of the inputs to the model and the names of the outputs
+    logging.info("Exporting model to repository")
     export_path = model.export_version(
         nn, input_shapes={"x": (None, 3, 224, 224)}, output_names="y"
     )
 
-    logging.info(
-        "Exported model to {}/{}".format(model_repository_bucket, export_path)
-    )
+    logging.info(f"Exported model to {model_repository_bucket}/{export_path}")
 
     # return the repository so we can delete it when we're done
     return model_repository
@@ -221,7 +241,13 @@ def do_inference(
     # request generation and handling. Include a progress
     # bar to keep track of how long things are taking
     q, e = Queue(), Event()
-    progbar = Progress()
+    progbar = Progress(
+        "[progress.description]{task.description}",
+        BarColumn(),
+        "[progress.percentage]{task.percentage:>3.0f}%",
+        ThroughputColumn(),
+        TimeRemainingColumn(),
+    )
 
     N = len(dataset)
     submit_task_id = progbar.add_task("Submitting requests", total=N)
@@ -237,22 +263,22 @@ def do_inference(
         if error is not None:
             # notify the main thread and set the stop event
             # so that we stop sending requests
-            progbar.console.log("Encountered error in callback")
-            q.put(error)
+            exc = RuntimeError("Encountered error in callback: " + str(error))
+            q.put(exc)
             e.set()
+        elif not e.is_set():
+            # otherwise if we haven't hit an error yet,
+            # keep parsing results
+            y = result.as_numpy("y")
+            progbar.update(infer_task_id, advance=len(y))
 
-        # otherwise parse the output from the response
-        # and update our progress bar
-        y = result.as_numpy("y")
-        progbar.update(infer_task_id, advance=len(y))
+            # get the request id so we know where
+            # to put this output in the array
+            request_id = int(result.get_response().id)
 
-        # get the request id so we know where
-        # to put this output in the array
-        request_id = int(result.get_response().id)
-
-        # send the parsed response back to the main
-        # thread through the queue
-        q.put((y, request_id))
+            # send the parsed response back to the main
+            # thread through the queue
+            q.put((y, request_id))
 
     # now here is where we actually do the inference
     with progbar:
@@ -293,7 +319,7 @@ def do_inference(
         # it with data returned from the queue
         results = np.zeros((N, metadata.outputs[0].shape[1]))
         n = 0
-        while not n < num_batches:
+        while n < num_batches:
             try:
                 y = q.get(timeout=0.01)
                 n += 1
@@ -460,7 +486,9 @@ def main(
         # resources we were using to avoid incurring extra costs
         cluster.remove()
 
-        logging.info("Removing cloud model repository")
+        logging.info(
+            f"Removing cloud model repository {model_repository_bucket}"
+        )
         repo.delete()
 
     # return the inference results for downstream processing

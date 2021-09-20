@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "gravswell.quiver"
+name = "hermes.quiver"
 version = "0.1.0"
 description = "Model export utilities"
 authors = ["Alec Gunny <alec.gunny@gmail.com>"]
 packages = [
-    {include = "gravswell"}
+    {include = "hermes"}
 ]
 
 [tool.poetry.dependencies]

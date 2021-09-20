@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "gravswell.cloudbreak"
+name = "hermes.cloudbreak"
 version = "0.1.0"
 description = "Cloud orchestration utilites"
-authors = ["Alec Gunny <alec.gunny@gmail.com>"]
+authors = ["Alec Gunny <alecg@mit.edu>"]
 packages = [
-    {include = "gravswell"}
+    {include = "hermes"}
 ]
 
 [tool.poetry.dependencies]

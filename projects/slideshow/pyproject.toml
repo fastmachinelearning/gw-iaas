@@ -13,11 +13,6 @@ notebook = "^6.4"
 ipywidgets = "^7.6"
 jupyter_contrib_nbextensions = "^0.5"
 
-# install our local libraries in editable
-# mode to develop everything in lock step
-"gravswell.cloudbreak" = {path = "../../libs/gravswell/gravswell.cloudbreak", develop = true}
-"gravswell.quiver" = {path = "../../libs/gravswell/gravswell.quiver", develop = true}
-
 # add the NGC PyPI so that tritonclient
 # can install correctly
 [[tool.poetry.source]]

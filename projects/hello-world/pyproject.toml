@@ -12,12 +12,12 @@ torchvision = "^0.10"
 # mode to develop everything in lock step
 # use table entries rather than inline tables
 # since the paths make the options a bit long
-[tool.poetry.dependencies."gravswell.cloudbreak"]
-path = "../../libs/gravswell/gravswell.cloudbreak"
+[tool.poetry.dependencies."hermes.cloudbreak"]
+path = "../../libs/hermes/hermes.cloudbreak"
 develop = true
 
-[tool.poetry.dependencies."gravswell.quiver"]
-path = "../../libs/gravswell/gravswell.quiver"
+[tool.poetry.dependencies."hermes.quiver"]
+path = "../../libs/hermes/hermes.quiver"
 develop = true
 extras = [ "torch", "gcs" ]
 
@@ -26,3 +26,7 @@ extras = [ "torch", "gcs" ]
 [[tool.poetry.source]]
 name = "ngc"
 url = "https://pypi.ngc.nvidia.com"
+
+[build-system]
+requires = ["poetry>=1.1"]
+build-backend = "poetry.masonry.api"

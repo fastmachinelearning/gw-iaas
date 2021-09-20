@@ -3,7 +3,7 @@ import inspect
 import logging
 import re
 import time
-from queue import Queue
+from queue import Empty, Queue
 from threading import Event
 from typing import Optional, Union
 
@@ -169,6 +169,7 @@ def do_inference(
     model_name: str,
     model_version: int = 1,
     batch_size: int = 16,
+    request_rate: float = 50,
 ) -> np.ndarray:
     """Perform asynchronous inference on the provided dataset
 
@@ -189,6 +190,9 @@ def do_inference(
             Which version of the specified model to use for inference
         batch_size:
             The number of samples over which to execute inference
+        request_rate:
+            How quickly to send requests to the server. Tune to your
+            network speed
     Returns:
         An array representing the inference outputs for
         each sample in the dataset, not necessarily in order.
@@ -240,9 +244,13 @@ def do_inference(
         y = result.as_numpy("y")
         progbar.update(infer_task_id, advance=len(y))
 
+        # get the request id so we know where
+        # to put this output in the array
+        request_id = int(result.get_response().id)
+
         # send the parsed response back to the main
         # thread through the queue
-        q.put(y)
+        q.put((y, request_id))
 
     # now here is where we actually do the inference
     with progbar:
@@ -255,6 +263,12 @@ def do_inference(
             # iterate through the dataset in batches and
             # set the input message's data to the new batch
             X = dataset[i * batch_size : (i + 1) * batch_size]
+            if len(X) < batch_size:
+                # if the last batch didn't have enough samples,
+                # pad X with some zeros and we'll slice them
+                # off in the callback
+                pad = np.zeros_like(X)[: batch_size - len(X)]
+                X = np.concatenate([X, pad])
             input.set_data_from_numpy(X)
 
             # submit an asynchronous inference request
@@ -263,23 +277,42 @@ def do_inference(
                 model_version=str(model_version),
                 inputs=[input],
                 callback=callback,
+                request_id=str(i),
             )
 
             # update one of the tasks on our progress
             # bar to indicate how many requests we've made
             progbar.update(submit_task_id, advance=len(X))
-            time.sleep(0.1)
 
-        # now grab all the parsed responses from our output queue
-        results = []
-        while len(results) < len(dataset):
-            y = q.get_nowait()
+            # do a lazy throttle on our request rate by sleeping
+            time.sleep(1 / request_rate)
+
+        # instantiate a results array and populate
+        # it with data returned from the queue
+        results = np.zeros((N, metadata.outputs[0].shape[1]))
+        n = 0
+        while not n < num_batches:
+            try:
+                y = q.get(timeout=0.01)
+                n += 1
+            except Empty:
+                continue
+
+            # check to make sure an exception didn't get raised
             if isinstance(y, Exception):
                 raise y
-            results.extend(y)
+            else:
+                y, request_id = y
+
+            # add our results to our running output
+            # make sure to check to see if we need
+            # to clip the end off of `y`
+            start = request_id * batch_size
+            stop = min(start + batch_size, N)
+            results[start:stop] = y[: stop - start]
 
     # concatenate all the responses and return them
-    return np.stack(results)
+    return results
 
 
 def main(
@@ -293,7 +326,8 @@ def main(
     instances_per_gpu: int = 4,
     gpu_type: str = "t4",
     batch_size: int = 4,
-    num_samples: int = 5008,
+    num_samples: int = 5000,
+    request_rate: float = 50,
     credentials: Optional[str] = None,
 ) -> None:
     """Export a model to an inference service then do inference with it
@@ -345,6 +379,9 @@ def main(
             inference request.
         num_samples:
             The number of inferences to perform
+        request_rate:
+            How quickly to send requests to the server. Tune to your
+            network speed
         credentials:
             The path to a JSON file containing user-managed
             service account credentials or `None`, in which case
@@ -409,7 +446,12 @@ def main(
         # we created earlier, which is being hosted by the
         # inference service at the specified URL
         results = do_inference(
-            dataset, server_url, model_name, batch_size=batch_size
+            dataset=dataset,
+            server_url=server_url,
+            model_name=model_name,
+            model_version=1,
+            batch_size=batch_size,
+            request_rate=request_rate,
         )
     finally:
         # no matter what happened, clean up all of the

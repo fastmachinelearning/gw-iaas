@@ -12,9 +12,10 @@ Once you have these prerequisites met, you can install the example with
 poetry install
 ```
 
-then run it with
+then `cd` into the `hello-world` directory and run the example script with
 
 ```bash
+cd hello-world
 poetry run python -m main -h
 ```
 

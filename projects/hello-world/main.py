@@ -2,6 +2,7 @@ import argparse
 import inspect
 import logging
 import re
+import sys
 import time
 from queue import Empty, Queue
 from threading import Event
@@ -195,7 +196,7 @@ def do_inference(
             network speed
     Returns:
         An array representing the inference outputs for
-        each sample in the dataset, not necessarily in order.
+        each sample in the dataset.
     """
 
     # instantiate a client that points to the appropriate address
@@ -236,6 +237,7 @@ def do_inference(
         if error is not None:
             # notify the main thread and set the stop event
             # so that we stop sending requests
+            progbar.console.log("Encountered error in callback")
             q.put(error)
             e.set()
 
@@ -457,6 +459,8 @@ def main(
         # no matter what happened, clean up all of the
         # resources we were using to avoid incurring extra costs
         cluster.remove()
+
+        logging.info("Removing cloud model repository")
         repo.delete()
 
     # return the inference results for downstream processing
@@ -511,4 +515,12 @@ if __name__ == "__main__":
 
     # parse the arguments and run `main` with them
     flags = parser.parse_args()
+
+    logging.basicConfig(
+        format="%(asctime)s.%(msecs)03d - %(levelname)-8s %(message)s",
+        stream=sys.stdout,
+        datefmt="%H:%M:%S",
+        level=logging.INFO,
+    )
+
     main(**vars(flags))

@@ -3,6 +3,9 @@ name = "hermes-hello-world"
 version = "0.1.0"
 description = "Example pipeline leveraging Hermes tools"
 authors = ["Alec Gunny <alec.gunny@gmail.com>"]
+packages = [
+    {include = "hello-world"}
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"

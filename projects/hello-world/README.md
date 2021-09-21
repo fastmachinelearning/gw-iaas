@@ -16,7 +16,7 @@ then `cd` into the `hello-world` directory and run the example script with
 
 ```bash
 cd hello-world
-poetry run python -m main -h
+poetry run python -m hello-world -h
 ```
 
 which will list the available command line options. Note that the JSON file containing the service account credentials you created as a prerequisite can be specified using the `--credentials` argument. Alternatively, you can run the script in a virtual environment by running
@@ -28,5 +28,12 @@ poetry shell
 then set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to this path before running the script in the virtual environment
 
 ```bash
-python -m main ...
+python -m hello-world ...
+```
+
+Of course, if you're working on Linux, you can do this in one fell swoop:
+
+```bash
+poetry run GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json \
+    python -m hello-world ...
 ```

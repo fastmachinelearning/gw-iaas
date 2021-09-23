@@ -1,5 +1,3 @@
-import argparse
-import inspect
 import logging
 import os
 import pathlib
@@ -7,7 +5,7 @@ import sys
 import time
 from queue import Empty, Queue
 from threading import Event
-from typing import Optional, Sequence, Union
+from typing import Optional, Sequence
 
 import numpy as np
 import torch
@@ -25,6 +23,7 @@ from tritonclient import grpc as triton
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 from hermes import quiver as qv  # noqa
 from hermes.cloudbreak.clouds import google as cb  # noqa
+from hermes.typeo import typeo  # noqa
 
 
 class IdentityModel(torch.nn.Module):
@@ -480,6 +479,7 @@ def validate(results: dict, num_updates: int, num_models: int) -> None:
             )
 
 
+@typeo("Hermes Hello World")
 def main(
     model_name: str,
     model_repository_bucket: str,
@@ -645,54 +645,6 @@ def main(
 
 
 if __name__ == "__main__":
-    # build a command line parser programatically from
-    # the documentation and annotations on `main`
-    doc, args = main.__doc__.split("Args:\n")
-    args, _ = args.split("Returns:\n")
-
-    parser = argparse.ArgumentParser(
-        prog="Hermes Hello World",
-        description=doc,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    for name, arg in inspect.signature(main).parameters.items():
-        # first check if the argument has an `Optional` annotation
-        try:
-            if arg.annotation.__origin__ == Union:
-                # if so, use the argument of the annotation
-                # as the type for the argument
-                type_ = arg.annotation.__args__[0]
-        except AttributeError:
-            # otherwise just use the annotation itself as the type
-            type_ = arg.annotation
-
-        # search through the docstring lines to get
-        # the help string for this argument
-        doc_str, started = "", False
-        for line in args.split("\n"):
-            if line == (" " * 8 + name + ":"):
-                started = True
-            elif not line.startswith(" " * 12) and started:
-                break
-            elif started:
-                doc_str += " " + line.strip()
-
-        # use dashes instead of underscores in arg names
-        # then add the argument, using the default if
-        # there is one, otherwise make it required
-        arg_name = "--" + name.replace("_", "-")
-        if arg.default == inspect._empty:
-            parser.add_argument(
-                arg_name, type=type_, required=True, help=doc_str
-            )
-        else:
-            parser.add_argument(
-                arg_name, type=type_, default=arg.default, help=doc_str
-            )
-
-    # parse the arguments and run `main` with them
-    flags = parser.parse_args()
-
     logging.basicConfig(
         format="%(asctime)s.%(msecs)03d - %(levelname)-8s %(message)s",
         stream=sys.stdout,
@@ -700,4 +652,4 @@ if __name__ == "__main__":
         level=logging.INFO,
     )
 
-    main(**vars(flags))
+    main()

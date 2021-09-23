@@ -28,6 +28,13 @@ from hermes.cloudbreak.clouds import google as cb  # noqa
 
 
 class IdentityModel(torch.nn.Module):
+    """Simple model which just performs an identity transformation
+
+    Args:
+        size:
+            The size of the dimension being transformed
+    """
+
     def __init__(self, size: int = 10):
         super().__init__()
         self.W = torch.eye(size)
@@ -36,8 +43,50 @@ class IdentityModel(torch.nn.Module):
         return torch.matmul(x, self.W)
 
 
+class Throttle:
+    def __init__(self, target_rate: float, alpha: float = 0.9):
+        self.target_rate = target_rate
+        self.alpha = alpha
+        self.unset()
+
+    def unset(self):
+        self._n = 0
+        self._delta = 0
+        self._start_time = None
+        self._last_time = None
+
+    @property
+    def rate(self):
+        if self._start_time is None:
+            return None
+        return self._n / (time.time() - self._start_time)
+
+    @property
+    def sleep_time(self):
+        return (1 / self.target_rate) - self._delta
+
+    def update(self):
+        self._last_time = time.time()
+        self._n += 1
+
+        diff = (1 / self.rate) - (1 / self.target_rate)
+        self._delta = self._delta + (1 - self.alpha) * diff
+
+    def __enter__(self):
+        self._start_time = self._last_time = time.time()
+        return self
+
+    def __exit__(self, *exc_args):
+        self.unset()
+
+    def throttle(self):
+        while (time.time() - self._last_time) < self.sleep_time:
+            time.sleep(1e-6)
+        self.update()
+
+
 class ThroughputColumn(ProgressColumn):
-    """Renders throughput in inferences / s"""
+    """Simple progress column for measuring throughput in inferences / s"""
 
     def render(self, task: "Task") -> Text:
         """Show data throughput"""
@@ -50,6 +99,7 @@ class ThroughputColumn(ProgressColumn):
 def export(
     model_repository_bucket: str,
     model_name: str,
+    streams_per_gpu: int,
     num_models: int = 2,
     instances_per_gpu: int = 4,
     credentials: Optional[str] = None,
@@ -66,6 +116,8 @@ def export(
             to export the model. Must be _globally_ unique
         model_name:
             The name to assign to the model in the repository
+        streams_per_gpu:
+            The number of snapshot states to maintain on each GPU
         num_models:
             The number of models to use in the ensemble
         instances_per_gpu:
@@ -128,7 +180,9 @@ def export(
 
     # now expose a streaming input for all
     # the models at the front of the ensemble
-    ensemble.add_streaming_inputs(inputs, stream_size=10)
+    ensemble.add_streaming_inputs(
+        inputs, stream_size=10, streams_per_gpu=streams_per_gpu
+    )
 
     # export a "version" of this ensemble, which
     # will just create a version directory and
@@ -314,21 +368,28 @@ def do_inference(
         elif not e.is_set():
             # otherwise if we haven't hit an error yet,
             # keep parsing results
-            ys = [result.as_numpy(f"y_{i}")[0, 0] for i in range(num_models)]
-            y = np.stack(ys)
+
+            # start by grabbing the outputs from each one
+            # of the models and concatenating them
+            ys = [result.as_numpy(f"y_{i}")[0] for i in range(num_models)]
+            y = np.concatenate(ys, axis=0)
+
+            # update our progress bar to indicate
+            # that we've got another response back
             progbar.update(infer_task_id, advance=1)
 
-            # get the request id so we know where
-            # to put this output in the array
+            # get the sequence id and the inference index
+            # from the request id to know which results array
+            # and where in that array to put this response
             request_id = result.get_response().id
             sequence_id, request_id = list(map(int, request_id.split("_")))
 
-            # send the parsed response back to the main
-            # thread through the queue
+            # send the parsed responses back to
+            # the main thread through the queue
             q.put((y, request_id, sequence_id))
 
     # now here is where we actually do the inference
-    with progbar, client:
+    with progbar, client, Throttle(request_rate) as throttle:
         client.start_stream(callback=callback)
         for i in range(num_updates):
             if e.is_set():
@@ -357,16 +418,16 @@ def do_inference(
                 # update one of the tasks on our progress
                 # bar to indicate how many requests we've made
                 progbar.update(submit_task_id, advance=1)
+                throttle.throttle()
 
-            # do a lazy throttle on our request rate by sleeping
-            time.sleep(1 / request_rate)
-
-        # instantiate a results array and populate
-        # it with data returned from the queue
+        # instantiate results arrays for each one of
+        # the sequences and populate them with
+        # responses pulled from the queue
         output_shape = (num_updates, num_models, 100)
         results = {i: np.zeros(output_shape) for i in sequence_ids}
         n = 0
         while n < N:
+            # try to get a reponse if one's available
             try:
                 y = q.get(timeout=0.01)
             except Empty:
@@ -378,11 +439,45 @@ def do_inference(
             else:
                 y, request_id, sequence_id = y
 
+            # place the output in the appropriate
+            # index of the sequence's results array
             results[sequence_id][request_id] = y
             n += 1
 
-    # concatenate all the responses and return them
     return results
+
+
+def validate(results: dict, num_updates: int, num_models: int) -> None:
+    """Validate inference results to make sure the sequences updated in order
+
+    Args:
+        results:
+            The dictionary mapping from sequence ids to
+            results arrays
+        num_updates:
+            The number of updates made in the sequence
+        num_models:
+            The number of models used in the ensemble
+    """
+
+    # build the expected output array
+    x = np.arange(num_updates) - 9
+    x = np.repeat(x[:, None], num_models, axis=1)
+    x = x + np.arange(num_models)
+    x = np.repeat(x[:, :, None], 10, axis=2)
+    x = x + np.arange(10)
+    x = np.repeat(x, 10, axis=2)
+    x = np.clip(x, 0, None)
+
+    # make sure each of the inference
+    # results matches it exactly
+    for sequence_id, result in results.items():
+        if not (result == x).all():
+            logging.error(f"Expected: {x}")
+            logging.error(f"Found: {result}")
+            raise ValueError(
+                f"Sequence {sequence_id} failed to infer correctly"
+            )
 
 
 def main(
@@ -466,10 +561,13 @@ def main(
 
     # instantiate a model and a model repository, then
     # export the model to that repository
+    total_gpus = num_nodes * gpus_per_node
+    streams_per_gpu = (num_sequences - 1) // total_gpus + 1
     repo = export(
         model_repository_bucket=model_repository_bucket,
         model_name=model_name,
         instances_per_gpu=instances_per_gpu,
+        streams_per_gpu=streams_per_gpu,
         credentials=credentials,
     )
 
@@ -529,32 +627,13 @@ def main(
 
             # check to make sure the results align with
             # what we expect
-            for n in range(num_updates):
-                # create the true expected row for this update
-                true = np.zeros((num_models, 100))
-                start = max(n - 9, 0)
-                x = np.repeat(np.arange(start, n + 1), 10)
-                for i in range(num_models):
-                    true[i, -(n + 1) * 10 :] = x + i
-
-                # now iterate through each one of our
-                # sequence outputs and ensure that they
-                # align with this ideal output
-                for sequence_id, result in results.items():
-                    if not (true == result[n]).all():
-                        logging.error(true)
-                        logging.error(result[n])
-                        raise ValueError(
-                            "Row {} for sequence {} came out wrong!".format(
-                                n, sequence_id
-                            )
-                        )
+            validate(results, num_updates, num_models)
 
         logging.info("Tests passed!")
     finally:
         # no matter what happened, clean up all of the
         # resources we were using to avoid incurring extra costs
-        # cluster.remove()
+        cluster.remove()
 
         logging.info(
             f"Removing cloud model repository {model_repository_bucket}"

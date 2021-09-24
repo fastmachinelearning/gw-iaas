@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "Test pipeline for checking snapshotter behavior"
 authors = ["Alec Gunny <alec.gunny@gmail.com>"]
 
+[tool.poetry.scripts]
+snapshotter-test = "snapshotter_test.__main__:main"
+
 [tool.poetry.dependencies]
 python = "^3.8"
 
@@ -11,6 +14,10 @@ python = "^3.8"
 # mode to develop everything in lock step
 # use table entries rather than inline tables
 # since the paths make the options a bit long
+[tool.poetry.dependencies."hermes.typeo"]
+path = "../../libs/hermes/hermes.typeo"
+develop = true
+
 [tool.poetry.dependencies."hermes.cloudbreak"]
 path = "../../libs/hermes/hermes.cloudbreak"
 develop = true

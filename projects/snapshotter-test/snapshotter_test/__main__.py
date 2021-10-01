@@ -633,7 +633,7 @@ def main(
     finally:
         # no matter what happened, clean up all of the
         # resources we were using to avoid incurring extra costs
-        cluster.remove()
+        # cluster.remove()
 
         logging.info(
             f"Removing cloud model repository {model_repository_bucket}"

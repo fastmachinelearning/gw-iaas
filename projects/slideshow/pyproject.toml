@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "gw-iaas-slideshow"
+version = "0.1.0"
+description = "Presentation slideshow for gw-iaas"
+authors = ["Alec Gunny <alec.gunny@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+torch = "^1.7"
+rise = "^5.7"
+rich = "^10.7"
+notebook = "^6.4"
+ipywidgets = "^7.6"
+jupyter_contrib_nbextensions = "^0.5"
+
+# add the NGC PyPI so that tritonclient
+# can install correctly
+[[tool.poetry.source]]
+name = "ngc"
+url = "https://pypi.ngc.nvidia.com"
+
+[build-system]
+requires = ["poetry>=1.1"]
+build-backend = "poetry.masonry.api"

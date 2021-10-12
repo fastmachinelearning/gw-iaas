@@ -1,0 +1,27 @@
+[tool.black]
+line-length = 79
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.tox
+  | _build
+  | dist
+  | docs
+)/
+'''
+
+[tool.isort]
+known_first_party = ["hermes"]
+multi_line_output = 3
+include_trailing_comma = true
+
+[tool.poetry]
+name = "gw-iaas"
+version = "0.1.0"
+description = "Gravitational wave inference as a service monorepo"
+authors = ["Alec Gunny <alec.gunny@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pre-commit = "^2.13"

@@ -1,0 +1,7 @@
+name: hermes-gw-client
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - python-ldas-tools-framecpp
+  - poetry=1.1

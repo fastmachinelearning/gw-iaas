@@ -1,3 +1,4 @@
+import logging
 from multiprocessing import Queue
 from typing import Optional, Sequence
 
@@ -97,17 +98,10 @@ def main(
         name="client",
     )
 
-    # build a pipeline connecting all
-    # the processes
-    # TODO: this won't work since the __rshift__
-    # returns a queue, need to figure out the
-    # behavior that we want here. Dedicated Pipeline
-    # object which starts all the processes?
-    fname_source >> data_loader >> client
-    with fname_source, data_loader, client:
-        for output in client:
-            continue
-    return output
+    # build a pipeline connecting all the processes
+    with fname_source >> data_loader >> client as pipeline:
+        for fname in pipeline:
+            logging.info(f"Processed frame {fname}")
 
 
 if __name__ == "__main__":

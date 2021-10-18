@@ -9,9 +9,9 @@ python = "^3.8"
 "hermes.typeo" = { path = "../../libs/hermes/hermes.typeo", develop = true }
 
 [tool.poetry.dependencies."hermes.gwftools"]
-path = "../../libs/hermes/hermes.gwftools
+path = "../../libs/hermes/hermes.gwftools"
 develop = true
-extras = "gcs"
+extras = ["gcs"]
 
 # add the NGC PyPI so that tritonclient
 # can install correctly

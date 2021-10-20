@@ -1,3 +1,4 @@
+import logging
 import os
 import pickle
 from queue import Empty
@@ -14,13 +15,22 @@ if TYPE_CHECKING:
     from multiprocessing import Queue
 
 
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
+
 class Preprocessor:
     def __init__(self, preproc_pkl: str, sample_rate: float):
         with open(preproc_pkl, "rb") as f:
             params = pickle.load(f)
 
-        low = params["filt_fl"] * 2 / sample_rate
-        high = params["filt_fh"] * 2 / sample_rate
+        low = params["filt_fl"][0] * 2 / sample_rate
+        high = params["filt_fh"][0] * 2 / sample_rate
         self.sos = signal.butter(
             params["filt_order"], [low, high], btype="bandpass", output="sos"
         )

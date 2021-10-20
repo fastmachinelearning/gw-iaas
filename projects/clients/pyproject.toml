@@ -4,8 +4,11 @@ version = "0.1.0"
 description = "Client pipelines for GW IaaS experiments"
 authors = ["Alec Gunny <alec.gunny@gmail.com>"]
 
+[tool.poetry.scripts]
+deepclean = "clients.deepclean:main"
+
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.8,<3.10"
 scipy = "^1.7"
 "hermes.typeo" = { path = "../../libs/hermes/hermes.typeo", develop = true }
 

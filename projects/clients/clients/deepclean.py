@@ -58,7 +58,7 @@ def main(
     # pickle, build a callable object which can
     # perform the requisite preprocessing
     if preprocess_pkl is not None:
-        preprocessor = Preprocessor(preprocess_pkl)
+        preprocessor = Preprocessor(preprocess_pkl, sample_rate)
     else:
         preprocessor = None
 

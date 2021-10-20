@@ -80,9 +80,7 @@ class FrameCollector(PipelineProcess):
         x = package.x.reshape(-1)
         if len(x) != self.step_size:
             raise ValueError(
-                "Noise prediction is of wrong length {}".format(
-                    len(x)
-                )
+                "Noise prediction is of wrong length {}".format(len(x))
             )
 
         # use the package request id to figure out where

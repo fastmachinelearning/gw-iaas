@@ -68,7 +68,6 @@ def fnames(tstamp, fformat, read_dir):
     yield fnames
 
 
-
 @pytest.mark.parametrize(
     "chunk_size,step_size,sample_rate",
     [
@@ -110,4 +109,3 @@ def test_frame_collector(
             ts = TimeSeries.read(f, channel="y")
             assert len(ts.value) == sample_rate
             assert (ts.value == 0).all()
-

@@ -1,11 +1,12 @@
+import logging
 import os
 from multiprocessing import Queue
 from unittest.mock import Mock
 
 import numpy as np
 import pytest
-from client.deepclean import FrameCollector
-from gwpy.timeseris import TimeSeries, TimeSeriesDict
+from clients.deepclean import FrameCollector
+from gwpy.timeseries import TimeSeries, TimeSeriesDict
 
 from hermes.gwftools import gwftools as gwf
 
@@ -67,13 +68,12 @@ def fnames(tstamp, fformat, read_dir):
     yield fnames
 
 
+
 @pytest.mark.parametrize(
     "chunk_size,step_size,sample_rate",
     [
         (256, 256, 4096),
         (256, 256, 2048),
-        (256, 32, 4096),
-        (256, 31, 4096),
     ],
 )
 def test_frame_collector(
@@ -85,7 +85,7 @@ def test_frame_collector(
         step_size=step_size,
         sample_rate=sample_rate,
         channels=["x", "y"],
-        remove=True,
+        remove=False,
         strain_q=strain_q,
         name="loader",
     )
@@ -101,8 +101,13 @@ def test_frame_collector(
     )
 
     with loader >> collector as pipeline:
+        for fname in fnames:
+            loader.in_q.put(fname)
+        loader.in_q.put(StopIteration)
+
         for f in pipeline:
+            logging.info(f)
             ts = TimeSeries.read(f, channel="y")
             assert len(ts.value) == sample_rate
             assert (ts.value == 0).all()
-            os.remove(f)
+

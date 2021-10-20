@@ -40,6 +40,7 @@ class FrameCollector(PipelineProcess):
         self.step_size = step_size
         self.sample_rate = sample_rate
         self.strain_q = strain_q
+        self.preprocessor = preprocessor
 
         self._strains = []
         self._noises = np.array([])
@@ -47,13 +48,19 @@ class FrameCollector(PipelineProcess):
         self._frame_idx = 0
 
     def get_package(self):
+        # now get the next inferred noise estimate
+        noise_prediction = super().get_package()
+
         # first see if we have any new strain data
         # to collect
         try:
-            fname, strain = self.strain_q.get(1e-3)
+            if len(self._noises) == 0:
+                fname, strain = self.strain_q.get(True, 10)
+            else:
+                fname, strain = self.strain_q.get(False)
         except Empty:
-            # if not, no problem just keep moving
-            pass
+            if len(self._noises) == 0:
+                raise RuntimeError("No strain data after 10 seconds")
         else:
             # if we do, add it to our running list of strains
             self._strains.append((fname, strain))
@@ -64,15 +71,19 @@ class FrameCollector(PipelineProcess):
             self._noises = np.append(self._noises, zeros)
             self._covered_idx = np.append(self._covered_idx, zeros)
 
-        # now get the next inferred noise estimate
-        noise_prediction = super().get_package()
         return noise_prediction
 
     def process(self, package):
         # grab the noise prediction from the package
         # slice out the batch and channel dimensions,
         # which will both just be 1 for this pipeline
-        x = package.x[0, 0]
+        x = package.x.reshape(-1)
+        if len(x) != self.step_size:
+            raise ValueError(
+                "Noise prediction is of wrong length {}".format(
+                    len(x)
+                )
+            )
 
         # use the package request id to figure out where
         # in the blank noise array we need to insert
@@ -91,12 +102,14 @@ class FrameCollector(PipelineProcess):
         if self._covered_idx[: len(self._strains[0][1])].all():
             # pop out the earliest strain and filename and
             fname, strain = self._strains.pop(0)
+            fname = os.path.basename(fname)
             timestamp, _ = _parse_frame_name(fname)
 
             # remove the data from both the running
             # noise array and the mask
             noise, self._noises = np.split(self._noises, [len(strain)])
             self._covered_idx = self._covered_idx[len(strain) :]
+            self._frame_idx += len(noise)
 
             # now postprocess the noise channel
             noise = self.preprocessor.uncenter(noise)
@@ -114,7 +127,7 @@ class FrameCollector(PipelineProcess):
 
             # write the file and pass the written filename
             # to downstream processess
-            write_fname = os.path.join(self.output_dir, fname)
+            write_fname = os.path.join(self.write_dir, fname)
             timeseries.write(write_fname)
             super().process(write_fname)
 

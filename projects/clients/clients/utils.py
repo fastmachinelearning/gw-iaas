@@ -1,9 +1,11 @@
 import os
+import pickle
 from queue import Empty
 from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 from gwpy.timeseries import TimeSeries
+from scipy import signal
 
 from hermes.gwftools.gwftools import _parse_frame_name
 from hermes.stillwater import PipelineProcess
@@ -13,8 +15,30 @@ if TYPE_CHECKING:
 
 
 class Preprocessor:
-    def __init__(self, preproc_params):
-        pass
+    def __init__(self, preproc_pkl: str, sample_rate: float):
+        with open(preproc_pkl, "rb") as f:
+            params = pickle.load(f)
+
+        low = params["filt_fl"] * 2 / sample_rate
+        high = params["filt_fh"] * 2 / sample_rate
+        self.sos = signal.butter(
+            params["filt_order"], [low, high], btype="bandpass", output="sos"
+        )
+
+        self.mean = params["mean"]
+        self.std = params["std"]
+
+    def center(self, x):
+        return (x - self.mean) / self.std
+
+    def uncenter(self, x):
+        return x * self.std + self.mean
+
+    def filter(self, x, axis=-1):
+        return signal.sosfiltfilt(self.sos, x, axis=axis)
+
+    def __call__(self, x):
+        return self.filter(self.center(x))
 
 
 class FrameWriter(PipelineProcess):
@@ -110,7 +134,7 @@ class FrameWriter(PipelineProcess):
 
             # now postprocess the noise channel
             noise = self.preprocessor.uncenter(noise)
-            noise = self.preprocessor.bandpass(noise)
+            noise = self.preprocessor.filter(noise)
 
             # remove the noise from the strain channel and
             # use it to create a timeseries we can write to .gwf

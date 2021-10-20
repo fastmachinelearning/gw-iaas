@@ -6,6 +6,7 @@ authors = ["Alec Gunny <alec.gunny@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
+scipy = "^1.7"
 "hermes.typeo" = { path = "../../libs/hermes/hermes.typeo", develop = true }
 
 [tool.poetry.dependencies."hermes.gwftools"]

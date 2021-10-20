@@ -19,6 +19,10 @@ extras = ["gcs"]
 name = "ngc"
 url = "https://pypi.ngc.nvidia.com"
 
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "debug"
+
 [build-system]
 requires = ["poetry>=1.1"]
 build-backend = "poetry.masonry.api"

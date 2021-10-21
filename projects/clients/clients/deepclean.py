@@ -1,7 +1,7 @@
 from multiprocessing import Queue
 from typing import Optional, Sequence
 
-from clients.utils import FrameWriter, Preprocessor, logger
+from clients.utils import FrameWriter, Preprocessor, get_logger
 
 from hermes.gwftools import FrameCrawler, FrameLoader, GCSFrameDownloader
 from hermes.stillwater import InferenceClient
@@ -25,7 +25,14 @@ def main(
     length: Optional[float] = None,
     preprocess_pkl: Optional[str] = None,
     timeout: Optional[float] = None,
+    log_file: Optional[str] = None,
+    verbose: bool = False,
 ) -> None:
+    """Clean a stretch of data using an inference service"""
+
+    # configure logging up front
+    logger = get_logger(log_file, verbose)
+
     # source for frame filenames will be different
     # depending on whether our data is local or in
     # the cloud

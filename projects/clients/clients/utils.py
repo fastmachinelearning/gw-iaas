@@ -15,13 +15,22 @@ if TYPE_CHECKING:
     from multiprocessing import Queue
 
 
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+def get_logger(filename: Optional[str] = None, verbose: bool = False):
+    logger = logging.getLogger()
+
+    if filename is not None:
+        handler = logging.StreamHandler()
+    else:
+        handler = logging.FileHandler(filename)
+
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    handler.setFormatter(formatter)
+    handler.setLevel(logging.DEBUG if verbose else logging.INFO)
+
+    logger.addHandler(handler)
+    return logger
 
 
 class Preprocessor:
@@ -48,7 +57,7 @@ class Preprocessor:
         return signal.sosfiltfilt(self.sos, x, axis=axis)
 
     def __call__(self, x):
-        return self.filter(self.center(x))
+        return self.center(x)
 
 
 class FrameWriter(PipelineProcess):
@@ -142,7 +151,9 @@ class FrameWriter(PipelineProcess):
             self._covered_idx = self._covered_idx[len(strain) :]
             self._frame_idx += len(noise)
 
-            # now postprocess the noise channel
+            # now postprocess the noise and strain channels
+            # TODO: do some sort of windowing before filtering?
+            strain = self.preprocessor.filter(strain)
             noise = self.preprocessor.uncenter(noise)
             noise = self.preprocessor.filter(noise)
 

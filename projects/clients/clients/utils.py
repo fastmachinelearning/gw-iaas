@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 def get_logger(filename: Optional[str] = None, verbose: bool = False):
     logger = logging.getLogger()
 
-    if filename is not None:
+    if filename is None:
         handler = logging.StreamHandler()
     else:
         handler = logging.FileHandler(filename)

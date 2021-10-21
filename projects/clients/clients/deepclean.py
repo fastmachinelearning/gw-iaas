@@ -34,10 +34,10 @@ def main(
     logger = get_logger(log_file, verbose)
 
     if isinstance(channels, str) or len(channels) == 1:
-        if len(channels) == 1:
+        if not isinstance(channels, str):
             channels = channels[0]
         with open(channels, "r") as f:
-            channels = [i for i in f.splitlines() if i]
+            channels = [i for i in f.read().splitlines() if i]
 
     # source for frame filenames will be different
     # depending on whether our data is local or in

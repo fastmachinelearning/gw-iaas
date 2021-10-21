@@ -1,5 +1,5 @@
 from multiprocessing import Queue
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Union
 
 from clients.utils import FrameWriter, Preprocessor, get_logger
 
@@ -16,7 +16,7 @@ def main(
     stride_length: float,
     sample_rate: float,
     inference_rate: float,
-    channels: Sequence[str],
+    channels: Union[str, Sequence[str]],
     sequence_id: int,
     url: str,
     model_name: str,
@@ -32,6 +32,12 @@ def main(
 
     # configure logging up front
     logger = get_logger(log_file, verbose)
+
+    if isinstance(channels, str) or len(channels) == 1:
+        if len(channels) == 1:
+            channels = channels[0]
+        with open(channels, "r") as f:
+            channels = [i for i in f.splitlines() if i]
 
     # source for frame filenames will be different
     # depending on whether our data is local or in

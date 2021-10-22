@@ -81,7 +81,7 @@ def main(
     # use to pass strain data and filenames
     strain_q = Queue()
     data_loader = FrameLoader(
-        chunk_size=int(kernel_length * sample_rate),
+        chunk_size=int(stride_length * sample_rate),
         step_size=int(stride_length * sample_rate),
         sample_rate=sample_rate,
         channels=channels,

@@ -119,6 +119,7 @@ class FrameWriter(PipelineProcess):
         # grab the noise prediction from the package
         # slice out the batch and channel dimensions,
         # which will both just be 1 for this pipeline
+        package = package["output_0"]
         x = package.x.reshape(-1)
         if len(x) != self.step_size:
             raise ValueError(

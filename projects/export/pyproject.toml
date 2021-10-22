@@ -1,21 +1,24 @@
 [tool.poetry]
-name = "clients"
+name = "export"
 version = "0.1.0"
-description = "Client pipelines for GW IaaS experiments"
+description = "Export GW-IaaS models for benchmarking"
 authors = ["Alec Gunny <alec.gunny@gmail.com>"]
 
 [tool.poetry.scripts]
-deepclean = "clients.deepclean:main"
+export = "export:main"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
-scipy = "^1.7"
 "hermes.typeo" = { path = "../../libs/hermes/hermes.typeo", develop = true }
 
-[tool.poetry.dependencies."hermes.gwftools"]
-path = "../../libs/hermes/hermes.gwftools"
+# dependencies for instantiating the NNs
+deepclean-production = {git = "https://git.ligo.org/alec.gunny/deepclean-prod.git", branch = "hermes" }
+mldet = {git = "https://git.ligo.org/alec.gunny/bbh_detection_ml.git", branch = "hermes" }
+
+[tool.poetry.dependencies."hermes.quiver"]
+path = "../../libs/hermes/hermes.quiver"
 develop = true
-extras = ["gcs"]
+extras = ["gcs", "torch", "tensorflow"]
 
 # add the NGC PyPI so that tritonclient
 # can install correctly

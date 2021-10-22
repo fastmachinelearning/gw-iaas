@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 import numpy as np
 import pytest
-from clients.deepclean import FrameCollector
+from clients.deepclean import FrameWriter
 from gwpy.timeseries import TimeSeries, TimeSeriesDict
 
 from hermes.gwftools import gwftools as gwf
@@ -75,7 +75,7 @@ def fnames(tstamp, fformat, read_dir):
         (256, 256, 2048),
     ],
 )
-def test_frame_collector(
+def test_frame_writer(
     chunk_size, step_size, sample_rate, fnames, read_dir, write_dir
 ):
     strain_q = Queue()
@@ -89,7 +89,7 @@ def test_frame_collector(
         name="loader",
     )
 
-    collector = FrameCollector(
+    collector = FrameWriter(
         write_dir,
         channel_name="y",
         step_size=step_size,
@@ -105,6 +105,7 @@ def test_frame_collector(
         loader.in_q.put(StopIteration)
 
         for f in pipeline:
+            assert os.path.exists(f)
             logging.info(f)
             ts = TimeSeries.read(f, channel="y")
             assert len(ts.value) == sample_rate

@@ -31,5 +31,5 @@ log_cli = true
 log_cli_level = "debug"
 
 [build-system]
-requires = ["poetry>=1.1"]
+requires = ["poetry>=1.1,poetry<1.2"]
 build-backend = "poetry.masonry.api"

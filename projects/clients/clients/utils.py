@@ -17,27 +17,17 @@ if TYPE_CHECKING:
 
 
 def get_logger(filename: Optional[str] = None, verbose: bool = False):
-    # logger = logging.getLogger()
+    kwargs = {
+        "level": logging.DEBUG if verbose else logging.INFO,
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    }
+    if filename is not None:
+        kwargs["file"] = filename
+    else:
+        kwargs["stream"] = sys.stdout
+    logging.basicConfig(**kwargs)
 
-    # if filename is None:
-    #     handler = logging.StreamHandler()
-    # else:
-    #     handler = logging.FileHandler(filename)
-
-    # formatter = logging.Formatter(
-    #     "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    # )
-    # handler.setFormatter(formatter)
-    # handler.setLevel(logging.DEBUG if verbose else logging.INFO)
-
-    # logger.addHandler(handler)
-
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=logging.DEBUG if verbose else logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    return  # logger
+    return logging.getLogger()
 
 
 class Preprocessor:
@@ -168,7 +158,6 @@ class FrameWriter(PipelineProcess):
             # remove the noise from the strain channel and
             # use it to create a timeseries we can write to .gwf
             cleaned = strain - noise
-            self.logger.info(f"{cleaned.shape},{strain.shape},{noise.shape}")
             timeseries = TimeSeries(
                 cleaned,
                 t0=timestamp,

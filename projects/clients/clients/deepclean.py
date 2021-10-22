@@ -1,4 +1,3 @@
-import logging
 from multiprocessing import Queue
 from typing import Optional, Sequence, Union
 
@@ -32,8 +31,7 @@ def main(
     """Clean a stretch of data using an inference service"""
 
     # configure logging up front
-    _ = get_logger(log_file, verbose)
-    logger = logging.getLogger()
+    logger = get_logger(log_file, verbose)
 
     if isinstance(channels, str) or len(channels) == 1:
         if not isinstance(channels, str):

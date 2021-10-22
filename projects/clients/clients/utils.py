@@ -1,6 +1,7 @@
 import logging
 import os
 import pickle
+import sys
 from queue import Empty
 from typing import TYPE_CHECKING, Optional
 
@@ -16,21 +17,17 @@ if TYPE_CHECKING:
 
 
 def get_logger(filename: Optional[str] = None, verbose: bool = False):
-    logger = logging.getLogger()
-
-    if filename is None:
-        handler = logging.StreamHandler()
+    kwargs = {
+        "level": logging.DEBUG if verbose else logging.INFO,
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    }
+    if filename is not None:
+        kwargs["file"] = filename
     else:
-        handler = logging.FileHandler(filename)
+        kwargs["stream"] = sys.stdout
+    logging.basicConfig(**kwargs)
 
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    handler.setFormatter(formatter)
-    handler.setLevel(logging.DEBUG if verbose else logging.INFO)
-
-    logger.addHandler(handler)
-    return logger
+    return logging.getLogger()
 
 
 class Preprocessor:
@@ -119,6 +116,7 @@ class FrameWriter(PipelineProcess):
         # grab the noise prediction from the package
         # slice out the batch and channel dimensions,
         # which will both just be 1 for this pipeline
+        package = package["output_0"]
         x = package.x.reshape(-1)
         if len(x) != self.step_size:
             raise ValueError(
@@ -154,7 +152,7 @@ class FrameWriter(PipelineProcess):
             # now postprocess the noise and strain channels
             # TODO: do some sort of windowing before filtering?
             strain = self.preprocessor.filter(strain)
-            noise = self.preprocessor.uncenter(noise)
+            # noise = self.preprocessor.uncenter(noise)
             noise = self.preprocessor.filter(noise)
 
             # remove the noise from the strain channel and

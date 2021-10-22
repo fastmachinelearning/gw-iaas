@@ -1,3 +1,4 @@
+import logging
 from multiprocessing import Queue
 from typing import Optional, Sequence, Union
 
@@ -31,7 +32,8 @@ def main(
     """Clean a stretch of data using an inference service"""
 
     # configure logging up front
-    logger = get_logger(log_file, verbose)
+    _ = get_logger(log_file, verbose)
+    logger = logging.getLogger()
 
     if isinstance(channels, str) or len(channels) == 1:
         if not isinstance(channels, str):
@@ -102,6 +104,7 @@ def main(
     # to the inference client in case we want
     # to make requests to the streaming ensemble
     # in an arbitrary order
+    logger.info("creating client")
     client = InferenceClient(
         url=url,
         model_name=model_name,
@@ -109,6 +112,7 @@ def main(
         profile=False,
         name="client",
     )
+    logger.info("client created")
 
     writer = FrameWriter(
         write_dir=write_dir,

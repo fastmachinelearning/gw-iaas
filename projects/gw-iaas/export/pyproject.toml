@@ -9,16 +9,23 @@ export = "export:main"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
-"hermes.typeo" = { path = "../../libs/hermes/hermes.typeo", develop = true }
 
-# dependencies for instantiating the NNs
+# internal LIGO libraries containing
+# the neural network definitions
 deepclean-production = {git = "https://git.ligo.org/alec.gunny/deepclean-prod.git", branch = "hermes" }
 mldet = {git = "https://git.ligo.org/alec.gunny/bbh_detection_ml.git", branch = "hermes" }
 
+# build tables for local dependencies
+# explicitly because of how long the
+# paths are
 [tool.poetry.dependencies."hermes.quiver"]
-path = "../../libs/hermes/hermes.quiver"
+path = "../../../libs/hermes/hermes.quiver"
 develop = true
 extras = ["gcs", "torch", "tensorflow"]
+
+[tool.poetry.dependencies."hermes.typeo"]
+path = "../../../libs/hermes/hermes.typeo"
+develop = true
 
 # add the NGC PyPI so that tritonclient
 # can install correctly

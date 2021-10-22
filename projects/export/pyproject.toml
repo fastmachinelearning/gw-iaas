@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "export"
+version = "0.1.0"
+description = "Export GW-IaaS models for benchmarking"
+authors = ["Alec Gunny <alec.gunny@gmail.com>"]
+
+[tool.poetry.scripts]
+export = "export:main"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.10"
+"hermes.typeo" = { path = "../../libs/hermes/hermes.typeo", develop = true }
+
+# dependencies for instantiating the NNs
+deepclean-production = {git = "https://git.ligo.org/alec.gunny/deepclean-prod.git", branch = "hermes" }
+mldet = {git = "https://git.ligo.org/alec.gunny/bbh_detection_ml.git", branch = "hermes" }
+
+[tool.poetry.dependencies."hermes.quiver"]
+path = "../../libs/hermes/hermes.quiver"
+develop = true
+extras = ["gcs", "torch", "tensorflow"]
+
+# add the NGC PyPI so that tritonclient
+# can install correctly
+[[tool.poetry.source]]
+name = "ngc"
+url = "https://pypi.ngc.nvidia.com"
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "debug"
+
+[build-system]
+requires = ["poetry>=1.1"]
+build-backend = "poetry.masonry.api"

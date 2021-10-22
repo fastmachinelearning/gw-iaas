@@ -102,7 +102,6 @@ def main(
     # to the inference client in case we want
     # to make requests to the streaming ensemble
     # in an arbitrary order
-    logger.info("creating client")
     client = InferenceClient(
         url=url,
         model_name=model_name,
@@ -110,7 +109,6 @@ def main(
         profile=False,
         name="client",
     )
-    logger.info("client created")
 
     writer = FrameWriter(
         write_dir=write_dir,

@@ -15,13 +15,12 @@ python = ">=3.8,<3.10"
 deepclean-production = {git = "https://git.ligo.org/alec.gunny/deepclean-prod.git", branch = "hermes" }
 mldet = {git = "https://git.ligo.org/alec.gunny/bbh_detection_ml.git", branch = "hermes" }
 
-# build tables for local dependencies
-# explicitly because of how long the
-# paths are
+# build tables for local dependencies explicitly
+# because of how long the paths are
 [tool.poetry.dependencies."hermes.quiver"]
 path = "../../../libs/hermes/hermes.quiver"
 develop = true
-extras = ["gcs", "torch", "tensorflow"]
+extras = ["gcs", "torch", "tensorflow", "tensorrt"]
 
 [tool.poetry.dependencies."hermes.typeo"]
 path = "../../../libs/hermes/hermes.typeo"

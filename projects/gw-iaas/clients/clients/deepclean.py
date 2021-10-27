@@ -1,10 +1,11 @@
+from contextlib import nullcontext
 from multiprocessing import Queue
 from typing import Optional, Sequence, Union
 
 from clients.utils import FrameWriter, Preprocessor, get_logger
 
 from hermes.gwftools import FrameCrawler, FrameLoader, GCSFrameDownloader
-from hermes.stillwater import InferenceClient
+from hermes.stillwater import InferenceClient, ServerMonitor
 from hermes.typeo import typeo
 
 
@@ -25,6 +26,7 @@ def main(
     length: Optional[float] = None,
     preprocess_pkl: Optional[str] = None,
     timeout: Optional[float] = None,
+    stats_file: Optional[str] = None,
     log_file: Optional[str] = None,
     verbose: bool = False,
 ) -> None:
@@ -121,9 +123,24 @@ def main(
     )
 
     # build a pipeline connecting all the processes
-    with fname_source >> data_loader >> client >> writer as pipeline:
-        for fname in pipeline:
-            logger.info(f"Processed frame {fname}")
+    pipeline = fname_source >> data_loader >> client >> writer
+
+    # add a monitor if we specified a file to write stats to
+    if stats_file is not None:
+        monitor = ServerMonitor(
+            model_name,
+            ips=url.split(":")[0],
+            filename=stats_file,
+            model_version=model_version,
+            name="monitor",
+        )
+    else:
+        monitor = nullcontext()
+
+    with monitor:
+        with pipeline:
+            for fname in pipeline:
+                logger.info(f"Processed frame {fname}")
 
 
 if __name__ == "__main__":

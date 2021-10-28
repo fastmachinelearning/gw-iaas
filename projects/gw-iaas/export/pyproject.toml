@@ -20,7 +20,7 @@ mldet = {git = "https://git.ligo.org/alec.gunny/bbh_detection_ml.git", branch = 
 [tool.poetry.dependencies."hermes.quiver"]
 path = "../../../libs/hermes/hermes.quiver"
 develop = true
-extras = ["gcs", "torch", "tensorflow", "tensorrt"]
+extras = ["gcs", "torch", "tensorflow"]
 
 [tool.poetry.dependencies."hermes.typeo"]
 path = "../../../libs/hermes/hermes.typeo"

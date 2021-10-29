@@ -5,7 +5,7 @@ on:
     branches: main
 
 env:
-  TRT_TAG: 21.10
+  TRT_TAG: "21.10"
 
 jobs:
   main:

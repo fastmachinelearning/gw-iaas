@@ -1,12 +1,8 @@
-ARG TAG=20.11
+ARG TAG=21.10
 FROM nvcr.io/nvidia/tensorrt:${TAG}-py3
 
-ARG POETRY_VERSION=1.1 REPO=fastmachinelearning BRANCH=main
-RUN python -m pip install --upgrade \
-            poetry==${POETRY_VERSION} \
-            pip \
-            setuptools \
-            wheel \
+ARG POETRY_VERSION=1.2.0a2 REPO=fastmachinelearning BRANCH=main
+RUN python -m pip install --upgrade poetry==${POETRY_VERSION} \
         \
         && git clone https://github.com/${REPO}/gw-iaas.git \
         \

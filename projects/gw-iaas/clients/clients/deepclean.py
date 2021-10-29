@@ -137,10 +137,9 @@ def main(
     else:
         monitor = nullcontext()
 
-    with monitor:
-        with pipeline:
-            for fname in pipeline:
-                logger.info(f"Processed frame {fname}")
+    with monitor, pipeline:
+        for fname in pipeline:
+            logger.info(f"Processed frame {fname}")
 
 
 if __name__ == "__main__":

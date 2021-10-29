@@ -35,6 +35,6 @@ jobs:
         context: projects/gw-iaas/export
         file: projects/gw-iaas/export/Dockerfile
         push: true
-        tags: alecgunny/gw-iaas-export:latest
+        tags: fastml/gw-iaas-export:latest
         build-args: |
           TAG=${{ env.TRT_TAG }}

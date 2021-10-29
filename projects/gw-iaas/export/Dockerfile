@@ -14,13 +14,10 @@ RUN python -m pip install --upgrade \
         \
         && git checkout ${BRANCH} \
         \
-        # && poetry export \
-        #     -f requirements.txt \
-        #     --output requirements.txt \
-        #     --without-hashes \
-        # \
-        # && cat requirements.txt \
-        # && python -m pip install -r requirements.txt
         && poetry config virtualenvs.create false \
         \
-        && poetry install --no-dev --no-interaction
+        && poetry install --no-dev --no-interaction \
+        \
+        && cp -r \
+            /usr/lib/python3.8/site-packages/* \
+            /usr/local/lib/python3.8/dist-packages

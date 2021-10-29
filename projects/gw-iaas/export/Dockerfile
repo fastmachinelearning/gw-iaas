@@ -21,3 +21,7 @@ RUN python -m pip install --upgrade \
         && cp -r \
             /usr/lib/python3.8/site-packages/* \
             /usr/local/lib/python3.8/dist-packages
+
+WORKDIR /workspace/gw-iaas/projects/gw-iaas/export
+ENTRYPOINT ["python", "export.py"]
+CMD [""]

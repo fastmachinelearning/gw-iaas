@@ -38,3 +38,4 @@ jobs:
         tags: fastml/gw-iaas-export:latest
         build-args: |
           TAG=${{ env.TRT_TAG }}
+          BRANCH=${{ env.TRT_TAG }}

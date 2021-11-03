@@ -2,10 +2,10 @@ name: deploy
 
 on:
   push:
-    branches: main
+    branches: 20.11
 
 env:
-  TRT_TAG: "21.10"
+  TRT_TAG: "20.11"
 
 jobs:
   main:

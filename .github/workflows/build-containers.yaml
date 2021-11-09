@@ -1,11 +1,19 @@
-name: deploy
+name: build-containers
 
 on:
   push:
     branches: main
+    paths:
+      - 'projects/gw-iaas-export/**'
+      - 'libs/hermes/hermes.quiver/**'
+      - 'libs/hermes/hermes.typeo/**'
 
 env:
-  TRT_TAG: "21.10"
+  CUDA_MAJOR_VERSION: "11"
+  CUDA_MINOR_VERSION: "4"
+  CUDA_PATCH_VERSION: "2"
+  TRT_VERSION: "8.2.0"
+  POETRY_VERSION: "1.2.0a2"
 
 jobs:
   main:
@@ -28,13 +36,17 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     -
-      name: Build and push
-      id: docker_build
+      name: GW-IaaS export container build
+      id: gw-iaas-export-container-build
       uses: docker/build-push-action@v2
       with:
-        context: projects/gw-iaas/export
+        context: .
         file: projects/gw-iaas/export/Dockerfile
         push: true
         tags: fastml/gw-iaas-export:latest
         build-args: |
-          TAG=${{ env.TRT_TAG }}
+          CUDA_MAJOR_VERSION=${{ env.CUDA_MAJOR_VERSION }}
+          CUDA_MINOR_VERSION=${{ env.CUDA_MINOR_VERSION }}
+          CUDA_PATCH_VERSION=${{ env.CUDA_PATCH_VERSION }}
+          TRT_VERSION=${{ env.TRT_VERSION }}
+          POETRY_VERSION=${{ env.POETRY_VERSION }}

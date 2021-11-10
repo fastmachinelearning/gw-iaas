@@ -1,9 +1,14 @@
-# start from CUDA container and install TensorRT on top
-# of this using the instructions found at
-# https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html#maclearn-net-repo-install
 ARG CUDA_MAJOR_VERSION=11
 ARG CUDA_MINOR_VERSION=4
 ARG CUDA_PATCH_VERSION=2
+
+FROM build AS base
+WORKDIR /opt/gw-iaas/projects/gw-iaas/export
+RUN make
+
+# start from CUDA container and install TensorRT on top
+# of this using the instructions found at
+# https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html#maclearn-net-repo-install
 FROM nvcr.io/nvidia/cuda:${CUDA_MAJOR_VERSION}.${CUDA_MINOR_VERSION}.${CUDA_PATCH_VERSION}-devel-ubuntu20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -49,26 +54,17 @@ RUN set +x \
 
 # copy just the code needed to run the export script
 ENV HOME=/home/docker
-COPY libs/hermes/hermes.quiver $HOME/gw-iaas/libs/hermes/hermes.quiver
-COPY libs/hermes/hermes.typeo $HOME/gw-iaas/libs/hermes/hermes.typeo
-COPY projects/gw-iaas/export $HOME/gw-iaas/projects/gw-iaas/export
-WORKDIR $HOME/gw-iaas/projects/gw-iaas/export
-
-# install poetry and use it to install
-# export script dependencies to global
-# Python environment, not virtual env
-ARG POETRY_VERSION=1.2.0a2
+WORKDIR $HOME
+COPY --from=base /opt/build/dist/*.whl .
+COPY --from=base /opt/build/dist/deps/*.whl ./deps/
 RUN set -x \
+        && ls && ls deps \
         \
-        && python -m pip install --upgrade poetry==${POETRY_VERSION} \
+        && python -m pip install ./deps/*.whl \
         \
-        && poetry config virtualenvs.create false \
+        && python -m pip install ./*.whl \
         \
-        && poetry install --no-dev --no-interaction \
-        \
-        && cp -r \
-            /usr/lib/python3.8/site-packages/* \
-            /usr/local/lib/python3.8/dist-packages
+        && rm -rf *.whl deps
 
-ENTRYPOINT ["python", "export.py"]
+ENTRYPOINT ["export"]
 CMD [""]

@@ -10,6 +10,10 @@ export = "export:main"
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
 
+# use dummy versions of local libs for production use
+"hermes.quiver" = { version = "*", extras = ["gcs", "torch", "tensorflow"] }
+"hermes.typeo" = "*"
+
 # internal LIGO libraries containing
 # the neural network definitions
 deepclean-production = {git = "https://git.ligo.org/alec.gunny/deepclean-prod.git", branch = "hermes" }
@@ -17,12 +21,12 @@ mldet = {git = "https://git.ligo.org/alec.gunny/bbh_detection_ml.git", branch = 
 
 # build tables for local dependencies explicitly
 # because of how long the paths are
-[tool.poetry.dependencies."hermes.quiver"]
+[tool.poetry.dev-dependencies."hermes.quiver"]
 path = "../../../libs/hermes/hermes.quiver"
 develop = true
 extras = ["gcs", "torch", "tensorflow"]
 
-[tool.poetry.dependencies."hermes.typeo"]
+[tool.poetry.dev-dependencies."hermes.typeo"]
 path = "../../../libs/hermes/hermes.typeo"
 develop = true
 

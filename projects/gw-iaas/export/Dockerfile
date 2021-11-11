@@ -64,7 +64,7 @@ RUN set -x \
         \
         && poetry config virtualenvs.create false \
         \
-        && poetry install --no-dev --no-interaction \
+        && poetry install --without dev --no-interaction \
         \
         && cp -r \
             /usr/lib/python3.8/site-packages/* \

@@ -261,16 +261,7 @@ class FrameCrawler(PipelineProcess):
         self.n = 0
         super().run()
 
-    def get_package(self):
-        if self.n == self.N:
-            raise StopIteration
-
-        fname = os.path.join(
-            self.data_dir, self.pattern.format(self.timestamp)
-        )
-
-        # wait for the current file to exist, possibly
-        # timing out if it takes too long
+    def _wait_until_exists(self, fname):
         while not os.path.exists(fname):
             if (
                 self.timeout is not None
@@ -281,6 +272,22 @@ class FrameCrawler(PipelineProcess):
                     "after {} seconds".format(fname, self.timeout)
                 )
             time.sleep(1e-6)
+
+    def _get_fname(self):
+        fname = os.path.join(
+            self.data_dir, self.pattern.format(self.timestamp)
+        )
+
+        # wait for the current file to exist, possibly
+        # timing out if it takes too long
+        self._wait_until_exists(fname)
+        return fname
+
+    def get_package(self):
+        if self.n == self.N:
+            raise StopIteration
+
+        fname = self._get_fname()
 
         # reset our timeout counter and advance the
         # timestamp by the length of the frames
@@ -381,18 +388,13 @@ class FrameLoader(PipelineProcess):
         self._data = None
         self._end_next = False
 
-    def load_frame(self) -> np.ndarray:
-        # get the name of the next file to load from
-        # an upstream process, possibly raising a
-        # StopIteration if that process is done
-        fname = super().get_package()
-
+    def load_frame_file(self, fname, channels):
         # load in the data and prepare it as a numpy array
-        data = TimeSeriesDict.read(fname, self.channels)
+        data = TimeSeriesDict.read(fname, channels)
         data.resample(self.sample_rate)
-        data = np.stack(
-            [data[channel].value for channel in self.channels]
-        ).astype("float32")
+        data = np.stack([data[channel].value for channel in channels]).astype(
+            "float32"
+        )
 
         # if we specified explicit time boundaries on the
         # data that we wanted to process, use the filename
@@ -416,6 +418,16 @@ class FrameLoader(PipelineProcess):
                 diff = tstamp + frame_length - self.t0 - self.length
                 idx = int(diff * self.sample_rate)
                 data = data[:, :-idx]
+        return data
+
+    def get_next_frame(self) -> np.ndarray:
+        # get the name of the next file to load from
+        # an upstream process, possibly raising a
+        # StopIteration if that process is done
+        fname = super().get_package()
+
+        # load in the data and prepare it as a numpy array
+        data = self.load_frame_file(fname, self.channels)
 
         # if we want to handle strain data separately,
         # ship it in a queue before we do the preprocessing
@@ -454,7 +466,7 @@ class FrameLoader(PipelineProcess):
 
             # try to load in the next frame's worth of data
             try:
-                data = self.load_frame()
+                data = self.get_next_frame()
             except StopIteration:
                 # super().get_package() raised a StopIteration,
                 # so catch it and indicate that this will be

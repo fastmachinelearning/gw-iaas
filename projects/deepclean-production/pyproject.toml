@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "dc_online_prod"
+version = "0.1.0"
+description = "Pipeline for running DeepClean online in production"
+authors = ["Alec Gunny <alec.gunny@gmail.com>"]
+
+[tool.poetry.scripts]
+deepclean = "dc_online_prod.__main__:main"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.10"
+scipy = "^1.7"
+
+# build tables for local dependencies
+# explicitly because of how long the
+# paths are
+[tool.poetry.dependencies."hermes.gwftools"]
+path = "../../../libs/hermes/hermes.gwftools"
+develop = true
+
+[tool.poetry.dependencies."hermes.typeo"]
+path = "../../../libs/hermes/hermes.typeo"
+develop = true
+
+# add the NGC PyPI so that tritonclient
+# can install correctly
+[[tool.poetry.source]]
+name = "ngc"
+url = "https://pypi.ngc.nvidia.com"
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "debug"
+
+[build-system]
+requires = ["poetry>=1.1"]
+build-backend = "poetry.masonry.api"

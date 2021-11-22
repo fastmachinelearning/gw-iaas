@@ -1,5 +1,7 @@
+import logging
 import math
 import os
+import sys
 from typing import List, Optional, Tuple, Union
 
 from herems.quiver.io import GCSFileSystem
@@ -119,24 +121,33 @@ def scale_models(
     except KeyError:
         raise NoModel(model_name, model_repo_bucket_name)
 
+    try:
+        # check if this is an ensemble model
+        steps = model.config.ensemble_scheduling.step
+    except AttributeError:
+        # this isn't an ensemble model, so just scale
+        # the indicated model
+        models = [model_name]
+    else:
+        # scale each of the constituent models in the ensemble
+        models = [i.model_name for i in steps]
+
     if not isinstance(instances_per_gpu, dict):
         # if we didn't specify a number of instances for
         # each model, assume that we specified a single
         # number for _all_ models
-        try:
-            # check if this is an ensemble model
-            steps = model.config.ensemble_scheduling.step
-        except AttributeError:
-            # this isn't an ensemble model, so just scale
-            # the indicated model
-            models = [model_name]
-        else:
-            # scale each of the constituent models in the ensemble
-            models = [i.model_name for i in steps]
-
         instances_per_gpu = {i: instances_per_gpu for i in models}
 
-    # TODO: scale snapshotter using different logic
+    # set the scale for the snapshotter model separately
+    # if it exists by making sure that we'll have enough
+    # available snapshot instances to accommodate all
+    # of our client streams
+    try:
+        snapshotter = [i for i in models if i.startswith("snapshotter")][0]
+    except IndexError:
+        pass
+    else:
+        instances_per_gpu[snapshotter] = math.ceil(num_clients / num_gpus)
 
     # for each model, adjust its instance group to
     # match the indicated number of instances per GPU
@@ -145,7 +156,16 @@ def scale_models(
             model = repo.models[model]
         except KeyError:
             raise NoModel(model_name, model_repo_bucket_name)
-        model.config.instance_group  # TODO: what next?
+
+        # try to scale an existing instance group,
+        # and add one if it fails
+        try:
+            model.config.scale_instance_group(instances)
+        except ValueError:
+            model.config.add_instance_group(count=instances)
+
+        # write the updated config to the model repository
+        model.config.write()
 
 
 @typeo("Offline processing")
@@ -172,33 +192,60 @@ def main(
     gpu_type: str = "t4",
     split_files: str = False,
     throughput_per_client: float = 1000,
+    log_file: Optional[str] = None,
+    verbose: bool = False,
 ) -> None:
+    # set up host-machine logging
+    if log_file is None:
+        kwargs = {"stream": sys.stdout}
+    else:
+        kwargs = {"file": log_file}
+
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.DEBUG if verbose else logging.INFO,
+        **kwargs,
+    )
+
+    # inspect the input data bucket to assign processing
+    # start times and lengths to each client
     total_clients = clients_per_server_node * num_server_nodes
     t0s, lengths = divvy_up_files(
         input_data_bucket_name, split_files, total_clients
     )
 
-    scale_models(model_repo_bucket_name, model_name, instances_per_gpu)
+    # scale up each individual model to the indicated level
+    scale_models(
+        model_repo_bucket_name,
+        model_name,
+        instances_per_gpu,
+        num_gpus=gpus_per_server_node * num_server_nodes,
+        num_clients=total_clients,
+    )
 
     # build the resources to create a cluster and
     # gpu-enabled nodes on it
     cluster_manager = cb.ClusterManager(
         project=project, zone=zone, credentials=credentials
     )
-    cluster_config = cb.container.Cluster(
+    cluster_config = cb.kubernetes.container.Cluster(
         name=cluster_name,
         node_pools=[
-            cb.container.NodePool(
+            cb.kubernetes.container.NodePool(
                 name="default-pool",
-                initial_node_count=2,
-                config=cb.container.NodeConfig(),
+                initial_node_count=1,
+                config=cb.kubernetes.container.NodeConfig(),
             )
         ],
     )
-    cluster_node_config = cb.create_gpu_node_pool_config(
-        vcpus=vcpus_per_server_gpu * gpus_per_server_node,
-        gpus=gpus_per_server_node,
-        gpu_type=gpu_type,
+    cluster_node_pool_config = cb.kubernetes.container.NodePool(
+        name="tritonserver-{}-pool".format(gpu_type),
+        initial_node_count=num_server_nodes,
+        config=cb.create_gpu_node_pool_config(
+            vcpus=vcpus_per_server_gpu * gpus_per_server_node,
+            gpus=gpus_per_server_node,
+            gpu_type=gpu_type,
+        ),
     )
 
     # now build the resources for the client VMs
@@ -217,6 +264,11 @@ def main(
     # create the VMs in the background then
     # create the cluster and node pools before
     # checking to make sure all the VMs are ready
+    logging.info(
+        "Configuring {} client VMs with {} vCPUs each".format(
+            total_clients, vcpus_per_client
+        )
+    )
     client_manager.create(total_clients, username, ssh_key_file)
     try:
         with cluster_manager.add(cluster_config) as cluster:
@@ -227,7 +279,19 @@ def main(
             cluster.deploy_gpu_drivers()
 
             # deploy a pool of GPU-enabled nodes in this cluster
-            with cluster.add(cluster_node_config):
+            node_config = cluster_node_pool_config.config
+            logging.info(
+                "Configuring {} server nodes with {} vCPUs"
+                " and {} {} GPUs each".format(
+                    cluster_node_pool_config.initial_node_count,
+                    node_config.machine_type.split("-")[-1],
+                    node_config.accelerators[0].accelerator_count,
+                    node_config.accelerators[0].accelerator_type.split("-")[
+                        -1
+                    ],
+                )
+            )
+            with cluster.add(cluster_node_pool_config):
                 # note that we'll need a separate deployment
                 # and load balancer for _each cluster node_,
                 # since we need streaming state updates to
@@ -259,7 +323,13 @@ def main(
                 ip_repeats = math.ceil(total_clients / len(ips))
                 ips = ([ips] * ip_repeats)[:total_clients]
 
+                # monitor the throughput on all the server
+                # nodes in a separate process while the
+                # clients run and save the results to a csv
                 results_file = os.path.join(run_dir, "results.csv")
+                logging.info(
+                    f"Starting clients and writing results to {results_file}"
+                )
                 with ServerMonitor(model_name, ips, results_file):
                     stdouts, stderrs = client_manager.run(
                         deepclean_cmd.format(
@@ -275,6 +345,8 @@ def main(
                         length=lengths,
                     )
 
+                # copy all the logs from client nodes to our
+                # run directory for reference
                 log_dir = os.path.join(run_dir, "logs")
                 if not os.path.exists(log_dir):
                     os.makedirs(log_dir)

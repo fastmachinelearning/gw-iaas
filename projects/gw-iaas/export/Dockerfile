@@ -56,7 +56,18 @@ WORKDIR $HOME/gw-iaas/projects/gw-iaas/export
 
 # install poetry and use it to install
 # export script dependencies to global
-# Python environment, not virtual env
+# Python environment, not virtual env.
+# TODO: Something about doing a sudo install
+# using poetry causes the poetry-installed
+# libs to get installed at /usr/lib/python3.8/site-packages
+# instead of either /usr/lib/python3.8/dist-packages,
+# which I think happens because Poetry uses pip
+# under the hood, or /usr/local/lib/python3.8/dist-packages,
+# which I think is caused both by pip as well
+# as the sudo nature of the install. Currently "solving"
+# this with a lazy copy. Should probably either update
+# the PYTHONPATH environment variable or possibly
+# do a symlink instead?
 ARG POETRY_VERSION=1.2.0a2
 RUN set -x \
         \

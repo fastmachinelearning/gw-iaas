@@ -11,9 +11,10 @@ from hermes.quiver.model_repository import ModelRepository
 from hermes.stillwater import ServerMonitor
 from hermes.typeo import typeo
 
-deepclean_cmd = """
-source /conda/etc/profile.d/conda.sh && \
-conda activate gwftools && \
+base_cmd = "source $CONDA_INIT && conda activate gwftools && \\"
+deepclean_cmd = (
+    base_cmd
+    + r"""
 poetry run deepclean \
     --data-dir gs://{input_data_bucket_name} \
     --write-dir gs://{output_data_bucket_name} \
@@ -31,6 +32,7 @@ poetry run deepclean \
     --preprocess_pkl ppr.pkl \
     --log-file log.txt
 """
+)
 
 
 def divvy_up_files(
@@ -96,15 +98,6 @@ def divvy_up_files(
     return list(zip(*groups))
 
 
-class NoModel(ValueError):
-    def __init__(self, model_name, model_repo_bucket_name):
-        super().__init__(
-            "No model named '{}' in model repo bucket '{}'".format(
-                model_name, model_repo_bucket_name
-            )
-        )
-
-
 def scale_models(
     model_repo_bucket_name: str,
     model_name: str,
@@ -116,11 +109,18 @@ def scale_models(
     # the desired model exists and scale the number
     # of instances of all its constituent models
     repo = ModelRepository("gs://" + model_repo_bucket_name)
-    try:
-        model = repo.models[model_name]
-    except KeyError:
-        raise NoModel(model_name, model_repo_bucket_name)
 
+    def _get_model(model_name):
+        try:
+            return repo.models[model_name]
+        except KeyError:
+            raise ValueError(
+                "No model named '{}' in model repo bucket '{}'".format(
+                    model_name, model_repo_bucket_name
+                )
+            )
+
+    model = _get_model(model_name)
     try:
         # check if this is an ensemble model
         steps = model.config.ensemble_scheduling.step
@@ -152,10 +152,7 @@ def scale_models(
     # for each model, adjust its instance group to
     # match the indicated number of instances per GPU
     for model_name, instances in instances_per_gpu:
-        try:
-            model = repo.models[model]
-        except KeyError:
-            raise NoModel(model_name, model_repo_bucket_name)
+        model = _get_model(model_name)
 
         # try to scale an existing instance group,
         # and add one if it fails

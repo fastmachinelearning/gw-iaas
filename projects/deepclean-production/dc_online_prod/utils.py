@@ -27,7 +27,7 @@ def get_logger(filename: Optional[str] = None, verbose: bool = False):
         "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     }
     if filename is not None:
-        kwargs["file"] = filename
+        kwargs["filename"] = filename
     else:
         kwargs["stream"] = sys.stdout
     logging.basicConfig(**kwargs)
@@ -46,8 +46,8 @@ class Preprocessor:
             params["filt_order"], [low, high], btype="bandpass", output="sos"
         )
 
-        self.mean = params["mean"]
-        self.std = params["std"]
+        self.mean = params["mean"][1:]
+        self.std = params["std"][1:]
 
     def center(self, x):
         return (x - self.mean) / self.std
@@ -121,7 +121,10 @@ class FrameWriter(PipelineProcess):
         # grab the noise prediction from the package
         # slice out the batch and channel dimensions,
         # which will both just be 1 for this pipeline
-        package = package["output_0"]
+        package = package["noise"]
+        logging.debug("Received response for package {}".format(
+            package.request_id
+        ))
         x = package.x.reshape(-1)
         if len(x) != self.step_size:
             raise ValueError(
@@ -145,6 +148,7 @@ class FrameWriter(PipelineProcess):
         if self._covered_idx[: len(self._strains[0][1])].all():
             # pop out the earliest strain and filename and
             (witness_fname, strain_fname), strain = self._strains.pop(0)
+            logging.debug("Cleaning strain file " + strain_fname)
             fname = os.path.basename(witness_fname)
             timestamp, _ = _parse_frame_name(fname)
 
@@ -174,7 +178,7 @@ class FrameWriter(PipelineProcess):
             # to downstream processess
             write_fname = os.path.join(self.write_dir, fname)
             timeseries.write(write_fname)
-            latency = os.stat(witness_fname).st_mtime - time.time()
+            latency = time.time() - os.stat(witness_fname).st_mtime
             super().process((write_fname, latency))
 
 
@@ -192,7 +196,12 @@ class TwoFileFrameCrawler(FrameCrawler):
     def _get_fname(self):
         fnames = []
         for data_dir in [self.data_dir, self.strain_data_dir]:
-            fname = os.path.join(data_dir, self.pattern.format(self.timestamp))
+            if data_dir == self.data_dir:
+                pattern = self.pattern
+            else:
+                pattern = self.pattern.replace("Detchar", "HOFT")
+
+            fname = os.path.join(data_dir, pattern.format(self.timestamp))
             self._wait_until_exists(fname)
             fnames.append(fname)
         return tuple(fnames)
@@ -200,14 +209,26 @@ class TwoFileFrameCrawler(FrameCrawler):
 
 class TwoFileFrameLoader(FrameLoader):
     def get_next_frame(self) -> np.ndarray:
-        witness_fname, strain_fname = super().get_package()
+        fnames = super(FrameLoader, self).get_package()
+        witness_fname, strain_fname = fnames
 
         witness_data = self.load_frame_file(witness_fname, self.channels[1:])
-        strain_data = self.load_frame_file(strain_fname, self.channels[1:])
-
-        self.strain_q.put((witness_fname, strain_fname), strain_data)
+        strain_data = self.load_frame_file(strain_fname, self.channels[:1])
+        self.strain_q.put((fnames, strain_data[0]))
 
         if self.preprocessor is not None:
             witness_data = self.preprocessor(witness_data)
+        if self._idx == 0:
+            time.sleep(0.01)
 
+        logging.debug("Loaded frame files {} and {}".format(
+            witness_fname, strain_fname
+        ))
         return witness_data.astype("float32")
+
+    def process(self, package):
+        logging.debug(
+            "Sending package with request id {}".format(package.request_id)
+        )
+        super().process(package)
+

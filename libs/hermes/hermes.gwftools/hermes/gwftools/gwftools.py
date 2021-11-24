@@ -239,7 +239,7 @@ class FrameCrawler(PipelineProcess):
                         )
 
                 # find the latest timestamp to begin with
-                if self.timestamp is None or tstamp > self.timestamp:
+                if self.timestamp is None or tstamp < self.timestamp:
                     self.timestamp = tstamp
 
             # if we never found any .gwf files, raise an error

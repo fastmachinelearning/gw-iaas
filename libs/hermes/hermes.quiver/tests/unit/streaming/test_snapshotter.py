@@ -14,7 +14,6 @@ def channels():
     return OrderedDict([("a", 6), ("b", 4), ("c", 8)])
 
 
-@pytest.mark.tensorflow
 @pytest.fixture
 def snapshotter(snapshot_size, channels):
     from hermes.quiver.streaming.streaming_input import Snapshotter

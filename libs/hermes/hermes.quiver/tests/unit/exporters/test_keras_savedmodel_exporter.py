@@ -5,7 +5,7 @@ from hermes.quiver.exporters import KerasSavedModel
 
 
 @pytest.mark.tensorflow
-def test_keras_savedmodel_exporter(temp_repo, keras_model):
+def test_keras_savedmodel_exporter(temp_local_repo, keras_model):
     scope = keras_model.name.split("_")[0]
 
     input_name = f"{scope}_dense_input"
@@ -13,7 +13,7 @@ def test_keras_savedmodel_exporter(temp_repo, keras_model):
     assert keras_model.inputs[0].name.split(":")[0] == input_name
     assert keras_model.outputs[0].name.split(":")[0] == output_name
 
-    model = Model("identity", temp_repo, Platform.ONNX)
+    model = Model("identity", temp_local_repo, Platform.ONNX)
     exporter = KerasSavedModel(model.config, model.fs)
 
     input_shapes = {input_name: (None, 10)}
@@ -34,9 +34,9 @@ def test_keras_savedmodel_exporter(temp_repo, keras_model):
     assert model.config.output[0].name == keras_model.layers[-1].name
     assert model.config.output[0].dims[0] == -1
 
-    version_path = temp_repo.fs.join("identity", "1")
-    output_path = temp_repo.fs.join(version_path, "model.savedmodel")
-    temp_repo.fs.soft_makedirs(output_path)
+    version_path = temp_local_repo.fs.join("identity", "1")
+    output_path = temp_local_repo.fs.join(version_path, "model.savedmodel")
+    temp_local_repo.fs.soft_makedirs(output_path)
 
     exporter.export(keras_model, output_path)
 

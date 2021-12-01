@@ -4,22 +4,17 @@ from hermes.quiver import Model, Platform
 
 
 @pytest.mark.torch
-def test_model(temp_repo, torch_model):
-    from hermes.quiver.exporters import TorchOnnx
-
-    model = Model("test", temp_repo, platform=Platform.ONNX)
+def test_model(temp_dummy_repo, torch_model):
+    fs = temp_dummy_repo.fs
+    model = Model("test", temp_dummy_repo, platform=Platform.ONNX)
 
     # make sure that a model entry got inserted
     # into the filesystem and that its attributes
     # remain empty
-    assert model.name in temp_repo.fs.list()
+    assert model.name in fs.list()
     assert len(model.versions) == 0
     assert len(model.inputs) == 0
     assert len(model.outputs) == 0
-
-    # make sure that the _find_exporter
-    # method maps to the right exporter
-    assert isinstance(model._find_exporter(torch_model), TorchOnnx)
 
     # export a version of the torch model
     export_path = model.export_version(
@@ -27,9 +22,7 @@ def test_model(temp_repo, torch_model):
         input_shapes={"x": [None, torch_model.size]},
         output_names=["y"],
     )
-    assert export_path == temp_repo.fs.join(
-        torch_model.name, "1", "model.onnx"
-    )
+    assert export_path == fs.join(model.name, "1", "model.onnx")
 
     # make sure a version entry was created
     assert len(model.versions) == 1
@@ -56,15 +49,15 @@ def test_model(temp_repo, torch_model):
     # now verify that we can export a version
     # without specifying any auxiliary info
     export_path = model.export_version(torch_model)
-    assert export_path == temp_repo.fs.join(model.name, "2", "model.onnx")
+    assert export_path == fs.join(model.name, "2", "model.onnx")
 
     # if we remove the 1th version of the model,
     # another call to `export_version` should still
     # increment to version `3`, after which point
     # we still have 2 versions associated with our model
-    temp_repo.fs.remove(temp_repo.fs.join(model.name, "1"))
+    fs.remove(fs.join(model.name, "1"))
     export_path = model.export_version(torch_model)
-    assert export_path == temp_repo.fs.join(model.name, "3", "model.onnx")
+    assert export_path == fs.join(model.name, "3", "model.onnx")
     assert len(model.versions) == 2
 
 
@@ -94,14 +87,15 @@ def test_ensemble_model(temp_local_repo, torch_model):
     assert ensemble.outputs["y"].shape == (None, 10)
 
 
+@pytest.mark.tensorflow
 @pytest.mark.torch
 def test_ensemble_streaming(temp_local_repo, torch_model):
-    model1 = temp_local_repo.add("model-1", platform=Platform.ONNX)
+    model1 = temp_local_repo.add("model-1", platform=Platform.ONNX, force=True)
     model1.export_version(
         torch_model, input_shapes={"x": [None, 5, 10]}, output_names=["y"]
     )
 
-    model2 = temp_local_repo.add("model-2", platform=Platform.ONNX)
+    model2 = temp_local_repo.add("model-2", platform=Platform.ONNX, force=True)
     model2.export_version(
         torch_model, input_shapes={"x": [None, 4, 10]}, output_names=["y"]
     )

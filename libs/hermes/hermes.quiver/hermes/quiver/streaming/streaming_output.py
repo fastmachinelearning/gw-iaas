@@ -1,5 +1,13 @@
+from typing import TYPE_CHECKING, Optional
+
 import numpy as np
 import tensorflow as tf
+
+from hermes.quiver.streaming import utils as streaming_utils
+
+if TYPE_CHECKING:
+    from hermes.quiver import Model, ModelRepository
+    from hermes.quiver.model import ExposedTensor
 
 
 @tf.keras.utils.register_keras_serializable(name="Aggregator")
@@ -69,3 +77,22 @@ class Aggregator(tf.keras.layers.Layer):
         self.snapshot.assign(snapshot)
         self.update_idx.assign(update_idx)
         return output
+
+
+def make_streaming_output_model(
+    repository: "ModelRepository",
+    input: "ExposedTensor",
+    update_size: int,
+    num_updates: int,
+    name: Optional[str] = None,
+    streams_per_gpu: int = 1,
+) -> "Model":
+    aggregator_layer = Aggregator(update_size, num_updates)
+    return streaming_utils.add_streaming_model(
+        repository,
+        aggregator_layer,
+        name=name or "aggregator",
+        input_name="update",
+        input_shape=input.shape[1:],
+        streams_per_gpu=streams_per_gpu,
+    )

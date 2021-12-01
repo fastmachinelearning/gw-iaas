@@ -35,3 +35,9 @@ sphinx-material = "^0.0.34"
 # NVIDIA pypi repo for tritonclient install
 name = "ngc"
 url = "https://pypi.ngc.nvidia.com"
+
+
+[tool.pytest.ini_options]
+markers = [
+    "tensorflow: tests that utilize TensorFlow backend"
+]

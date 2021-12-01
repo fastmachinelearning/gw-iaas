@@ -12,8 +12,9 @@ sys.path.insert(0, os.path.dirname(__file__))
 from utils import DummyRepo, IdentityKerasModel  # noqa
 
 
+@pytest.mark.tensorflow
 @pytest.mark.parametrize("fs_type", [LocalFileSystem, GCSFileSystem])
-def test_torch_onnx_exporter(fs_type):
+def test_keras_savedmodel_exporter(fs_type):
     scope = "".join(random.choices("abcdefghijk", k=10))
     model_fn = IdentityKerasModel(size=10, scope=scope)
 

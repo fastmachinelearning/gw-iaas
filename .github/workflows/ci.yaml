@@ -34,3 +34,8 @@ jobs:
       run: |
         cd libs/hermes/hermes.typeo
         tox
+    -
+      name: quiver ci
+      run: |
+        cd libs/hermes/hermes.quiver
+        tox

@@ -27,6 +27,7 @@ def main(
     url: str,
     model_name: str,
     model_version: int = 1,
+    max_latency: Optional[float] = None,
     t0: Optional[float] = None,
     length: Optional[float] = None,
     preprocess_pkl: Optional[str] = None,
@@ -91,12 +92,18 @@ def main(
         name="client",
     )
 
+    if max_latency is not None:
+        throw_away = max_latency // stride_length
+    else:
+        throw_away = None
+
     writer = FrameWriter(
         write_dir=write_dir,
         channel_name=channels[0],
         step_size=int(stride_length * sample_rate),
         sample_rate=sample_rate,
         strain_q=strain_q,
+        throw_away=throw_away,
         preprocessor=preprocessor,
         name="writer",
     )

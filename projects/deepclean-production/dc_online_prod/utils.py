@@ -70,6 +70,7 @@ class FrameWriter(PipelineProcess):
         step_size: int,
         sample_rate: float,
         strain_q: "Queue",
+        throw_away: Optional[int] = None,
         preprocessor: Optional[Preprocessor] = None,
         *args,
         **kwargs,
@@ -83,6 +84,7 @@ class FrameWriter(PipelineProcess):
         self.channel_name = channel_name
         self.step_size = step_size
         self.sample_rate = sample_rate
+        self.throw_away = throw_away
         self.strain_q = strain_q
         self.preprocessor = preprocessor
 
@@ -90,6 +92,7 @@ class FrameWriter(PipelineProcess):
         self._noises = np.array([])
         self._covered_idx = np.array([])
         self._frame_idx = 0
+        self._thrown_away = 0
 
     def get_package(self):
         # now get the next inferred noise estimate
@@ -107,6 +110,12 @@ class FrameWriter(PipelineProcess):
                 raise RuntimeError("No strain data after 10 seconds")
         else:
             # if we do, add it to our running list of strains
+            if self.throw_away is not None and self._thrown_away == 0:
+                # unless the first frame is invalid because
+                # we're throwing a few predictions away.
+                # in this case exit
+                return noise_prediction
+
             self._strains.append((fname, strain))
 
             # create a blank array to fill out our noise
@@ -130,6 +139,10 @@ class FrameWriter(PipelineProcess):
             raise ValueError(
                 "Noise prediction is of wrong length {}".format(len(x))
             )
+
+        if self.throw_away is not None and self._thrown_away < self.throw_away:
+            self._thrown_away += 1
+            return
 
         # use the package request id to figure out where
         # in the blank noise array we need to insert

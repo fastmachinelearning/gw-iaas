@@ -154,7 +154,16 @@ def deepclean(
         name="snapshotter" + (postfix or ""),
         streams_per_gpu=streams_per_gpu,
     )
-    ensemble.add_output(model.outputs["noise"])
+
+    if max_latency is not None:
+        ensemble.add_streaming_output(
+            model.outputs["noise"],
+            int(stride_length * sample_rate),
+            num_updates,
+            streams_per_gpu=streams_per_gpu,
+        )
+    else:
+        ensemble.add_output(model.outputs["noise"])
     ensemble.export_version(None)
 
 

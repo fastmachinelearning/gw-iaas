@@ -122,9 +122,9 @@ class FrameWriter(PipelineProcess):
         # slice out the batch and channel dimensions,
         # which will both just be 1 for this pipeline
         package = package["noise"]
-        logging.debug("Received response for package {}".format(
-            package.request_id
-        ))
+        logging.debug(
+            "Received response for package {}".format(package.request_id)
+        )
         x = package.x.reshape(-1)
         if len(x) != self.step_size:
             raise ValueError(
@@ -221,9 +221,9 @@ class TwoFileFrameLoader(FrameLoader):
         if self._idx == 0:
             time.sleep(0.01)
 
-        logging.debug("Loaded frame files {} and {}".format(
-            witness_fname, strain_fname
-        ))
+        logging.debug(
+            "Loaded frame files {} and {}".format(witness_fname, strain_fname)
+        )
         return witness_data.astype("float32")
 
     def process(self, package):
@@ -231,4 +231,3 @@ class TwoFileFrameLoader(FrameLoader):
             "Sending package with request id {}".format(package.request_id)
         )
         super().process(package)
-

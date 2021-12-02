@@ -54,7 +54,11 @@ class Aggregator(tf.keras.layers.Layer):
             initializer="zeros",
         )
 
-        self.update = tf.zeros((1, self.update_size), dtype=tf.float32)
+        update_shape = [input_shape[0], self.update_size]
+        if len(input_shape) == 3:
+            update_shape.insert(1, input_shape[1])
+
+        self.update = tf.zeros(update_shape, dtype=tf.float32)
         self.normalizer = tf.constant(
             np.repeat(np.arange(self.num_updates), self.update_size)[::-1] + 1,
             dtype=tf.float32,
@@ -75,7 +79,7 @@ class Aggregator(tf.keras.layers.Layer):
         )
 
         self.snapshot.assign(snapshot)
-        self.update_idx.assign(update_idx)
+        self.update_idx.assign(update_idx[0])
         return output
 
 

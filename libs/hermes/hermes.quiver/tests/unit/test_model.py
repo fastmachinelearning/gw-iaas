@@ -89,15 +89,19 @@ def test_ensemble_model(temp_local_repo, torch_model):
 
 @pytest.mark.tensorflow
 @pytest.mark.torch
-def test_ensemble_streaming(temp_local_repo, torch_model):
+def test_ensemble_streaming_input(temp_local_repo, torch_model):
     model1 = temp_local_repo.add("model-1", platform=Platform.ONNX, force=True)
     model1.export_version(
-        torch_model, input_shapes={"x": [None, 5, 10]}, output_names=["y"]
+        torch_model,
+        input_shapes={"x": [None, 5, torch_model.size]},
+        output_names=["y"],
     )
 
     model2 = temp_local_repo.add("model-2", platform=Platform.ONNX, force=True)
     model2.export_version(
-        torch_model, input_shapes={"x": [None, 4, 10]}, output_names=["y"]
+        torch_model,
+        input_shapes={"x": [None, 4, torch_model.size]},
+        output_names=["y"],
     )
 
     ensemble = Model("ensemble", temp_local_repo, platform=Platform.ENSEMBLE)
@@ -108,3 +112,59 @@ def test_ensemble_streaming(temp_local_repo, torch_model):
 
     assert ensemble.config.input[0].name == "stream"
     assert list(ensemble.config.input[0].dims) == [1, 9, 2]
+
+
+@pytest.mark.tensorflow
+@pytest.mark.torch
+@pytest.mark.parametrize("channel_dim", [None, 1, 5])
+@pytest.mark.parametrize("num_updates", [1, 2, 4])
+@pytest.mark.parametrize("update_size", [1, 2, 4])
+def test_ensemble_streaming_output(
+    channel_dim, num_updates, update_size, temp_local_repo, torch_model
+):
+    if channel_dim is None:
+        shape = [None, torch_model.size]
+        output_shape = [1, update_size]
+    else:
+        shape = [None, channel_dim, torch_model.size]
+        output_shape = [1, channel_dim, update_size]
+
+    model = temp_local_repo.add("model-1", platform=Platform.ONNX, force=True)
+    model.export_version(
+        torch_model, input_shapes={"x": shape}, output_names=["y"]
+    )
+
+    ensemble = Model("ensemble", temp_local_repo, platform=Platform.ENSEMBLE)
+    with pytest.raises(ValueError):
+        ensemble.add_streaming_output(
+            model.outputs["y"], update_size, num_updates
+        )
+
+    import torch
+
+    class Slicer(torch.nn.Module):
+        def forward(self, x):
+            if channel_dim is None:
+                return x[:, -num_updates * update_size :]
+            else:
+                return x[:, :, -num_updates * update_size :]
+
+    slicer = temp_local_repo.add("slicer", platform=Platform.ONNX, force=True)
+    slicer.export_version(
+        Slicer(), input_shapes={"x": shape}, output_names=["update"]
+    )
+    ensemble.pipe(model.outputs["y"], slicer.inputs["x"])
+
+    if (num_updates * update_size) > torch_model.size:
+        with pytest.raises(ValueError):
+            ensemble.add_streaming_output(
+                model.outputs["y"], update_size, num_updates
+            )
+        return
+
+    ensemble.add_streaming_output(
+        slicer.outputs["update"], update_size, num_updates
+    )
+
+    assert ensemble.config.output[0].name.startswith("aggregator")
+    assert ensemble.config.output[0].dims == output_shape

@@ -120,17 +120,25 @@ def deepclean(
     channels: Union[str, Sequence[str]],
     streams_per_gpu: int = 1,
     instances: Optional[int] = None,
+    max_latency: Optional[float] = None,
     postfix: Optional[str] = None,
     weights: Optional[str] = None,
     platform: qv.Platform = qv.Platform.ONNX,
 ) -> None:
     repo = qv.ModelRepository(repo_dir)
     channels = parse_channels(channels)
+
+    if max_latency is not None:
+        num_updates = max_latency // stride_length
+        step_size = int(stride_length * num_updates * sample_rate)
+    else:
+        step_size = int(stride_length * sample_rate)
+
     model = export_deepclean(
         repo,
         num_channels=len(channels) - 1,
         kernel_size=int(kernel_length * sample_rate),
-        step_size=int(stride_length * sample_rate),
+        step_size=step_size,
         instances=instances,
         postfix=postfix,
         weights=weights,

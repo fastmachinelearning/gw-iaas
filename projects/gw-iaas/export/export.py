@@ -129,7 +129,7 @@ def deepclean(
     channels = parse_channels(channels)
 
     if max_latency is not None:
-        num_updates = max_latency // stride_length
+        num_updates = int(max_latency // stride_length)
         step_size = int(stride_length * num_updates * sample_rate)
     else:
         step_size = int(stride_length * sample_rate)

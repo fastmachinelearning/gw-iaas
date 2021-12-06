@@ -28,6 +28,7 @@ def get_logger(filename: Optional[str] = None, verbose: bool = False):
     }
     if filename is not None:
         kwargs["filename"] = filename
+        kwargs["filemode"] = "w"
     else:
         kwargs["stream"] = sys.stdout
     logging.basicConfig(**kwargs)
@@ -110,19 +111,24 @@ class FrameWriter(PipelineProcess):
                 raise RuntimeError("No strain data after 10 seconds")
         else:
             # if we do, add it to our running list of strains
+            zeros = np.zeros_like(strain)
+            self._noises = np.append(self._noises, zeros)
+            self._covered_idx = np.append(self._covered_idx, zeros)
             if self.throw_away is not None and self._thrown_away == 0:
+                self.logger.debug(f"Throwing away strain file {fname}")
                 # unless the first frame is invalid because
                 # we're throwing a few predictions away.
                 # in this case exit
                 return noise_prediction
 
+            self.logger.debug(f"Adding strain file {fname} to strains")
             self._strains.append((fname, strain))
 
             # create a blank array to fill out our noise
             # and idx arrays as we collect more data
-            zeros = np.zeros_like(strain)
-            self._noises = np.append(self._noises, zeros)
-            self._covered_idx = np.append(self._covered_idx, zeros)
+            # zeros = np.zeros_like(strain)
+            # self._noises = np.append(self._noises, zeros)
+            # self._covered_idx = np.append(self._covered_idx, zeros)
 
         return noise_prediction
 
@@ -130,7 +136,7 @@ class FrameWriter(PipelineProcess):
         # grab the noise prediction from the package
         # slice out the batch and channel dimensions,
         # which will both just be 1 for this pipeline
-        package = package["noise"]
+        package = package["aggregator"]
         logging.debug(
             "Received response for package {}".format(package.request_id)
         )
@@ -142,18 +148,28 @@ class FrameWriter(PipelineProcess):
 
         if self.throw_away is not None and self._thrown_away < self.throw_away:
             self._thrown_away += 1
+            self.logger.debug("Throwing away response for package {}".format(
+                package.request_id
+            ))
+            if self._thrown_away == self.throw_away:
+                self.logger.debug("Done with throwaway responses")
             return
 
         # use the package request id to figure out where
         # in the blank noise array we need to insert
         # this prediction. Subtract the running index
         # of the total number of samples we've processed so far
-        start = package.request_id * self.step_size - self._frame_idx
+        start = int(package.request_id * self.step_size - self._frame_idx)
+        if self.throw_away is not None:
+            start -= int(self.throw_away * self.step_size)
         self._noises[start : start + len(x)] = x
 
         # update our mask to indicate which parts of our
         # noise array have had inference performed on them
         self._covered_idx[start : start + len(x)] = 1
+        if len(self._strains) == 0:
+            self.logger.debug("No strains to clean, continuing")
+            return
 
         # if we've completely performed inference on
         # an entire frame's worth of data, postprocess

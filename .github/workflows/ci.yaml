@@ -36,7 +36,7 @@ jobs:
         tox
     -
       name: quiver ci
-      if: ${{ matrix.poetry-version }} != 1.1.11
+      if: ${{ matrix.poetry-version != "1.1.11" }}
       run: |
         cd libs/hermes/hermes.quiver
         tox

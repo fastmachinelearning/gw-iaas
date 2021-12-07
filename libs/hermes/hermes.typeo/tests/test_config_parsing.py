@@ -25,6 +25,10 @@ def set_argv(fname):
             sys.argv = [None, "--typeo"]
         else:
             sys.argv = [None, "--typeo", fname]
+
+        if len(args) == 0:
+            return
+
         if args[0].startswith(":"):
             sys.argv[-1] += args.pop(0)
         sys.argv.extend(args)

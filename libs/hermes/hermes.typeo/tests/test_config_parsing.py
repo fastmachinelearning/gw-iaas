@@ -1,5 +1,6 @@
 import argparse
 import os
+import shutil
 import sys
 from collections import OrderedDict
 from contextlib import contextmanager
@@ -12,8 +13,31 @@ import toml
 from hermes.typeo import actions, typeo
 
 
-def set_argv(*args):
-    sys.argv = [None] + list(args)
+@pytest.fixture(scope="session", params=[None, ".", "config.toml"])
+def fname(request):
+    return request.param
+
+
+@pytest.fixture(scope="session")
+def set_argv(fname):
+    def fn(*args):
+        if fname is None:
+            sys.argv = [None, "--typeo"]
+        else:
+            sys.argv = [None, "--typeo", fname]
+        if args[0].startswith(":"):
+            sys.argv[-1] += args.pop(0)
+        sys.argv.extend(args)
+
+    return fn
+
+
+@pytest.fixture(
+    scope="session",
+    params=[False, pytest.param(True, marks=pytest.mark.xfail)],
+)
+def format_wrong(request):
+    return request.param
 
 
 def simple_func(a: int, b: str):
@@ -48,57 +72,75 @@ def simple_dict_func(a: int, b: Dict[str, int]):
 
 
 @contextmanager
-def dump_config(config):
-    with open("config.toml", "w") as f:
+def dump_config(config, fname, format_wrong):
+    if fname is None or os.path.isdir(fname):
+        dirname = fname or "."
+        fname = os.path.join(dirname, "pyproject.toml")
+        if os.path.exists(fname):
+            dummy_fname = "_" + os.path.basename(fname)
+            shutil.move(fname, os.path.join(dirname, dummy_fname))
+
+        if not format_wrong:
+            config = {"tool": config}
+    elif format_wrong:
+        config = {"tool": config}
+
+    with open(fname, "w") as f:
         toml.dump(config, f)
     yield
-    os.remove("config.toml")
+
+    if os.path.basename(fname) != "pyproject.toml":
+        os.remove(fname)
+    else:
+        shutil.move(os.path.join(dirname, dummy_fname), fname)
 
 
 @pytest.fixture(params=["bar", None])
-def simple_config(request):
+def simple_config(request, fname, format_wrong):
     a = 3
     config = {"a": a}
     if request.param is not None:
         config["b"] = request.param
 
-    with dump_config({"typeo": config}):
+    with dump_config({"typeo": config}, fname, format_wrong):
         yield a, request.param
 
 
 @pytest.fixture
-def simple_config_with_underscores():
+def simple_config_with_underscores(fname, format_wrong):
     a, b = 3, "bar"
     config = {"typeo": {"first_arg": a, "second_arg": b}}
-    with dump_config(config):
+    with dump_config(config, fname, format_wrong):
         yield a, b
 
 
 @pytest.fixture(params=[True, False])
-def bool_config(request):
+def bool_config(request, fname, format_wrong):
     a = 3
-    with dump_config({"typeo": {"a": a, "b": request.param}}):
+    with dump_config(
+        {"typeo": {"a": a, "b": request.param}}, fname, format_wrong
+    ):
         yield a, request.param
 
 
 @pytest.fixture
-def list_config():
+def list_config(fname, format_wrong):
     a = 3
     b = ["thom", "jonny", "phil"]
-    with dump_config({"typeo": {"a": a, "b": b}}):
+    with dump_config({"typeo": {"a": a, "b": b}}, fname, format_wrong):
         yield a, b
 
 
 @pytest.fixture
-def dict_config():
+def dict_config(fname, format_wrong):
     a = 3
     b = {"thom": 1, "jonny": 10, "phil": 99}
-    with dump_config({"typeo": {"a": a, "b": b}}):
+    with dump_config({"typeo": {"a": a, "b": b}}, fname, format_wrong):
         yield a, b
 
 
 @pytest.fixture(params=[1, 2])
-def subcommands_config(request):
+def subcommands_config(request, fname, format_wrong):
     config = {
         "typeo": {
             "a": request.param,
@@ -114,12 +156,12 @@ def subcommands_config(request):
             },
         }
     }
-    with dump_config(config):
+    with dump_config(config, fname, format_wrong):
         d = config["typeo"]["commands"]["command" + str(request.param)]
         yield request.param, d
 
 
-def _test_action(expected, bools=None, cmd=None):
+def _test_action(expected, fname, bools=None, cmd=None):
     mock = Mock()
     parser = argparse.ArgumentParser(prog="dummy")
 
@@ -129,14 +171,16 @@ def _test_action(expected, bools=None, cmd=None):
     mock = Mock()
 
     if cmd is None:
-        value = "config.toml"
+        value = fname
     else:
-        value = "config.toml::" + cmd
+        if fname is None:
+            fname = ""
+        value = fname + "::" + cmd
     action(None, mock, value)
     assert mock.foo == expected
 
 
-def test_config(simple_config):
+def test_config(simple_config, fname, set_argv):
     a, b = simple_config
 
     parser = argparse.ArgumentParser(prog="dummy")
@@ -146,10 +190,10 @@ def test_config(simple_config):
     expected = ["--a", str(a)]
     if b is not None:
         expected += ["--b", b]
-    _test_action(expected)
+    _test_action(expected, fname)
 
     # now test the behavior of a typeo-ified function
-    set_argv("--typeo", "config.toml")
+    set_argv()
     if b is not None:
         # make sure that the config value of b
         # is correctly set regardless of whether
@@ -176,25 +220,25 @@ def test_config(simple_config):
     # make sure passing extra args when we specify
     # a config raises a ValueError
     with pytest.raises(ValueError):
-        set_argv("--typeo", "config.toml", "--a", "10")
+        set_argv("--a", "10")
         typeo(simple_func)()
 
 
 @pytest.mark.depends(on=["test_config"])
-def test_underscore_variables(simple_config_with_underscores):
+def test_underscore_variables(simple_config_with_underscores, fname, set_argv):
     a, b = simple_config_with_underscores
 
     expected = ["--first-arg", str(a), "--second-arg", str(b)]
-    _test_action(expected)
+    _test_action(expected, fname)
 
-    set_argv("--typeo", "config.toml")
+    set_argv()
     expected = simple_func_with_underscore_vars(a, b)
     result = typeo(simple_func_with_underscore_vars)()
     assert expected == result
 
 
 @pytest.mark.depends(on=["test_config"])
-def test_config_booleans(bool_config):
+def test_config_booleans(bool_config, fname, set_argv):
     a, config_bool = bool_config
 
     # if the flag in the config matches the
@@ -204,12 +248,12 @@ def test_config_booleans(bool_config):
         expected = ["--a", str(a)]
         if boolean != config_bool:
             expected += ["--b"]
-        _test_action(expected, bools={"b": boolean})
+        _test_action(expected, fname, bools={"b": boolean})
 
     # now make sure that a typeo-ified version
     # of the function without a default parses
     # the correct value for the boolean
-    set_argv("--typeo", "config.toml")
+    set_argv()
     result = typeo(simple_boolean_func)()
     expected = simple_boolean_func(a, config_bool)
     assert result == expected
@@ -223,30 +267,30 @@ def test_config_booleans(bool_config):
 
 
 @pytest.mark.depends(on=["test_config"])
-def test_config_lists(list_config):
+def test_config_lists(list_config, fname, set_argv):
     a, b = list_config
     expected = ["--a", str(a), "--b"]
     expected.extend(b)
-    _test_action(expected)
+    _test_action(expected, fname)
 
-    set_argv("--typeo", "config.toml")
+    set_argv()
     assert typeo(simple_list_func)() == simple_list_func(a, b)
 
 
 @pytest.mark.depends(on=["test_config"])
-def test_config_dicts(dict_config):
+def test_config_dicts(dict_config, fname, set_argv):
     a, b = dict_config
     expected = ["--a", str(a), "--b"]
     for k, v in b.items():
         expected.append(f"{k}={v}")
-    _test_action(expected)
+    _test_action(expected, fname)
 
-    set_argv("--typeo", "config.toml")
+    set_argv()
     assert typeo(simple_dict_func)() == simple_dict_func(a, b)
 
 
 @pytest.mark.depends(on=["test_config"])
-def test_subcommands(subcommands_config):
+def test_subcommands(subcommands_config, fname, set_argv):
     mock = Mock()
 
     def base_func(a: int):
@@ -266,9 +310,9 @@ def test_subcommands(subcommands_config):
         k = k.replace("_", "-")
         expected.append(f"--{k}")
         expected.append(str(v))
-    _test_action(expected, cmd="command" + str(a))
+    _test_action(expected, fname, cmd="command" + str(a))
 
-    set_argv("--typeo", "config.toml::command" + str(a))
+    set_argv("::command" + str(a))
     result = typeo(base_func, command1=command1, command2=command2)()
     name = " ".join([v for k, v in d.items() if "name" in k])
     assert mock.a == a

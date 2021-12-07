@@ -175,6 +175,8 @@ class TypeoTomlAction(argparse.Action):
                     commands = config.pop("commands")[command]
                 except KeyError:
                     commands = None
+            else:
+                commands = None
         else:
             # if we do have a `scripts` section of the config,
             # see if we have args associated with the script
@@ -224,6 +226,7 @@ class TypeoTomlAction(argparse.Action):
                 filename, section = value.split(":")
             except ValueError:
                 # no colons at all, so just use the filename
+                filename = value
                 section = None
         else:
             # if section is the empty string, we have a

@@ -39,7 +39,7 @@ jobs:
       name: quiver ci
       run: |
         cd libs/hermes/hermes.quiver
-        [[ ${{ matrix.poetry-version }} == "1.1.11" ]] || tox
+        [[ ${{ matrix.poetry-version }} == "1.1.11" ]] || (tox || cat /home/runner/work/gw-iaas/gw-iaas/libs/hermes/hermes.quiver/.tox/.package/log/.package-0.log)
 
     -
       name: gwftools ci

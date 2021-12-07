@@ -43,7 +43,7 @@ name = "ngc"
 url = "https://pypi.ngc.nvidia.com"
 
 [build-system]
-requires = ["poetry>=1.1"]
+requires = ["poetry>=1.2.0a2"]
 build-backend = "poetry.masonry.api"
 
 [tool.pytest.ini_options]

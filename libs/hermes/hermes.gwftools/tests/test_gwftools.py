@@ -7,7 +7,6 @@ import numpy as np
 import pytest
 
 from hermes.gwftools import gwftools as gwf
-from hermes.quiver.io import GCSFileSystem
 from hermes.stillwater import PipelineProcess
 
 
@@ -35,6 +34,8 @@ def fformat():
 
 @pytest.fixture(scope="session", params=[None, "frames"])
 def bucket_name(request, tstamp, fformat):
+    from hermes.quiver.io import GCSFileSystem
+
     bucket_name = "gwftools-test-bucket"
     if request.param is not None:
         bucket_name += "/" + request.param

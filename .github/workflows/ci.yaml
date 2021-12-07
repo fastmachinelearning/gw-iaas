@@ -46,4 +46,4 @@ jobs:
       run: |
         cd libs/hermes/hermes.gwftools
         poetry install -v
-        poetry run pytest
+        poetry run pytest -m "not gcs and not gwf" tests

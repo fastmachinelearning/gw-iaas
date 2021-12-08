@@ -19,7 +19,7 @@ This experiment is expected to be run locally on a node on the LIGO Data Grid (L
 #### 1. Model export
 First we'll need to export a DeepClean model to a local Triton model repository.
 ##### Environment set up
-This step relies only on [Poetry](https://python-poetry.org/docs/#installation).
+This step relies only on [Poetry](https://python-poetry.org/docs/#installation), though make sure you have version `1.2.0a2` installed (you can do this by setting the environment variable `POETRY_VERSION=1.2.0a2` when installing via the `curl` method described in the link above.
 
 ```console
 $ cd export
@@ -30,13 +30,13 @@ $ poetry install
 You can see the various command line options by running (from the `export` directory):
 
 ```console
-$ poetry run export -h
+$ poetry run export deepclean -h
 ```
 
 If you'd like to use the default values contained in `pyproject.toml`, you can just run things with (again from the `export` directory, with `/path/to/weights.pt` replaced with an actual paths to trained DeepClean weights):
 
 ```console
-$ poetry run /bin/bash -c "WEIGHTS_PATH=/path/to/weights.pt export --typeo ..:export.online:deepclean"
+$ poetry run /bin/bash -c 'WEIGHTS_PATH=/path/to/weights.pt export-model --typeo ..:export.online:deepclean'
 ```
 
 You should now see 4 models in `$HOME/repos/deepclean-online`:

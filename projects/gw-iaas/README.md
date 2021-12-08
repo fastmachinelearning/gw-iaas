@@ -54,7 +54,10 @@ Next we'll deploy the Triton Inference Server via a Singularity container hosted
 
 ```
 $ GPU_ID= # pick a GPU ID to host DeepClean on
-# singularity exec --nv /cvmfs/singularity.opensciencegrid.org/alec.gunny/deepclean-prod\:server-20.07 /bin/bash -c "CUDA_VISIBLE_DEVICES=$GPU_ID /opt/tritonserver/bin/tritonserver --model-repository $HOME/repos/deepclean-online"
+$ singularity exec --nv \
+    /cvmfs/singularity.opensciencegrid.org/alec.gunny/deepclean-prod\:server-20.07 \
+        /bin/bash -c \
+        "CUDA_VISIBLE_DEVICES=$GPU_ID /opt/tritonserver/bin/tritonserver --model-repository $HOME/repos/deepclean-online"
 ```
 
 #### Run the client

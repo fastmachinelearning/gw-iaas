@@ -162,7 +162,7 @@ class TypeoTomlAction(argparse.Action):
             elif isinstance(value, list):
                 args += " ".join(map(self._parse_value, value)) + " "
             else:
-                args += self._parse_value + " "
+                args += self._parse_value(value) + " "
         return args
 
     def _get_sections(self, config, section, command, filename):

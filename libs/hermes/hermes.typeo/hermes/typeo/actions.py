@@ -130,7 +130,7 @@ class TypeoTomlAction(argparse.Action):
                     "No environment variable {}, referenced "
                     "in typeo config value {}".format(varname, value)
                 )
-            return self.regex.sub(value, replace)
+            return self.regex.sub(replace, value)
         return value
 
     def _parse_section(self, section):

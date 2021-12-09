@@ -49,10 +49,7 @@ You should now see 4 models in `$HOME/repos/deepclean-online`:
 
 ```console
 $ ls $HOME/repos/deepclean-online
-aggregator
-deepclean
-deepclean-stream
-snapshotter
+aggregator  deepclean  deepclean-stream  snapshotter
 ```
 
 #### 2. Start the server

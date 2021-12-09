@@ -11,7 +11,7 @@ instances = 6
 max_latency = 0.5
 weights = "${WEIGHTS_PATH}"
 platform = "onnxruntime_onnx"
-repo_dir = "${HOME}/repos/deepclean-online
+repo_dir = "${HOME}/repos/deepclean-online"
 
 [tool.typeo.scripts."client.deepclean.online"]
 data_dir = "${DATA_DIR}"

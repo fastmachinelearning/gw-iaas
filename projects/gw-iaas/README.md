@@ -4,7 +4,8 @@ This contains all the code for replicating the experiments outlined in [Hardware
 For all of these experiments, I would strongly recommend using Poetry >=1.2. Since the instructions for how to do this aren't entirely clear on Poetry's website, the command you'll want to run for installation (on Linux) is
 
 ```console
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python - --preview
+$ curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py \
+    | python - --preview
 ```
 
 ## Sub-projects
@@ -24,9 +25,8 @@ This experiment is expected to be run locally on a node on the LIGO Data Grid (L
 
 #### 1. Model export
 First we'll need to export a DeepClean model to a local Triton model repository.
-##### Environment set up
-This step relies only on [Poetry](https://python-poetry.org/docs/#installation).
 
+##### Environment set up
 ```console
 $ cd export
 $ poetry install
@@ -42,7 +42,7 @@ $ poetry run export-model deepclean -h
 If you'd like to use the default values contained in `pyproject.toml`, you can just run things with (again from the `export` directory, with `/path/to/weights.pt` replaced with an actual paths to trained DeepClean weights):
 
 ```console
-$ poetry run /bin/bash -c "WEIGHTS_PATH=/path/to/weights.pt export --typeo ..:export.online:deepclean"
+$ poetry run /bin/bash -c 'WEIGHTS_PATH=/path/to/weights.pt export-model --typeo ..:export.online:deepclean'
 ```
 
 You should now see 4 models in `$HOME/repos/deepclean-online`:
@@ -56,10 +56,10 @@ snapshotter
 ```
 
 #### 2. Start the server
-Next we'll deploy the Triton Inference Server via a Singularity container hosted by the Open Science Grid (OSG).
+Next we'll deploy the Triton Inference Server via a Singularity container hosted by the Open Science Grid (OSG). Note that you need to use a system with enterprise grade GPUs to run Triton (i.e. Titan or GTX GPUs won't work).
 
 ```
-$ GPU_ID= # pick a GPU ID to host DeepClean on
+$ GPU_ID=... # pick a GPU ID, or multiple, to host DeepClean on
 $ singularity exec --nv \
     /cvmfs/singularity.opensciencegrid.org/alec.gunny/deepclean-prod\:server-20.07 \
         /bin/bash -c \

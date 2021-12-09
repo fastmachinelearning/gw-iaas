@@ -1,6 +1,12 @@
 # GW-IaaS
 This contains all the code for replicating the experiments outlined in [Hardware-accelerated Inference for Real-Time Gravitational-Wave Astronomy](https://arxiv.org/abs/2108.12430).
 
+For all of these experiments, I would strongly recommend using Poetry >=1.2. Since the instructions for how to do this aren't entirely clear on Poetry's website, the command you'll want to run for installation (on Linux) is
+
+```console
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python - --preview
+```
+
 ## Sub-projects
 ### `clients`
 Contains the client scripts for running both DeepClean and the end-to-end ensemble pipelines. Doesn't distinguish between online and offline because the difference between these use cases as far as the clients are concerned is primarily _where_ these client scripts get run (which amount to different command line argument, but not fundamentally different code).
@@ -30,7 +36,7 @@ $ poetry install
 You can see the various command line options by running (from the `export` directory):
 
 ```console
-$ poetry run export -h
+$ poetry run export-model deepclean -h
 ```
 
 If you'd like to use the default values contained in `pyproject.toml`, you can just run things with (again from the `export` directory, with `/path/to/weights.pt` replaced with an actual paths to trained DeepClean weights):

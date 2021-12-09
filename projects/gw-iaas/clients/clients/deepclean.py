@@ -1,3 +1,4 @@
+import time
 from contextlib import nullcontext
 from multiprocessing import Queue
 from typing import Optional, Sequence, Union
@@ -134,6 +135,7 @@ def main(
             model_version=model_version,
             name="monitor",
         )
+        time.sleep(1)
     else:
         monitor = nullcontext()
 

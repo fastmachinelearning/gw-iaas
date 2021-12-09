@@ -22,7 +22,8 @@ def get_logger(filename: Optional[str] = None, verbose: bool = False):
         "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     }
     if filename is not None:
-        kwargs["file"] = filename
+        kwargs["filename"] = filename
+        kwargs["filemode"] = "w"
     else:
         kwargs["stream"] = sys.stdout
     logging.basicConfig(**kwargs)

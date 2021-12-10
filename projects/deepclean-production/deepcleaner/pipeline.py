@@ -28,7 +28,18 @@ def main(
     log_file: Optional[str] = None,
     verbose: bool = False,
 ) -> None:
-    """Clean a stretch of data using an inference service"""
+    """Clean a stretch of data using an inference service
+
+    Clean gravitational wave frame (GWF) files containing
+    strain data using GWF witness channel data and a
+    streaming DeepClean model hosted on an inference service,
+    and write the cleaned frames to a local directory.
+
+    The first GWF file worth of data will be thrown away,
+    since the streaming state on the inference service will
+    be uninitialized and the predictions will be conditioned
+    on corresponding segments of 0s.
+    """
 
     # configure logging up front
     logger = dcu.get_logger(log_file, verbose)

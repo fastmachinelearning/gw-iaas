@@ -111,24 +111,14 @@ class FrameWriter(PipelineProcess):
                 raise RuntimeError("No strain data after 10 seconds")
         else:
             # if we do, add it to our running list of strains
-            zeros = np.zeros_like(strain)
-            self._noises = np.append(self._noises, zeros)
-            self._covered_idx = np.append(self._covered_idx, zeros)
-            if self.throw_away is not None and self._thrown_away == 0:
-                self.logger.debug(f"Throwing away strain file {fname}")
-                # unless the first frame is invalid because
-                # we're throwing a few predictions away.
-                # in this case exit
-                return noise_prediction
-
             self.logger.debug(f"Adding strain file {fname} to strains")
             self._strains.append((fname, strain))
 
             # create a blank array to fill out our noise
             # and idx arrays as we collect more data
-            # zeros = np.zeros_like(strain)
-            # self._noises = np.append(self._noises, zeros)
-            # self._covered_idx = np.append(self._covered_idx, zeros)
+            zeros = np.zeros_like(strain)
+            self._noises = np.append(self._noises, zeros)
+            self._covered_idx = np.append(self._covered_idx, zeros)
 
         return noise_prediction
 

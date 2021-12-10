@@ -1,5 +1,5 @@
 from multiprocessing import Queue
-from typing import Optional, Sequence, Union
+from typing import Optional
 
 from dc_online_prod.utils import (
     FrameWriter,
@@ -22,15 +22,15 @@ def main(
     stride_length: float,
     sample_rate: float,
     inference_rate: float,
-    channels: Union[str, Sequence[str]],
+    channels: str,
+    preprocess_pkl: str,
     sequence_id: int,
     url: str,
     model_name: str,
     model_version: int = 1,
     max_latency: Optional[float] = None,
-    t0: Optional[float] = None,
-    length: Optional[float] = None,
-    preprocess_pkl: Optional[str] = None,
+    num_frames: Optional[int] = None,
+    start_first: bool = False,
     timeout: Optional[float] = None,
     log_file: Optional[str] = None,
     verbose: bool = False,
@@ -40,26 +40,25 @@ def main(
     # configure logging up front
     logger = get_logger(log_file, verbose)
 
-    if isinstance(channels, str) or len(channels) == 1:
-        if not isinstance(channels, str):
-            channels = channels[0]
-        with open(channels, "r") as f:
-            channels = [i for i in f.read().splitlines() if i]
+    # read in channels from file
+    with open(channels, "r") as f:
+        channels = [i for i in f.read().splitlines() if i]
 
     # for local replay data, create a process which
     # monitors a local directory for new frames and
     # passes the names of those frames to the frame loader
     fname_source = TwoFileFrameCrawler(
-        witness_data_dir, strain_data_dir, timeout=timeout, name="fname-source"
+        witness_data_dir,
+        strain_data_dir,
+        timeout=timeout,
+        N=num_frames,
+        start_first=start_first,
+        name="fname-source",
     )
 
-    # if we specified a DeepClean preprocessing
-    # pickle, build a callable object which can
+    # build a callable object which can
     # perform the requisite preprocessing
-    if preprocess_pkl is not None:
-        preprocessor = Preprocessor(preprocess_pkl, sample_rate)
-    else:
-        preprocessor = None
+    preprocessor = Preprocessor(preprocess_pkl, sample_rate)
 
     # we want to be able to pass our strain data
     # directly to the postprocessing process, so
@@ -71,8 +70,6 @@ def main(
         step_size=int(stride_length * sample_rate),
         sample_rate=sample_rate,
         channels=channels,
-        t0=t0,
-        length=length,
         sequence_id=sequence_id,
         preprocessor=preprocessor,
         remove=False,

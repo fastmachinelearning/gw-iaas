@@ -219,9 +219,13 @@ class TwoFileFrameCrawler(FrameCrawler):
         witness_data_dir: str,
         strain_data_dir: str,
         timeout: float,
-        name: str,
+        N: Optional[int] = None,
+        start_first: bool = False,
+        **kwargs,
     ) -> None:
-        super().__init__(witness_data_dir, timeout, name=name)
+        super().__init__(
+            witness_data_dir, timeout, N=N, start_first=start_first, **kwargs
+        )
         self.strain_data_dir = strain_data_dir
 
     def _get_fname(self):

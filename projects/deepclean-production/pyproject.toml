@@ -28,15 +28,11 @@ develop = true
 name = "ngc"
 url = "https://pypi.ngc.nvidia.com"
 
-[tool.pytest.ini_options]
-log_cli = true
-log_cli_level = "debug"
-
 [build-system]
-requires = ["poetry>=1.1"]
+requires = ["poetry>=1.2.0a2"]
 build-backend = "poetry.masonry.api"
 
-[typeo]
+[tool.typeo]
 strain_data_dir = "/home/muhammed.saleem/deepClean/automated-offline/o3replay_unofficial/live/llhoft/H1"
 witness_data_dir = "/home/muhammed.saleem/deepClean/automated-offline/o3replay_unofficial/live/lldetchar/H1"
 write_dir = "/home/alec.gunny/frames/deepclean-cleaned/aggregated-0.5s"
@@ -46,10 +42,12 @@ sample_rate = 4096
 max_latency = 0.5
 preprocess_pkl = "ppr.bin"
 inference_rate = 1000
+num_frames = 500
 channels = "channels.txt"
 sequence_id = 1001
 url = "localhost:8001"
 model_name = "deepclean-stream"
 model_version = 1
+start_first = true
 verbose = true
 log_file = "deepclean.latency-0.5.log"

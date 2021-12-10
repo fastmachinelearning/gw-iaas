@@ -92,6 +92,7 @@ class InferenceClient(PipelineProcess):
         # will be a dictionary mapping from downstream input names
         # that the snapshotter feeds to the shape of that input
         self.inputs, self.states = self._build_inputs(batch_size)
+        time.sleep(0.1)
 
         # `message_start_times` will record the t0 of
         # requests that are in flight so that these

@@ -268,7 +268,7 @@ class FrameCrawler(PipelineProcess):
             # if we're starting with the earliest timestamp,
             # then don't reverse the sort so that the earliest
             # one appears first, and vice versa
-            self.timestamp = sorted(tstamps, reverse=~self.start_first)[0]
+            self.timestamp = sorted(tstamps, reverse=not self.start_first)[0]
 
             # keep track of when the last file became available
             # for measuring timeouts if we specified one

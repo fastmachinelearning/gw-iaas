@@ -22,8 +22,12 @@ develop = true
 path = "../../libs/hermes/hermes.typeo"
 develop = true
 
+[tool.poetry.group.dev.dependencies]
+ipywidgets = "^7.6.5"
+
 [tool.poetry.dev-dependencies]
 notebook = "^6.4"
+rich = "^10.15"
 
 # add the NGC PyPI so that tritonclient
 # can install correctly
@@ -51,6 +55,7 @@ sequence_id = 1001
 url = "localhost:8001"
 model_name = "deepclean-stream"
 model_version = 1
+timeout = 3
 start_first = true
 verbose = true
 log_file = "deepclean.latency-0.5.log"

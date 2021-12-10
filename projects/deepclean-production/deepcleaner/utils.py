@@ -127,7 +127,7 @@ class FrameWriter(PipelineProcess):
         # slice out the batch and channel dimensions,
         # which will both just be 1 for this pipeline
         package = package["aggregator"]
-        logging.debug(
+        self.logger.debug(
             "Received response for package {}".format(package.request_id)
         )
         x = package.x.reshape(-1)
@@ -169,7 +169,7 @@ class FrameWriter(PipelineProcess):
         if self._covered_idx[: len(self._strains[0][1])].all():
             # pop out the earliest strain and filename and
             (witness_fname, strain_fname), strain = self._strains.pop(0)
-            logging.debug("Cleaning strain file " + strain_fname)
+            self.logger.debug("Cleaning strain file " + strain_fname)
             fname = os.path.basename(witness_fname)
             timestamp, _ = _parse_frame_name(fname)
 
@@ -246,13 +246,13 @@ class TwoFileFrameLoader(FrameLoader):
         if self._idx == 0:
             time.sleep(0.01)
 
-        logging.debug(
+        self.logger.debug(
             "Loaded frame files {} and {}".format(witness_fname, strain_fname)
         )
         return witness_data.astype("float32")
 
     def process(self, package):
-        logging.debug(
+        self.logger.debug(
             "Sending package with request id {}".format(package.request_id)
         )
         super().process(package)

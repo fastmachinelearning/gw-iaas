@@ -23,11 +23,9 @@ path = "../../libs/hermes/hermes.typeo"
 develop = true
 
 [tool.poetry.group.dev.dependencies]
-ipywidgets = "^7.6.5"
-
-[tool.poetry.dev-dependencies]
 notebook = "^6.4"
-rich = "^10.15"
+rich = ">=10.13,<10.15"
+ipywidgets = "^7.6.5"
 
 # add the NGC PyPI so that tritonclient
 # can install correctly

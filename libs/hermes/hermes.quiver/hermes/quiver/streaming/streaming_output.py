@@ -27,9 +27,9 @@ class Aggregator(tf.keras.layers.Layer):
         if input_shape[0] != 1:
             # TODO: support batching
             raise ValueError("Batching not currently supported")
-        if input_shape[-1] != snapshot_size:
+        if input_shape[-1] < snapshot_size:
             raise ValueError(
-                "Expected input update of {} samples, but "
+                "Expected input update of at least {} samples, but "
                 "found {}".format(snapshot_size, input_shape[-1])
             )
 
@@ -65,6 +65,11 @@ class Aggregator(tf.keras.layers.Layer):
         )
 
     def call(self, x, sequence_start):
+        if len(x.shape) > 2:
+            x = x[:, :, -self.snapshot_size:]
+        else:
+            x = x[:, -self.snapshot_size:]
+
         snapshot = (1.0 - sequence_start) * self.snapshot
         update_idx = (1.0 - sequence_start) * self.update_idx + 1
 

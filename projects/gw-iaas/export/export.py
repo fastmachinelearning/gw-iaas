@@ -54,8 +54,8 @@ def export_deepclean(
     if weights is not None:
         deepclean.load_state_dict(torch.load(weights))
 
-    if step_size is not None:
-        deepclean = OnlineDeepClean(deepclean, step_size)
+    # if step_size is not None:
+    #     deepclean = OnlineDeepClean(deepclean, step_size)
     deepclean.eval()
 
     name = "deepclean" + (postfix or "")

@@ -235,7 +235,7 @@ develop = true
 "hermes.stillwater" = {path = "../hermes.stillwater", develop = true}
 
 [package.extras]
-gcs = ["hermes.quiver"]
+gcs = ["hermes.quiver[gcs] @ ../hermes.quiver"]
 
 [package.source]
 type = "directory"
@@ -816,7 +816,7 @@ use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "rich"
-version = "10.15.2"
+version = "10.14.0"
 description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
 category = "dev"
 optional = false
@@ -938,7 +938,7 @@ test = ["pytest"]
 
 [[package]]
 name = "tritonclient"
-version = "2.16.0"
+version = "2.13.0"
 description = "Python client library and utilities for communicating with Triton Inference Server"
 category = "main"
 optional = false
@@ -955,6 +955,11 @@ python-rapidjson = ">=0.9.1"
 all = ["protobuf (>=3.5.0)", "grpcio (>=1.31.0)", "numpy (>=1.19.1)", "python-rapidjson (>=0.9.1)", "geventhttpclient (>=1.4.4)"]
 grpc = ["protobuf (>=3.5.0)", "grpcio (>=1.31.0)", "numpy (>=1.19.1)", "python-rapidjson (>=0.9.1)"]
 http = ["geventhttpclient (>=1.4.4)", "numpy (>=1.19.1)", "python-rapidjson (>=0.9.1)"]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.ngc.nvidia.com"
+reference = "ngc"
 
 [[package]]
 name = "urllib3"
@@ -1042,7 +1047,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "6bb08bacd7f53d8e1f21cc37e49ee04fadfd6f29af9e40c1baa3aa94ef14e9aa"
+content-hash = "14770e5bf1a34188826df76736ecf5559dc335dff739a4b9a181943fbbd60e1a"
 
 [metadata.files]
 appnope = [
@@ -1804,8 +1809,8 @@ requests = [
     {file = "requests-2.26.0.tar.gz", hash = "sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7"},
 ]
 rich = [
-    {file = "rich-10.15.2-py3-none-any.whl", hash = "sha256:43b2c6ad51f46f6c94992aee546f1c177719f4e05aff8f5ea4d2efae3ebdac89"},
-    {file = "rich-10.15.2.tar.gz", hash = "sha256:1dded089b79dd042b3ab5cd63439a338e16652001f0c16e73acdcf4997ad772d"},
+    {file = "rich-10.14.0-py3-none-any.whl", hash = "sha256:ab9cbfd7a3802d8c6f0fa91e974630e2a69447972dcbb9dfe9b01016dd95e38e"},
+    {file = "rich-10.14.0.tar.gz", hash = "sha256:8bfe4546d56b4131298d3a9e571a0742de342f1593770bd0d4707299f772a0af"},
 ]
 scipy = [
     {file = "scipy-1.7.3-1-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:c9e04d7e9b03a8a6ac2045f7c5ef741be86727d8f49c45db45f244bdd2bcff17"},
@@ -1913,11 +1918,7 @@ traitlets = [
     {file = "traitlets-5.1.1-py3-none-any.whl", hash = "sha256:2d313cc50a42cd6c277e7d7dc8d4d7fedd06a2c215f78766ae7b1a66277e0033"},
     {file = "traitlets-5.1.1.tar.gz", hash = "sha256:059f456c5a7c1c82b98c2e8c799f39c9b8128f6d0d46941ee118daace9eb70c7"},
 ]
-tritonclient = [
-    {file = "tritonclient-2.16.0-py3-none-any.whl", hash = "sha256:1e29bc6f555e275a953b387caa794efa5239a95bec768edf886ae834a6c82f71"},
-    {file = "tritonclient-2.16.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:7a8a04312d32b1af5373e4d64a9396b782cff9afd2e25ebe7322724b6dc8c90b"},
-    {file = "tritonclient-2.16.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:ea356a202ec80f461403c91bd4f0643088b4279e6dd46ce2481371de161b3830"},
-]
+tritonclient = []
 urllib3 = [
     {file = "urllib3-1.26.7-py2.py3-none-any.whl", hash = "sha256:c4fdf4019605b6e5423637e01bc9fe4daef873709a7973e195ceba0a62bbc844"},
     {file = "urllib3-1.26.7.tar.gz", hash = "sha256:4987c65554f7a2dbf30c18fd48778ef124af6fab771a377103da0585e2336ece"},

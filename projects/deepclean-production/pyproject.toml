@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "dc_online_prod"
+name = "deepcleaner"
 version = "0.1.0"
 description = "Pipeline for running DeepClean online in production"
 authors = ["Alec Gunny <alec.gunny@gmail.com>"]
 
 [tool.poetry.scripts]
-deepclean = "dc_online_prod.__main__:main"
+deepclean = "deepcleaner.pipeline:main"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
@@ -22,6 +22,9 @@ develop = true
 path = "../../libs/hermes/hermes.typeo"
 develop = true
 
+[tool.poetry.dev-dependencies]
+notebook = "^6.4"
+
 # add the NGC PyPI so that tritonclient
 # can install correctly
 [[tool.poetry.source]]
@@ -33,9 +36,9 @@ requires = ["poetry>=1.2.0a2"]
 build-backend = "poetry.masonry.api"
 
 [tool.typeo]
-strain_data_dir = "/home/muhammed.saleem/deepClean/automated-offline/o3replay_unofficial/live/llhoft/H1"
-witness_data_dir = "/home/muhammed.saleem/deepClean/automated-offline/o3replay_unofficial/live/lldetchar/H1"
-write_dir = "/home/alec.gunny/frames/deepclean-cleaned/aggregated-0.5s"
+strain_data_dir = "${DATA_DIR}/llhoft/H1"
+witness_data_dir = "${DATA_DIR}/lldetchar/H1"
+write_dir = "${HOME}/frames/deepcleaned/aggregated-0.5s"
 kernel_length = 1
 stride_length = 0.001953125
 sample_rate = 4096

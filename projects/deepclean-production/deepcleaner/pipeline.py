@@ -1,14 +1,7 @@
 from multiprocessing import Queue
 from typing import Optional
 
-from dc_online_prod.utils import (
-    FrameWriter,
-    Preprocessor,
-    TwoFileFrameCrawler,
-    TwoFileFrameLoader,
-    get_logger,
-)
-
+from deepcleaner import utils as dcu
 from hermes.stillwater import InferenceClient
 from hermes.typeo import typeo
 
@@ -38,7 +31,7 @@ def main(
     """Clean a stretch of data using an inference service"""
 
     # configure logging up front
-    logger = get_logger(log_file, verbose)
+    logger = dcu.get_logger(log_file, verbose)
 
     # read in channels from file
     with open(channels, "r") as f:
@@ -47,7 +40,7 @@ def main(
     # for local replay data, create a process which
     # monitors a local directory for new frames and
     # passes the names of those frames to the frame loader
-    fname_source = TwoFileFrameCrawler(
+    fname_source = dcu.TwoFileFrameCrawler(
         witness_data_dir,
         strain_data_dir,
         timeout=timeout,
@@ -58,14 +51,14 @@ def main(
 
     # build a callable object which can
     # perform the requisite preprocessing
-    preprocessor = Preprocessor(preprocess_pkl, sample_rate)
+    preprocessor = dcu.Preprocessor(preprocess_pkl, sample_rate)
 
     # we want to be able to pass our strain data
     # directly to the postprocessing process, so
     # create a queue which our frame loader can
     # use to pass strain data and filenames
     strain_q = Queue()
-    data_loader = TwoFileFrameLoader(
+    data_loader = dcu.TwoFileFrameLoader(
         chunk_size=int(stride_length * sample_rate),
         step_size=int(stride_length * sample_rate),
         sample_rate=sample_rate,
@@ -94,7 +87,7 @@ def main(
     else:
         throw_away = None
 
-    writer = FrameWriter(
+    writer = dcu.FrameWriter(
         write_dir=write_dir,
         channel_name=channels[0],
         step_size=int(stride_length * sample_rate),

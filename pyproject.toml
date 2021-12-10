@@ -12,7 +12,7 @@ exclude = '''
 '''
 
 [tool.isort]
-known_first_party = ["hermes"]
+known_first_party = ["hermes", "deepcleaner"]
 multi_line_output = 3
 include_trailing_comma = true
 

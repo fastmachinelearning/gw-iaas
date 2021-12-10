@@ -37,7 +37,7 @@ url = "https://pypi.ngc.nvidia.com"
 requires = ["poetry>=1.2.0a2"]
 build-backend = "poetry.masonry.api"
 
-[tool.typeo]
+[tool.typeo.scripts.deepclean]
 strain_data_dir = "${DATA_DIR}/llhoft/H1"
 witness_data_dir = "${DATA_DIR}/lldetchar/H1"
 write_dir = "${HOME}/frames/deepcleaned/aggregated-0.5s"
@@ -57,3 +57,15 @@ timeout = 3
 start_first = true
 verbose = true
 log_file = "deepclean.latency-0.5.log"
+
+[tool.typeo.scripts.export.commands.deepclean]
+kernel_length = 1
+stride_length = 0.001953125
+sample_rate = 4096
+channels = "../../deepclean-production/channels.deepclean.txt"
+streams_per_gpu = 1
+instances = 6
+max_latency = 0.5
+weights = "${WEIGHTS_PATH}"
+platform = "onnxruntime_onnx"
+repo_dir = "${HOME}/repos/deepclean-online"

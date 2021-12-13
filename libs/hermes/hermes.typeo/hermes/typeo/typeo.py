@@ -1,5 +1,6 @@
 import argparse
 import inspect
+import sys
 from collections import abc
 from enum import Enum
 from functools import wraps
@@ -532,3 +533,43 @@ def typeo(*args, **kwargs) -> Callable:
             return _make_wrapper(f, *args, **kwargs)
 
         return wrapperwrapper
+
+
+def spoof(
+    f: Callable,
+    *args,
+    filename: Optional[str] = None,
+    script: Optional[str] = None,
+    command: Optional[str] = None,
+) -> dict:
+    def wrapper(**kwargs):
+        return kwargs
+
+    wrapper.__signature__ = inspect.signature(f)
+
+    if len(args) > 0:
+        if any([i is not None for i in [filename, script, command]]):
+            raise ValueError(
+                "Cannot specify argv if specifying any of "
+                "'filename', 'script', or 'command'"
+            )
+    else:
+        typeo_arg = ""
+        if filename is not None:
+            typeo_arg += filename
+        if script is not None:
+            typeo_arg += ":" + script
+        if command is not None:
+            if script is None:
+                typeo_arg += ":"
+            typeo_arg += ":" + command
+
+        args = ["--typeo"]
+        if typeo_arg:
+            args.append(typeo_arg)
+
+    argv = sys.argv
+    sys.argv = [None] + list(args)
+    kwargs = typeo(wrapper)()
+    sys.argv = argv
+    return kwargs

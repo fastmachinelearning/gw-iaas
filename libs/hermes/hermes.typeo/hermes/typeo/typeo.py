@@ -542,6 +542,40 @@ def spoof(
     script: Optional[str] = None,
     command: Optional[str] = None,
 ) -> dict:
+    """Utility function for validating function arguments
+
+    Returns as a dictionary the arguments passed to a function
+    `f` if it were run via typeo either using explicit command
+    line arguments or a config. If no arguments other than
+    `f` are supplied, this would the equivalent of parsing
+    arguments from a `pyproject.toml` with a `tool.typeo`
+    section in the current working directory.
+
+    Args:
+        f:
+            The function whose input arguments to inspect
+        *args:
+            Command line strings to parse using typeo. If
+            specified, none of `filename`, `script`, or
+            `command` should be specified.
+        filename:
+            Path to a type config file to parse. If left as
+            `None`, equivalent to specifying a `pyproject.toml`
+            in the current working directory.
+        script:
+            Subsection of the config file from which to
+            parse arguments. If left as `None`, all arguments
+            from the `typeo` section of the config will
+            be parsed.
+        command:
+            Subcommand of the indicated config and script
+            to parse arguments from. If left as `None`, no
+            command arguments will be parsed.
+    Returns:
+        A dictionary mapping from the name of input arguments
+            to `f` to their values inside `f`'s namespace.
+    """
+
     def wrapper(**kwargs):
         return kwargs
 

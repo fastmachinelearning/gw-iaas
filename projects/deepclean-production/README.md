@@ -17,7 +17,7 @@ $ curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/instal
 This experiment is expected to be run locally on a node on the LIGO Data Grid (LDG) with Singularity installed and access to a data replay stream.
 
 ### 1. Model export
-First we'll need to export a DeepClean model to a local Triton model repository. Luckily we can just leverage the code used to export DeepClean for the GW-IaaS paper, detailed instructions for which I'll direct you to [the GW-IaaS README](https://github.com/fastmachinelearning/gw-iaas/tree/main/projects/gw-iaas#1-model-export). If you just want to run things with all the defaults contained in `pyproject.toml`, you can just run:
+First we'll need to export a DeepClean model to a local Triton model repository. Luckily we can just leverage the code used to export DeepClean for the GW-IaaS paper, detailed instructions for which I'll direct you to [the GW-IaaS README](https://github.com/fastmachinelearning/gw-iaas/tree/main/projects/gw-iaas#1-model-export). If you just want to run things with all the defaults contained in `pyproject.toml`, you can just run (with the correct `WEIGHTS_PATH` inserted):
 
 ```console
 $ cd ../gw-iaas/export
@@ -70,5 +70,7 @@ This will once again look pretty similar to the matching instructions in the [th
 If you want to run with the default values specified in `pyproject.toml`, the assumption will be that your replay stream lives in a directory `DATA_DIR` with subdirectories `lldetchar/H1` for witness channels and `llhoft/H1` for the strain channel, and that the filename patterns in these directories are identical except that `Detchar` is replaced with `HOFT` for the strain filenames. Assuming you have access to a stream like this, all you need to do is (with the correct `DATA_DIR` path inserted)
 
 ```console
-$ poetry run /bin/bash -c "DATA_DIR=/path/to/data deepclean --typeo :deepclean"
+$ DATA_DIR=/path/to/data deepclean --typeo :deepclean
 ```
+
+You should find cleaned frames from this run in the directory `$HOME/frames/deepcleaned/aggregated-0.5s`, and logs from this run in this directory at `deepclean.latency-0.5.log`.

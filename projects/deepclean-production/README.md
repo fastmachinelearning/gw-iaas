@@ -23,7 +23,8 @@ First we'll need to export a DeepClean model to a local Triton model repository.
 $ cd ../gw-iaas/export
 $ poetry install
 $ poetry run /bin/bash -c \
-    'WEIGHTS_PATH=/path/to/weights.pt export-model --typeo ../../deepclean-production:export:deepclean'
+    "WEIGHTS_PATH=/path/to/weights.pt export-model \
+        --typeo ../../deepclean-production:export:deepclean"
 ```
 
 ### 2. Start the server
@@ -34,7 +35,8 @@ $ GPU_ID=... # pick a GPU ID, or multiple, to host DeepClean on
 $ singularity exec --nv \
     /cvmfs/singularity.opensciencegrid.org/alec.gunny/deepclean-prod\:server-20.07 \
         /bin/bash -c \
-        "CUDA_VISIBLE_DEVICES=$GPU_ID /opt/tritonserver/bin/tritonserver --model-repository $HOME/repos/deepclean-online-production"
+            "CUDA_VISIBLE_DEVICES=$GPU_ID /opt/tritonserver/bin/tritonserver \
+            --model-repository $HOME/repos/deepclean-online-production"
 ```
 
 ### 3. Run the client

@@ -70,6 +70,8 @@ class FrameWriter(PipelineProcess):
         channel_name: str,
         step_size: int,
         sample_rate: float,
+        memory: float,
+        filter_pad: float,
         strain_q: "Queue",
         throw_away: Optional[int] = None,
         preprocessor: Optional[Preprocessor] = None,
@@ -85,6 +87,8 @@ class FrameWriter(PipelineProcess):
         self.channel_name = channel_name
         self.step_size = step_size
         self.sample_rate = sample_rate
+        self.past_samples = int(memory * sample_rate)
+        self.future_samples = int(filter_pad * sample_rate)
         self.throw_away = throw_away
         self.strain_q = strain_q
         self.preprocessor = preprocessor
@@ -99,8 +103,7 @@ class FrameWriter(PipelineProcess):
         # now get the next inferred noise estimate
         noise_prediction = super().get_package()
 
-        # first see if we have any new strain data
-        # to collect
+        # first see if we have any new strain data to collect
         try:
             if len(self._noises) == 0:
                 fname, strain = self.strain_q.get(True, 10)
@@ -180,9 +183,7 @@ class FrameWriter(PipelineProcess):
             self._frame_idx += len(noise)
 
             # now postprocess the noise and strain channels
-            # TODO: do some sort of windowing before filtering?
-            strain = self.preprocessor.filter(strain)
-            # noise = self.preprocessor.uncenter(noise)
+            noise = self.preprocessor.uncenter(noise)
             noise = self.preprocessor.filter(noise)
 
             # remove the noise from the strain channel and

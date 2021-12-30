@@ -98,7 +98,7 @@ from say_hello import say_hello
 say_hello("Thom", 1)
 ```
 
-Note also that we can drop the `if __name__ == "__main__"` syntax if we integrate with Poetry installation scripts. For example, if my `pyproject.toml` in the directory where I host `say_hello.py` has a section like:
+Note also that we can drop the `if __name__ == "__main__"` syntax if we integrate with Poetry package scripts. For example, if my `pyproject.toml` in the directory where I host `say_hello.py` has a section like:
 
 ```toml
 [tool.poetry.scripts]

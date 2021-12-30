@@ -22,6 +22,13 @@ _ANNOTATION = Union[type, "GenericAlias"]
 _MAYBE_TYPE = Optional[type]
 
 
+class CustomHelpFormatter(argparse.RawDescriptionHelpFormatter):
+    def _get_help_string(self, action):
+        return argparse.ArgumentDefaultsHelpFormatter._get_help_string(
+            self, action
+        )
+
+
 def _parse_union(param: inspect.Parameter) -> Tuple[type, _MAYBE_TYPE]:
     annotation = param.annotation
     if len(annotation.__args__) > 2:
@@ -247,6 +254,37 @@ def _parse_help(args: str, arg_name: str) -> str:
     return doc_str
 
 
+def _parse_doc(f: Callable):
+    """Grab any documentation and argument help from a function"""
+
+    # start by grabbing the function description
+    # and any arguments that might have been
+    # described in the docstring
+    try:
+        # split thet description and the args
+        # by the expected argument section header
+        doc, args = f.__doc__.split("Args:\n")
+    except AttributeError:
+        # raised if f doesn't have documentation
+        doc, args = "", ""
+    except ValueError:
+        # raised if f only has a description but
+        # no argument documentation. Set `args`
+        # to the empty string
+        doc, args = f.__doc__, ""
+    else:
+        # try to strip out any returns from the
+        # arguments section by using the expected
+        # returns header. If there are None, just
+        # keep moving
+        try:
+            args, _ = args.split("Returns:\n")
+        except ValueError:
+            pass
+
+    return doc, args
+
+
 def make_parser(
     f: Callable,
     prog: Optional[str] = None,
@@ -274,38 +312,14 @@ def make_parser(
         The argument parser for the given function
     """
 
-    # start by grabbing the function description
-    # and any arguments that might have been
-    # described in the docstring
-    try:
-        # split thet description and the args
-        # by the expected argument section header
-        doc, args = f.__doc__.split("Args:\n")
-    except AttributeError:
-        # raised if f doesn't have documentation
-        doc, args = "", ""
-    except ValueError:
-        # raised if f only has a description but
-        # no argument documentation. Set `args`
-        # to the empty string
-        doc, args = f.__doc__, ""
-    else:
-        # try to strip out any returns from the
-        # arguments section by using the expected
-        # returns header. If there are None, just
-        # keep moving
-        try:
-            args, _ = args.split("Returns:\n")
-        except ValueError:
-            pass
-
+    doc, args = _parse_doc(f)
     if parser is None:
         # build the parser, using a raw text formatter, so that
         # any formatting in the argument description is respected
         parser = argparse.ArgumentParser(
             prog=prog or f.__name__,
             description=doc.rstrip(),
-            formatter_class=argparse.RawDescriptionHelpFormatter,
+            formatter_class=CustomHelpFormatter,
             parents=[parent_parser] if parent_parser is not None else None,
         )
 
@@ -389,17 +403,37 @@ def make_parser(
 def _make_wrapper(
     f: Callable, prog: Optional[str] = None, **kwargs
 ) -> Callable:
+    # start with a parent parser that will initially
+    # try to parse a typeo toml config argument
+    # let the downstream parser worry about handling help.
+    # Don't add the --typeo argument to it yet though, since
+    # this will need information about boolean arguments
+    # extracted from the downstream parsers
     parent_parser = argparse.ArgumentParser(
         prog="config-parser", add_help=False, conflict_handler="resolve"
     )
+
+    # now build a parser for the main function `f` which
+    # inherits from this parser and can parse whatever
+    # the config parser can't understand
     parser, booleans = make_parser(f, prog, None, parent_parser)
+
+    # if we have subcommands, add subparsers for each
+    # one of them with their own arguments
     if len(kwargs) > 0:
-        subparsers = parser.add_subparsers(dest="_subprogram", required=True)
+        subparsers = parser.add_subparsers(dest="_subcommand", required=True)
         for func_name, func in kwargs.items():
-            subparser = subparsers.add_parser(func_name.replace("_", "-"))
+            subparser = subparsers.add_parser(
+                func_name.replace("_", "-"),
+                description=_parse_doc(func)[0],
+                formatter_class=CustomHelpFormatter,
+            )
             _, bools = make_parser(func, None, subparser, None)
             booleans.update(bools)
 
+    # now add an argument for parsing a config file,
+    # using info about booleans stripped from downstream
+    # parsers
     parent_parser.add_argument(
         "--typeo",
         bools=booleans,
@@ -423,6 +457,10 @@ def _make_wrapper(
         ),
     )
 
+    # now build a wrapper for the function `f` that
+    # parses from the command line if no arguments
+    # are passed in, and otherwise just calls `f`
+    # regularly
     @wraps(f)
     def wrapper(*args, **kw):
         if len(args) == len(kw) == 0:
@@ -438,18 +476,25 @@ def _make_wrapper(
             else:
                 kw = vars(parser.parse_args(remainder))
 
+        # see if a subprogram was specified
         try:
-            subprogram = kw.pop("_subprogram")
+            subcommand = kw.pop("_subcommand")
         except KeyError:
-            subprogram = None
+            subcommand = None
         else:
-            subprogram = kwargs[subprogram.replace("-", "_")]
-            parameters = inspect.signature(subprogram).parameters
+            # if we specified a subcommand, extract the arguments
+            # that are specific to it. Convert its name
+            # back to underscores first to grab the actual function
+            subcommand = kwargs[subcommand.replace("-", "_")]
+            parameters = inspect.signature(subcommand).parameters
             subkw = {name: kw.pop(name) for name in parameters}
 
+        # run the main function
         result = f(*args, **kw)
-        if subprogram is not None:
-            result = subprogram(**subkw)
+
+        # run the subcommand if one was specified
+        if subcommand is not None:
+            result = subcommand(**subkw)
         return result
 
     return wrapper

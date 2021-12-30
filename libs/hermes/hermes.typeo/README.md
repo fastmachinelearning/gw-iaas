@@ -88,6 +88,16 @@ usage: say_hello [-h] --name NAME [--friendliness FRIENDLINESS]
 say_hello: error: the following arguments are required: --name
 ```
 
+Note that we can still import `say_hello` in other scripts and call it with regular arguments, and its behavior won't be impacted. `typeo` works by only reading from the command line if no arguments are passed in.
+
+```python
+from say_hello import say_hello
+
+
+# prints "Hi Thom"
+say_hello("Thom", 1)
+```
+
 ## Subcommands
 
 We can also add subcommands to our scripts. Let's say `greet.py` looks like
@@ -165,6 +175,8 @@ optional arguments:
 $ python greet.py hello -h
 usage: greet hello [-h] --name NAME [--friendliness FRIENDLINESS]
 
+Say hello to someone with various degrees of friendliness
+
 optional arguments:
   -h, --help            show this help message and exit
   --name NAME           The name of the person to greet
@@ -173,6 +185,8 @@ optional arguments:
 
 $ python greet.py goodbye -h
 usage: greet goodbye [-h] --name NAME [--friendliness FRIENDLINESS]
+
+Say goodbye to someone with various degrees of friendliness
 
 optional arguments:
   -h, --help            show this help message and exit

@@ -98,6 +98,20 @@ from say_hello import say_hello
 say_hello("Thom", 1)
 ```
 
+Note also that we can drop the `if __name__ == "__main__"` syntax if we integrate with Poetry installation scripts. For example, if my `pyproject.toml` in the directory where I host `say_hello.py` has a section like:
+
+```toml
+[tool.poetry.scripts]
+greet = "say_hello:say_hello"
+```
+
+Then I can drop the `if __name__ == "__main__"` from `say_hello.py` and run my script like this
+
+```console
+$ poetry run greet --name Thom
+Hi Thom
+```
+
 ## Subcommands
 
 We can also add subcommands to our scripts. Let's say `greet.py` looks like

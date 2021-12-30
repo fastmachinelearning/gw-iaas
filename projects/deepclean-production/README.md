@@ -1,12 +1,11 @@
 # DeepClean in Production
 This repo contains an implementation of the DeepClean client code contained in `projects/gw-iaas/clients`, rearchitected to address a couple simplifications made for the purposes of the paper. In particular:
 
-- This is designed for a data replay stream in which the strain and witness channels are contained in files, written in different directories.
-- The `deepcleaner.utils.FrameWriter` class has been rebuilt with postprocessing meant to address some bug which have been reducing the quality of the clean.
+- This is designed for a data replay stream in which the strain and witness channels are contained in different files, written to different directories.
+- The `deepcleaner.utils.FrameWriter` class has been rebuilt with postprocessing meant to address some bugs which have been reducing the quality of the clean (but this is still very much a work in progress).
+    -  To this end, `end-to-end.ipynb` includes an analysis of some of the postprocessing issues of using DeepClean in an online fashion.
 
-Additionally, `end-to-end.ipynb` includes an analysis of some of the postprocessing issues of using DeepClean in an online fashion.
-
-For executing this pipeline, I would strongly recommend using Poetry >=1.2. Since the instructions for how to do this aren't entirely clear on Poetry's website, the command you'll want to run for installation (on Linux) is
+For executing this pipeline, I would strongly recommend using Poetry >=1.2. The instructions for how to do this aren't entirely clear on Poetry's website, so I'll give you the command you'll want to run for installation (on Linux) here:
 
 ```console
 $ curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py \

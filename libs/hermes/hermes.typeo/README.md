@@ -67,15 +67,15 @@ if __name__ == "__main__":
 Now when we run from the command line:
 ```console
 $ python say_hello.py -h
-usage: say_hello [-h] --name NAME --friendliness FRIENDLINESS
+usage: say_hello [-h] --name NAME [--friendliness FRIENDLINESS]
 
 Say hello to someone with various degrees of friendliness
 
 optional arguments:
   -h, --help            show this help message and exit
-  --name NAME           The name of the person to greet
+  --name NAME           The name of the person to greet (default: None)
   --friendliness FRIENDLINESS
-                        The level of friendliness to greet them with
+                        The level of friendliness to greet them with (default: 1)
 
 $ python say_hello.py --name Thom
 Hi Thom
@@ -177,22 +177,26 @@ usage: greet hello [-h] --name NAME [--friendliness FRIENDLINESS]
 
 Say hello to someone with various degrees of friendliness
 
+
+
 optional arguments:
   -h, --help            show this help message and exit
-  --name NAME           The name of the person to greet
+  --name NAME           The name of the person to greet (default: None)
   --friendliness FRIENDLINESS
-                        The level of friendliness to greet them with
+                        The level of friendliness to greet them with (default: 1)
 
 $ python greet.py goodbye -h
 usage: greet goodbye [-h] --name NAME [--friendliness FRIENDLINESS]
 
 Say goodbye to someone with various degrees of friendliness
 
+
+
 optional arguments:
   -h, --help            show this help message and exit
-  --name NAME           The name of the person to bid farewell
+  --name NAME           The name of the person to bid farewell (default: None)
   --friendliness FRIENDLINESS
-                        The level of friendliness to bid them farewell with
+                        The level of friendliness to bid them farewell with (default: 1)
 
 $ python greet.py --greeter Jonny hello --name Thom
 This is a greeting from Jonny:

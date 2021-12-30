@@ -22,6 +22,13 @@ _ANNOTATION = Union[type, "GenericAlias"]
 _MAYBE_TYPE = Optional[type]
 
 
+class CustomHelpFormatter(argparse.RawDescriptionHelpFormatter):
+    def _get_help_string(self, action):
+        return argparse.ArgumentDefaultsHelpFormatter._get_help_string(
+            self, action
+        )
+
+
 def _parse_union(param: inspect.Parameter) -> Tuple[type, _MAYBE_TYPE]:
     annotation = param.annotation
     if len(annotation.__args__) > 2:
@@ -312,7 +319,7 @@ def make_parser(
         parser = argparse.ArgumentParser(
             prog=prog or f.__name__,
             description=doc.rstrip(),
-            formatter_class=argparse.RawDescriptionHelpFormatter,
+            formatter_class=CustomHelpFormatter,
             parents=[parent_parser] if parent_parser is not None else None,
         )
 
@@ -417,7 +424,9 @@ def _make_wrapper(
         subparsers = parser.add_subparsers(dest="_subcommand", required=True)
         for func_name, func in kwargs.items():
             subparser = subparsers.add_parser(
-                func_name.replace("_", "-"), description=_parse_doc(func)[0]
+                func_name.replace("_", "-"),
+                description=_parse_doc(func)[0],
+                formatter_class=CustomHelpFormatter,
             )
             _, bools = make_parser(func, None, subparser, None)
             booleans.update(bools)

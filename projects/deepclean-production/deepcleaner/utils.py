@@ -4,7 +4,7 @@ import pickle
 import sys
 import time
 from queue import Empty
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 import numpy as np
 from gwpy.timeseries import TimeSeries
@@ -19,6 +19,11 @@ from hermes.stillwater import PipelineProcess
 
 if TYPE_CHECKING:
     from multiprocessing import Queue
+
+
+def _get_channel_order(channels):
+    idx = sorted(zip(channels, range(len(channels))))
+    return [i for c, i in idx if c != channels[0]]
 
 
 def get_logger(filename: Optional[str] = None, verbose: bool = False):
@@ -37,7 +42,9 @@ def get_logger(filename: Optional[str] = None, verbose: bool = False):
 
 
 class Preprocessor:
-    def __init__(self, preproc_pkl: str, sample_rate: float):
+    def __init__(
+        self, preproc_pkl: str, sample_rate: float, channels: List[str]
+    ):
         with open(preproc_pkl, "rb") as f:
             params = pickle.load(f)
 
@@ -47,14 +54,19 @@ class Preprocessor:
             params["filt_order"], [low, high], btype="bandpass", output="sos"
         )
 
-        self.mean = params["mean"][1:]
-        self.std = params["std"][1:]
+        idx = _get_channel_order(channels)
+        self.channel_mean = params["mean"][idx]
+        self.channel_std = params["std"][idx]
+
+        strain_idx = sorted(channels).index(channels[0])
+        self.strain_mean = params["mean"][strain_idx]
+        self.strain_std = params["std"][strain_idx]
 
     def center(self, x):
-        return (x - self.mean) / self.std
+        return (x - self.channel_mean) / self.channel_std
 
     def uncenter(self, x):
-        return x * self.std + self.mean
+        return x * self.strain_std + self.strain_mean
 
     def filter(self, x, axis=-1):
         return signal.sosfiltfilt(self.sos, x, axis=axis)
@@ -181,9 +193,6 @@ class FrameWriter(PipelineProcess):
             fname = os.path.basename(strain_fname)
             timestamp, _ = _parse_frame_name(fname)
 
-            # remove the data from both the running
-            # noise array and the mask
-
             # now postprocess the noise and strain channels
             noise = self.preprocessor.uncenter(self._noises)
             noise = self.preprocessor.filter(noise)
@@ -246,7 +255,9 @@ class TwoFileFrameLoader(FrameLoader):
         fnames = super(FrameLoader, self).get_package()
         witness_fname, strain_fname = fnames
 
-        witness_data = self.load_frame_file(witness_fname, self.channels[1:])
+        witness_data = self.load_frame_file(
+            witness_fname, sorted(self.channels[1:])
+        )
         strain_data = self.load_frame_file(strain_fname, self.channels[:1])
         self.strain_q.put((fnames, strain_data[0]))
 

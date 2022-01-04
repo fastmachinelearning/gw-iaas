@@ -26,6 +26,8 @@ def main(
     start_first: bool = False,
     timeout: Optional[float] = None,
     log_file: Optional[str] = None,
+    memory: float = 10,
+    future_pad: float = 0.5,
     verbose: bool = False,
 ) -> None:
     """Clean a stretch of data using an inference service
@@ -62,7 +64,9 @@ def main(
 
     # build a callable object which can
     # perform the requisite preprocessing
-    preprocessor = dcu.Preprocessor(preprocess_pkl, sample_rate)
+    preprocessor = dcu.Preprocessor(
+        preprocess_pkl, sample_rate, channels
+    )
 
     # we want to be able to pass our strain data
     # directly to the postprocessing process, so
@@ -104,6 +108,8 @@ def main(
         step_size=int(stride_length * sample_rate),
         sample_rate=sample_rate,
         strain_q=strain_q,
+        memory=memory,
+        filter_pad=future_pad,
         throw_away=throw_away,
         preprocessor=preprocessor,
         name="writer",

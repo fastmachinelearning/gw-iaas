@@ -169,22 +169,32 @@ class FrameWriter(PipelineProcess):
         # if we've completely performed inference on
         # an entire frame's worth of data, postprocess
         # the predictions and produce the cleaned estimate
-        if self._covered_idx[: len(self._strains[0][1])].all():
+        limit = (
+            self.past_samples + len(self._strains[0][1]) + self.future_samples
+        )
+        if self._covered_idx[:limit].all():
             # pop out the earliest strain and filename and
             (witness_fname, strain_fname), strain = self._strains.pop(0)
             self.logger.debug("Cleaning strain file " + strain_fname)
-            fname = os.path.basename(witness_fname)
+            fname = os.path.basename(strain_fname)
             timestamp, _ = _parse_frame_name(fname)
 
             # remove the data from both the running
             # noise array and the mask
-            noise, self._noises = np.split(self._noises, [len(strain)])
-            self._covered_idx = self._covered_idx[len(strain) :]
-            self._frame_idx += len(noise)
 
             # now postprocess the noise and strain channels
-            noise = self.preprocessor.uncenter(noise)
+            noise = self.preprocessor.uncenter(self._noise)
             noise = self.preprocessor.filter(noise)
+
+            start = -(self.future_samples + len(strain))
+            stop = -self.future_samples
+            noise = noise[start:stop]
+
+            if len(self._noise[: -self.future_samples]) > self.past_samples:
+                samples_to_keep = self.future_samples + self.past_samples
+                self._frame_idx += len(self._noise) - samples_to_keep
+                self._noise = self._noise[-samples_to_keep:]
+                self._covered_idx = self._covered_idx[-samples_to_keep:]
 
             # remove the noise from the strain channel and
             # use it to create a timeseries we can write to .gwf

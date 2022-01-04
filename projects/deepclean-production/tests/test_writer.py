@@ -101,7 +101,7 @@ def test_frame_writer(write_dir, fnames, step_size, memory, filter_pad):
 
         if frame_end > pad_samples and (frame_end - pad_samples) % 4096 == 0:
             try:
-                written, _ = writer.out_q.get_nowait()
+                written, _ = writer.out_q.get(0.1)
             except Empty:
                 raise ValueError(str(frame_end))
 
@@ -112,6 +112,7 @@ def test_frame_writer(write_dir, fnames, step_size, memory, filter_pad):
             assert (ts.value == 0).all()
 
             num_remaining_frames = min(memory, idx + 1)
-            assert len(writer._noises) == (
+            assert writer._covered_idx.sum() == (
                 num_remaining_frames * 4096 + pad_samples
             )
+            assert len(writer._noises) <= ((memory + 1) * 4096)

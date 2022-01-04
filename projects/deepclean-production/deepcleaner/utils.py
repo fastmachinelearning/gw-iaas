@@ -154,7 +154,8 @@ class FrameWriter(PipelineProcess):
         # in the blank noise array we need to insert
         # this prediction. Subtract the running index
         # of the total number of samples we've processed so far
-        start = int(package.request_id * self.step_size - self._frame_idx)
+        offset = max(self._frame_idx - self.past_samples, 0)
+        start = int(package.request_id * self.step_size - offset)
         if self.throw_away is not None:
             start -= int(self.throw_away * self.step_size)
         self._noises[start : start + len(x)] = x
@@ -186,16 +187,12 @@ class FrameWriter(PipelineProcess):
             # now postprocess the noise and strain channels
             noise = self.preprocessor.uncenter(self._noises)
             noise = self.preprocessor.filter(noise)
+            noise = noise[past_samples:past_samples + len(strain)]
 
-            start = -(self.future_samples + len(strain))
-            stop = -self.future_samples
-            noise = noise[start:stop]
-
-            if len(self._noises[: -self.future_samples]) > self.past_samples:
-                samples_to_keep = self.future_samples + self.past_samples
-                self._frame_idx += len(self._noises) - samples_to_keep
-                self._noises = self._noises[-samples_to_keep:]
-                self._covered_idx = self._covered_idx[-samples_to_keep:]
+            self._frame_idx += len(strain)
+            if (self._covered_idx.sum() - self.future_samples) > self.past_samples:
+                self._noises = self._noises[len(strain):]
+                self._covered_idx = self._covered_idx[len(strain):]
 
             # remove the noise from the strain channel and
             # use it to create a timeseries we can write to .gwf

@@ -169,8 +169,9 @@ class FrameWriter(PipelineProcess):
         # if we've completely performed inference on
         # an entire frame's worth of data, postprocess
         # the predictions and produce the cleaned estimate
+        past_samples = min(self.past_samples, self._frame_idx)
         limit = (
-            self.past_samples + len(self._strains[0][1]) + self.future_samples
+            past_samples + len(self._strains[0][1]) + self.future_samples
         )
         if self._covered_idx[:limit].all():
             # pop out the earliest strain and filename and
@@ -183,17 +184,17 @@ class FrameWriter(PipelineProcess):
             # noise array and the mask
 
             # now postprocess the noise and strain channels
-            noise = self.preprocessor.uncenter(self._noise)
+            noise = self.preprocessor.uncenter(self._noises)
             noise = self.preprocessor.filter(noise)
 
             start = -(self.future_samples + len(strain))
             stop = -self.future_samples
             noise = noise[start:stop]
 
-            if len(self._noise[: -self.future_samples]) > self.past_samples:
+            if len(self._noises[: -self.future_samples]) > self.past_samples:
                 samples_to_keep = self.future_samples + self.past_samples
-                self._frame_idx += len(self._noise) - samples_to_keep
-                self._noise = self._noise[-samples_to_keep:]
+                self._frame_idx += len(self._noises) - samples_to_keep
+                self._noises = self._noises[-samples_to_keep:]
                 self._covered_idx = self._covered_idx[-samples_to_keep:]
 
             # remove the noise from the strain channel and

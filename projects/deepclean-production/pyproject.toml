@@ -28,6 +28,7 @@ rich = ">=10.13,<10.15"
 ipywidgets = "^7.6.5"
 
 # add the NGC PyPI so that tritonclient
+pytest = "^6.2.5"
 # can install correctly
 [[tool.poetry.source]]
 name = "ngc"

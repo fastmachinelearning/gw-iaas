@@ -64,14 +64,19 @@ def make_plots(
 
 
 def plot_results(raw_dir: str, clean_dir: str, channel_name: str, fname: str):
-    clean_ts = TimeSeries()
-    raw_ts = TimeSeries()
+    clean_ts, raw_ts = None, None
     for f in os.listdir(clean_dir):
         ts = TimeSeries.read(os.path.join(clean_dir, f), channel_name)
-        clean_ts.append(ts)
+        if clean_ts is None:
+            clean_ts = ts
+        else:
+            clean_ts.append(ts)
 
         ts = TimeSeries.read(os.path.join(raw_dir, f), channel_name)
-        raw_ts.append(ts)
+        if raw_ts is None:
+            raw_ts = ts
+        else:
+            raw_ts.append(ts)
 
     fig = make_plots(
         {"Raw": raw_ts, "Cleaned": clean_ts}, ratio=("Raw", "Cleaned")

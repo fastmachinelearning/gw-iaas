@@ -65,7 +65,7 @@ def make_plots(
 
 def plot_results(raw_dir: str, clean_dir: str, channel_name: str, fname: str):
     clean_ts, raw_ts = None, None
-    for f in os.listdir(clean_dir):
+    for f in sorted(os.listdir(clean_dir)):
         ts = TimeSeries.read(os.path.join(clean_dir, f), channel_name)
         if clean_ts is None:
             clean_ts = ts

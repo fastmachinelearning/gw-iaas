@@ -183,9 +183,7 @@ class FrameWriter(PipelineProcess):
         # an entire frame's worth of data, postprocess
         # the predictions and produce the cleaned estimate
         past_samples = min(self.past_samples, self._frame_idx)
-        limit = (
-            past_samples + len(self._strains[0][1]) + self.future_samples
-        )
+        limit = past_samples + len(self._strains[0][1]) + self.future_samples
         if self._covered_idx[:limit].all():
             # pop out the earliest strain and filename and
             (witness_fname, strain_fname), strain = self._strains.pop(0)
@@ -196,12 +194,14 @@ class FrameWriter(PipelineProcess):
             # now postprocess the noise and strain channels
             noise = self.preprocessor.uncenter(self._noises)
             noise = self.preprocessor.filter(noise)
-            noise = noise[past_samples:past_samples + len(strain)]
+            noise = noise[past_samples : past_samples + len(strain)]
 
             self._frame_idx += len(strain)
-            if (self._covered_idx.sum() - self.future_samples) > self.past_samples:
-                self._noises = self._noises[len(strain):]
-                self._covered_idx = self._covered_idx[len(strain):]
+            if (
+                self._covered_idx.sum() - self.future_samples
+            ) > self.past_samples:
+                self._noises = self._noises[len(strain) :]
+                self._covered_idx = self._covered_idx[len(strain) :]
 
             # remove the noise from the strain channel and
             # use it to create a timeseries we can write to .gwf

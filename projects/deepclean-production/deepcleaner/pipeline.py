@@ -1,6 +1,8 @@
+import re
 from multiprocessing import Queue
 from typing import Optional
 
+from deepcleaner import plot_utils
 from deepcleaner import utils as dcu
 from hermes.stillwater import InferenceClient
 from hermes.typeo import typeo
@@ -64,9 +66,7 @@ def main(
 
     # build a callable object which can
     # perform the requisite preprocessing
-    preprocessor = dcu.Preprocessor(
-        preprocess_pkl, sample_rate, channels
-    )
+    preprocessor = dcu.Preprocessor(preprocess_pkl, sample_rate, channels)
 
     # we want to be able to pass our strain data
     # directly to the postprocessing process, so
@@ -120,6 +120,16 @@ def main(
     with pipeline:
         for fname, latency in pipeline:
             logger.info(f"Processed frame {fname} with latency {latency:0.4f}")
+
+    if log_file is not None:
+        ext = log_file.split(".")[-1]
+        fname = re.sub(ext + "$", "png", log_file)
+        plot_utils.plot_results(
+            raw_dir=strain_data_dir,
+            clean_dir=write_dir,
+            channel_name=channels[0],
+            fname=fname,
+        )
 
 
 if __name__ == "__main__":

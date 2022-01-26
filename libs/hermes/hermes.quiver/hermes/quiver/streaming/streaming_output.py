@@ -37,7 +37,8 @@ class Aggregator(tf.keras.layers.Layer):
         )
 
         snapshot_shape = [
-            input_shape[0], self.snapshot_size - self.update_size
+            input_shape[0],
+            self.snapshot_size - self.update_size
         ]
         if len(input_shape) == 3:
             snapshot_shape.insert(1, input_shape[1])

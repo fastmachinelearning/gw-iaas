@@ -125,9 +125,7 @@ class TypeoTomlAction(argparse.Action):
         except KeyError:
             raise ValueError(
                 "Argument {} reference base config "
-                "argument {} which doesn't exist".format(
-                    arg, value
-                )
+                "argument {} which doesn't exist".format(arg, value)
             )
 
     def _parse_string(self, value):
@@ -198,7 +196,6 @@ class TypeoTomlAction(argparse.Action):
                 return "--" + arg.replace("_", "-"), value
         else:
             return "--" + arg.replace("_", "-"), value
-                   
 
     def _parse_section(self, section):
         if isinstance(section, str):
@@ -208,7 +205,7 @@ class TypeoTomlAction(argparse.Action):
                 raise ValueError(f"Section {section} not parseable")
             else:
                 section = self._get_base_value(section, value)
- 
+
         if not isinstance(section, dict):
             raise ValueError(f"Section {section} not parseable")
 

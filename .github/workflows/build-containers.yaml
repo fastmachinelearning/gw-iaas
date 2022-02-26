@@ -74,6 +74,6 @@ jobs:
       name: Triton Server pull-push
       id: gw-iaas-server-container-push
       run: |
-        docker pull nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }}
-        docker tag nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }} fastml/gw-iaas-tritonserver:latest
+        docker pull nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }}-py3
+        docker tag nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }}-py3 fastml/gw-iaas-tritonserver:latest
         docker push fastml/gw-iaas-tritonserver:latest

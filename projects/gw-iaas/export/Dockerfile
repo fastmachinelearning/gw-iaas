@@ -2,9 +2,9 @@ ARG TAG=22.02
 FROM nvcr.io/nvidia/tensorrt:${TAG}-py3
 
 # copy just the code needed to run the export script
-ENV HOME=/home/docker
-COPY libs/hermes/hermes.quiver $HOME/gw-iaas/libs/hermes/hermes.quiver
-COPY libs/hermes/hermes.typeo $HOME/gw-iaas/libs/hermes/hermes.typeo
+ENV HOME=/home/docker HERMES=libs/hermes/hermes
+COPY $HERMES.quiver $HOME/gw-iaas/$HERMES.quiver
+COPY $HERMES.typeo $HOME/gw-iaas/$HERMES.typeo
 COPY projects/gw-iaas/export $HOME/gw-iaas/projects/gw-iaas/export
 WORKDIR $HOME/gw-iaas/projects/gw-iaas/export
 

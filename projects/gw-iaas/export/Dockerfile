@@ -22,10 +22,10 @@ WORKDIR $HOME/gw-iaas/projects/gw-iaas/export
 # this with a lazy copy. Should probably either update
 # the PYTHONPATH environment variable or possibly
 # do a symlink instead?
+ARG POETRY_VERSION=1.2.0a2
 RUN set -x \
-        apt-get update && apt-get install -y curl \
         \
-        && curl -sSL https://install.python-poetry.org | python3 - --preview \
+        && python -m pip install --upgrade poetry==${POETRY_VERSION} \
         \
         && poetry config virtualenvs.create false \
         \

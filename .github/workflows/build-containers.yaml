@@ -23,10 +23,12 @@ jobs:
       with:
         filters: |
           export:
+            - '.github/workflows/build-containers.yaml'
             - 'projects/gw-iaas/export/**'
             - 'libs/hermes/hermes.quiver/**'
             - 'libs/hermes/hermes.typeo/**'
           client:
+            - '.github/workflows/build-containers.yaml'
             - 'projects/gw-iaas/clients/**'
             - 'libs/hermes/hermes.stillwater/**'
             - 'libs/hermes/hermes.gwftools/**'
@@ -53,7 +55,7 @@ jobs:
         context: .
         file: projects/gw-iaas/export/Dockerfile
         push: true
-        tags: fastml/gw-iaas-export:latest
+        tags: fastml/gwiaas.export:latest
         build-args: |
           TAG=${{ env.NGC_TAG }}
           POETRY_VERSION=${{ env.POETRY_VERSION }}
@@ -66,7 +68,7 @@ jobs:
         context: .
         file: projects/gw-iaas/clients/Dockerfile
         push: true
-        tags: fastml/gw-iaas-client:latest
+        tags: fastml/gwiaas.client:latest
         build-args: |
           CONDA_TAG=${{ env.CONDA_TAG }}
           POETRY_VERSION=${{ env.POETRY_VERSION }}
@@ -75,5 +77,5 @@ jobs:
       id: gw-iaas-server-container-push
       run: |
         docker pull nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }}-py3
-        docker tag nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }}-py3 fastml/gw-iaas-tritonserver:latest
+        docker tag nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }}-py3 fastml/gwiaas.tritonserver:latest
         docker push fastml/gw-iaas-tritonserver:latest

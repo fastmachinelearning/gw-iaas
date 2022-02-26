@@ -5,10 +5,7 @@ on:
     branches: main
 
 env:
-  CUDA_MAJOR_VERSION: "11"
-  CUDA_MINOR_VERSION: "4"
-  CUDA_PATCH_VERSION: "2"
-  TRT_VERSION: "8.2.0"
+  NGC_TAG: 20.02
   POETRY_VERSION: "1.2.0a2"
   CONDA_TAG: "4.10.3"
 
@@ -58,10 +55,7 @@ jobs:
         push: true
         tags: fastml/gw-iaas-export:latest
         build-args: |
-          CUDA_MAJOR_VERSION=${{ env.CUDA_MAJOR_VERSION }}
-          CUDA_MINOR_VERSION=${{ env.CUDA_MINOR_VERSION }}
-          CUDA_PATCH_VERSION=${{ env.CUDA_PATCH_VERSION }}
-          TRT_VERSION=${{ env.TRT_VERSION }}
+          TAG=${{ env.NGC_TAG }}
           POETRY_VERSION=${{ env.POETRY_VERSION }}
     -
       name: GW-IaaS client container build
@@ -76,3 +70,10 @@ jobs:
         build-args: |
           CONDA_TAG=${{ env.CONDA_TAG }}
           POETRY_VERSION=${{ env.POETRY_VERSION }}
+    -
+      name: Triton Server pull-push
+      id: gw-iaas-server-container-push
+      run: |
+        docker pull nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }}
+        docker tag nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }} fastml/gw-iaas-tritonserver:latest
+        docker push fastml/gw-iaas-tritonserver:latest

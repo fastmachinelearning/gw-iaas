@@ -5,8 +5,7 @@ on:
     branches: main
 
 env:
-  NGC_TAG: 20.02
-  POETRY_VERSION: "1.2.0a2"
+  NGC_TAG: "22.02"
   CONDA_TAG: "4.10.3"
 
 jobs:
@@ -56,7 +55,6 @@ jobs:
         tags: fastml/gw-iaas-export:latest
         build-args: |
           TAG=${{ env.NGC_TAG }}
-          POETRY_VERSION=${{ env.POETRY_VERSION }}
     -
       name: GW-IaaS client container build
       id: gw-iaas-client-container-build

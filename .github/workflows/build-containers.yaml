@@ -8,6 +8,7 @@ env:
   NGC_TAG: "22.02"
   POETRY_VERSION: "1.2.0a2"
   CONDA_TAG: "4.10.3"
+  PUSH_REPO: fastml/gwiaas
 
 jobs:
   main:
@@ -55,7 +56,7 @@ jobs:
         context: .
         file: projects/gw-iaas/export/Dockerfile
         push: true
-        tags: fastml/gwiaas.export:latest
+        tags: ${{ env.PUSH_REPO }}.export:latest
         build-args: |
           TAG=${{ env.NGC_TAG }}
           POETRY_VERSION=${{ env.POETRY_VERSION }}
@@ -68,7 +69,7 @@ jobs:
         context: .
         file: projects/gw-iaas/clients/Dockerfile
         push: true
-        tags: fastml/gwiaas.client:latest
+        tags: ${{ env.PUSH_REPO }}.client:latest
         build-args: |
           CONDA_TAG=${{ env.CONDA_TAG }}
           POETRY_VERSION=${{ env.POETRY_VERSION }}
@@ -77,5 +78,5 @@ jobs:
       id: gw-iaas-server-container-push
       run: |
         docker pull nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }}-py3
-        docker tag nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }}-py3 fastml/gwiaas.tritonserver:latest
-        docker push fastml/gw-iaas-tritonserver:latest
+        docker tag nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }}-py3 ${{ env.PUSH_REPO }}.tritonserver:latest
+        docker push ${{ env.PUSH_REPO }}.tritonserver:latest

@@ -5,12 +5,10 @@ on:
     branches: main
 
 env:
-  CUDA_MAJOR_VERSION: "11"
-  CUDA_MINOR_VERSION: "4"
-  CUDA_PATCH_VERSION: "2"
-  TRT_VERSION: "8.2.0"
+  NGC_TAG: "22.02"
   POETRY_VERSION: "1.2.0a2"
   CONDA_TAG: "4.10.3"
+  PUSH_REPO: fastml/gwiaas
 
 jobs:
   main:
@@ -26,10 +24,12 @@ jobs:
       with:
         filters: |
           export:
+            - '.github/workflows/build-containers.yaml'
             - 'projects/gw-iaas/export/**'
             - 'libs/hermes/hermes.quiver/**'
             - 'libs/hermes/hermes.typeo/**'
           client:
+            - '.github/workflows/build-containers.yaml'
             - 'projects/gw-iaas/clients/**'
             - 'libs/hermes/hermes.stillwater/**'
             - 'libs/hermes/hermes.gwftools/**'
@@ -56,12 +56,9 @@ jobs:
         context: .
         file: projects/gw-iaas/export/Dockerfile
         push: true
-        tags: fastml/gw-iaas-export:latest
+        tags: ${{ env.PUSH_REPO }}.export:latest
         build-args: |
-          CUDA_MAJOR_VERSION=${{ env.CUDA_MAJOR_VERSION }}
-          CUDA_MINOR_VERSION=${{ env.CUDA_MINOR_VERSION }}
-          CUDA_PATCH_VERSION=${{ env.CUDA_PATCH_VERSION }}
-          TRT_VERSION=${{ env.TRT_VERSION }}
+          TAG=${{ env.NGC_TAG }}
           POETRY_VERSION=${{ env.POETRY_VERSION }}
     -
       name: GW-IaaS client container build
@@ -72,7 +69,14 @@ jobs:
         context: .
         file: projects/gw-iaas/clients/Dockerfile
         push: true
-        tags: fastml/gw-iaas-client:latest
+        tags: ${{ env.PUSH_REPO }}.client:latest
         build-args: |
           CONDA_TAG=${{ env.CONDA_TAG }}
           POETRY_VERSION=${{ env.POETRY_VERSION }}
+    -
+      name: Triton Server pull-push
+      id: gw-iaas-server-container-push
+      run: |
+        docker pull nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }}-py3
+        docker tag nvcr.io/nvidia/tritonserver:${{ env.NGC_TAG }}-py3 ${{ env.PUSH_REPO }}.tritonserver:latest
+        docker push ${{ env.PUSH_REPO }}.tritonserver:latest

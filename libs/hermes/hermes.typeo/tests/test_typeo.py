@@ -1,8 +1,6 @@
 import sys
 from enum import Enum
-from typing import (
-    Callable, Iterable, List, Optional, Sequence, Tuple, Union
-)
+from typing import Callable, Iterable, List, Optional, Sequence, Tuple, Union
 
 import pytest
 

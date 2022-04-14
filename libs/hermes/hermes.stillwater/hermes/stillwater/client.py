@@ -64,7 +64,7 @@ class InferenceClient(PipelineProcess):
         rate: Optional[float] = None,
         join_timeout: float = 10,
         name: Optional[str] = None,
-        verbose: bool = False
+        verbose: bool = False,
     ) -> None:
         try:
             client = triton.InferenceServerClient(url, verbose=verbose)
@@ -450,7 +450,7 @@ class InferenceClient(PipelineProcess):
             request_id, sequence_id, t0 = self.clock_stop(request_id)
             self.logger.debug(
                 "Received response for request {} from sequence {}".format(
-                     request_id, sequence_id
+                    request_id, sequence_id
                 )
             )
 

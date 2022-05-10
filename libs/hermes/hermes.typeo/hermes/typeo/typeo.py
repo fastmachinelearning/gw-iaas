@@ -160,7 +160,7 @@ def _parse_literal(annotation: _ANNOTATION):
     args = annotation.__args__
     type_ = type(args[0])
     if len(args) > 1:
-        assert all([type(i) == type_ for i in args[1:]])
+        assert all([isinstance(i, type_) for i in args[1:]])
 
     if isinstance(args[0], Callable):
         type_ = abc.Callable
@@ -208,7 +208,7 @@ def _parse_array_like(
         else:
             # for tuples make sure that everything
             # has the same type
-            if origin is tuple:
+            if origin is tuple and not _is_untyped(args):
                 # TODO: use a custom action to verify the
                 # number of arguments and map to a tuple
                 try:
@@ -239,7 +239,7 @@ def _parse_array_like(
 def _parse_container(
     annotation: _ANNOTATION, origin: _MAYBE_TYPE, kwargs: dict, type_: type
 ) -> _MAYBE_TYPE:
-    """Make sure container-like typed arguments pass the right type to the parser
+    """Make sure container-like arguments pass the right type to the parser
 
     For an annotation with an origin, do some checks on the
     origin to make sure that the type and action argparse

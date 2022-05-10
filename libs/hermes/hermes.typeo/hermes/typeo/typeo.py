@@ -168,6 +168,12 @@ def _parse_literal(annotation: _ANNOTATION):
     return type_, args
 
 
+def _is_untyped(args):
+    # args being None indicates untyped lists and tuples in py3.9,
+    # and args[0] being TypeVar indicates untyped lists in py3.8
+    return args is None or isinstance(args[0], TypeVar)
+
+
 def _parse_array_like(
     annotation: _ANNOTATION, origin: _MAYBE_TYPE, type_: type
 ) -> Tuple[type, Optional[Callable], Optional[List]]:
@@ -180,45 +186,39 @@ def _parse_array_like(
 
     if origin in _DICT_ORIGINS:
         action = actions.MappingAction
-        if args is None or isinstance(args[0], TypeVar):
-            return type_
+        if not _is_untyped(args):
+            # make sure that the expected type
+            # for the dictionary key is string
+            # TODO: add kwarg for parsing non-str
+            # dictionary keys
+            assert args[0] is str
 
-        # make sure that the expected type
-        # for the dictionary key is string
-        # TODO: add kwarg for parsing non-str
-        # dictionary keys
-        assert args[0] is str
-
-        # the type used to parse the values for
-        # the dictionary will be the type passed
-        # the parser action
-        type_ = args[1]
+            # the type used to parse the values for
+            # the dictionary will be the type passed
+            # the parser action
+            type_ = args[1]
     else:
         action = None
         try:
-            if args is None or isinstance(args[0], TypeVar):
-                # args being None indicates untyped lists
-                # and tuples in py3.9, and args[0] being
-                # TypeVar indicates untyped lists in py3.8
-                return type_
-            type_ = args[0]
+            if not _is_untyped(args):
+                type_ = args[0]
         except IndexError:
             # untyped Tuples in py3.8 will have an empty __args__
-            return type_
-
-        # for tuples make sure that everything
-        # has the same type
-        if origin is tuple:
-            # TODO: use a custom action to verify the
-            # number of arguments and map to a tuple
-            try:
-                for arg in annotation.__args__[1:]:
-                    if arg is not Ellipsis:
-                        assert arg == type_
-            except IndexError:
-                # if the Tuple only has one arg, we don't need
-                # to worry about checking everything else
-                pass
+            pass
+        else:
+            # for tuples make sure that everything
+            # has the same type
+            if origin is tuple:
+                # TODO: use a custom action to verify the
+                # number of arguments and map to a tuple
+                try:
+                    for arg in annotation.__args__[1:]:
+                        if arg is not Ellipsis:
+                            assert arg == type_
+                except IndexError:
+                    # if the Tuple only has one arg, we don't need
+                    # to worry about checking everything else
+                    pass
 
     # check to see if this array-like container
     # contains literals, in which case parse out
@@ -230,6 +230,9 @@ def _parse_array_like(
     else:
         if is_literal:
             type_, choices = _parse_literal(type_)
+        else:
+            choices = None
+
     return type_, action, choices
 
 

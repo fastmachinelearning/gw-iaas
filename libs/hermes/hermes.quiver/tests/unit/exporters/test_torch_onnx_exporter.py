@@ -47,6 +47,7 @@ def test_torch_onnx_exporter(temp_local_repo, torch_model):
     assert model2.config.input[0].name == "input_0"
 
 
+@pytest.mark.torch
 def test_torch_onnx_exporter_with_kwargs(temp_local_repo, torch_model):
     model_fn = torch_model
 

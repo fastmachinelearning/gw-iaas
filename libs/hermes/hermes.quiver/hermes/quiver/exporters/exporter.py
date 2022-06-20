@@ -211,6 +211,10 @@ class Exporter(metaclass=abc.ABCMeta):
                 config for outputs, the inferred shapes will be
                 compared by name using the output names. Otherwise,
                 they'll be added to the config dynamically
+            **kwargs:
+                Any other keyword arguments to pass to `Exporter.export`.
+                Consult the relevant documentation.
+             
         Returns:
             The path to which the model was exported
         """

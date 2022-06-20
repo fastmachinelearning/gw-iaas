@@ -181,7 +181,7 @@ class Exporter(metaclass=abc.ABCMeta):
         version: int,
         input_shapes: _SHAPES_TYPE = None,
         output_names: Optional[Sequence[str]] = None,
-        **kwargs
+        **kwargs,
     ):
         """Export a particular version of this platform's model
 
@@ -214,7 +214,7 @@ class Exporter(metaclass=abc.ABCMeta):
             **kwargs:
                 Any other keyword arguments to pass to `Exporter.export`.
                 Consult the relevant documentation.
-             
+
         Returns:
             The path to which the model was exported
         """

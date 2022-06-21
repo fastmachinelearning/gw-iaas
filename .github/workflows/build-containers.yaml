@@ -12,6 +12,7 @@ env:
 
 jobs:
   main:
+    if: github.repository_owner == 'fastmachinelearning'
     runs-on: ubuntu-latest
     environment: dockerhub
     steps:

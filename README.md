@@ -1,6 +1,8 @@
 # GW-IAAS
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5567703.svg)](https://doi.org/10.5281/zenodo.5567703)
 
+_NOTE FOR HERMES USERS: HERMES DEVELOPMENT HAS PERMANENTLY MOVED TO [THIS REPOSITORY](https://github.com/ML4GW/hermes)._
+
 WIP repository for the code used to implement the experiments in [Hardware-accelerated Inference for Real-Time Gravitational-Wave Astronomy](https://arxiv.org/abs/2108.12430). Original code used for the paper is being restructured into a more organized and general-purpose set of tools which will be made available here.
 
 ## Structure
